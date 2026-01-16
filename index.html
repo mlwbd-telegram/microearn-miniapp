@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MicroEarn - Work & Earn</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 0;
+            margin: 0;
+            position: relative;
+        }
+
+        .app-container {
+            max-width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInSlideUp 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .app-name {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4, #a1c4fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+        }
+
+        .app-subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 400;
+        }
+
+        .user-info {
+            margin-top: 15px;
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+            animation: fadeInSlideUp 0.8s ease-out 0.2s forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: cardEntrance 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: scale(0.9) translateY(20px);
+        }
+
+        .balance-title {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+        }
+
+        .balance-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00c9ff, #92fe9d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 10px 0;
+        }
+
+        .coins-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .action-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 16px;
+            padding: 20px 10px;
+            color: white;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 90px;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .action-button:nth-child(1) { animation: buttonEntrance 0.5s ease-out 0.4s forwards; }
+        .action-button:nth-child(2) { animation: buttonEntrance 0.5s ease-out 0.5s forwards; }
+        .action-button:nth-child(3) { animation: buttonEntrance 0.5s ease-out 0.6s forwards; }
+        .action-button:nth-child(4) { animation: buttonEntrance 0.5s ease-out 0.7s forwards; }
+
+        .action-button:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .action-button:active {
+            transform: scale(0.98);
+        }
+
+        .button-icon {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            margin-top: auto;
+            animation: fadeInSlideUp 0.8s ease-out 0.9s forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes fadeInSlideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes cardEntrance {
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes buttonEntrance {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app-name {
+                font-size: 2rem;
+            }
+            
+            .balance-value {
+                font-size: 3rem;
+            }
+            
+            .buttons-grid {
+                gap: 12px;
+            }
+            
+            .action-button {
+                padding: 18px 8px;
+                min-height: 85px;
+            }
+        }
+
+        .coin-animation {
+            position: absolute;
+            font-size: 1.5rem;
+            pointer-events: none;
+            z-index: 100;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.5);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1 class="app-name">MicroEarn</h1>
+            <p class="app-subtitle">Work & Earn</p>
+            <div class="user-info" id="userInfo">Loading...</div>
+        </div>
+
+        <div class="main-card floating">
+            <div class="balance-title">Your Balance</div>
+            <div class="balance-value" id="balanceValue">0</div>
+            <div class="coins-label">COINS</div>
+        </div>
+
+        <div class="buttons-grid">
+            <button class="action-button" id="earnBtn">
+                <span class="button-icon">💰</span>
+                <span>Earn Coins</span>
+            </button>
+            <button class="action-button" id="surveysBtn">
+                <span class="button-icon">📋</span>
+                <span>Surveys</span>
+            </button>
+            <button class="action-button" id="dailyBtn">
+                <span class="button-icon">🎁</span>
+                <span>Daily Bonus</span>
+            </button>
+            <button class="action-button" id="withdrawBtn">
+                <span class="button-icon">💳</span>
+                <span>Withdraw</span>
+            </button>
+        </div>
+
+        <div class="footer">
+            Powered by Telegram Mini App
+        </div>
+    </div>
+
+    <script>
+        // Initialize Telegram WebApp
+        const tg = window.Telegram?.WebApp;
+        
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            tg.setHeaderColor('#0f0c29');
+            tg.setBackgroundColor('#0f0c29');
+        }
+
+        // DOM Elements
+        const userInfoEl = document.getElementById('userInfo');
+        const balanceValueEl = document.getElementById('balanceValue');
+        const earnBtn = document.getElementById('earnBtn');
+        const surveysBtn = document.getElementById('surveysBtn');
+        const dailyBtn = document.getElementById('dailyBtn');
+        const withdrawBtn = document.getElementById('withdrawBtn');
+
+        // Function to get user info
+        function getUserInfo() {
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+                const user = window.Telegram.WebApp.initDataUnsafe.user;
+                return user ? user.first_name : 'Guest';
+            }
+            return 'Guest';
+        }
+
+        // Display user info
+        userInfoEl.textContent = `Welcome, ${getUserInfo()}!`;
+
+        // Button click handlers
+        function createCoinAnimation(x, y) {
+            const coin = document.createElement('div');
+            coin.className = 'coin-animation';
+            coin.textContent = '🪙';
+            coin.style.left = `${x}px`;
+            coin.style.top = `${y}px`;
+            document.body.appendChild(coin);
+
+            setTimeout(() => {
+                coin.remove();
+            }, 1000);
+        }
+
+        earnBtn.addEventListener('click', () => {
+            alert('Earning coins feature coming soon!');
+            createCoinAnimation(earnBtn.offsetLeft + earnBtn.offsetWidth/2, earnBtn.offsetTop + earnBtn.offsetHeight/2);
+        });
+
+        surveysBtn.addEventListener('click', () => {
+            alert('Survey opportunities coming soon!');
+            createCoinAnimation(surveysBtn.offsetLeft + surveysBtn.offsetWidth/2, surveysBtn.offsetTop + surveysBtn.offsetHeight/2);
+        });
+
+        dailyBtn.addEventListener('click', () => {
+            alert('Claim your daily bonus!');
+            createCoinAnimation(dailyBtn.offsetLeft + dailyBtn.offsetWidth/2, dailyBtn.offsetTop + dailyBtn.offsetHeight/2);
+        });
+
+        withdrawBtn.addEventListener('click', () => {
+            alert('Withdrawal options coming soon!');
+            createCoinAnimation(withdrawBtn.offsetLeft + withdrawBtn.offsetWidth/2, withdrawBtn.offsetTop + withdrawBtn.offsetHeight/2);
+        });
+
+        // Add ripple effect to buttons
+        document.querySelectorAll('.action-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const ripple = document.createElement('span');
+                ripple.style.position = 'absolute';
+                ripple.style.borderRadius = '50%';
+                ripple.style.background = 'rgba(255, 255, 255, 0.3)';
+                ripple.style.transform = 'scale(0)';
+                ripple.style.animation = 'ripple 0.6s linear';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.style.width = '0';
+                ripple.style.height = '0';
+                ripple.style.pointerEvents = 'none';
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // Add ripple animation to style
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                    width: 100px;
+                    height: 100px;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Smooth scroll behavior
+        document.documentElement.style.scrollBehavior = 'smooth';
+
+        // Preload animations
+        window.addEventListener('load', () => {
+            // All animations are handled through CSS with delays
+        });
+    </script>
+</body>
+</html>
