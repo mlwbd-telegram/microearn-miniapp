@@ -6,6 +6,38 @@
   <title>MicroEarn</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
+    :root {
+      --bg-gradient-start: #f0f4ff;
+      --bg-gradient-end: #e6f0ff;
+      --text-color: #2d3748;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --primary-color: #2b6cb0;
+      --secondary-color: #38b2ac;
+      --accent-color: #4299e1;
+      --shadow: 0 6px 20px rgba(0,0,0,0.08);
+      --card-shadow: 0 12px 30px rgba(43, 108, 176, 0.3);
+      --border-color: #e2e8f0;
+      --footer-color: #a0aec0;
+      --greeting-color: #718096;
+      --disabled-bg: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+    }
+
+    .dark-theme {
+      --bg-gradient-start: #1a202c;
+      --bg-gradient-end: #2d3748;
+      --text-color: #e2e8f0;
+      --card-bg: rgba(45, 55, 72, 0.95);
+      --primary-color: #63b3ed;
+      --secondary-color: #4fd1c5;
+      --accent-color: #63b3ed;
+      --shadow: 0 6px 20px rgba(0,0,0,0.3);
+      --card-shadow: 0 12px 30px rgba(99, 179, 237, 0.3);
+      --border-color: #4a5568;
+      --footer-color: #718096;
+      --greeting-color: #a0aec0;
+      --disabled-bg: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -14,12 +46,13 @@
     }
 
     body {
-      background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%);
+      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
       min-height: 100vh;
       padding: 20px;
-      color: #2d3748;
+      color: var(--text-color);
       overflow-x: hidden;
       line-height: 1.6;
+      transition: background 0.3s ease;
     }
 
     .page {
@@ -53,7 +86,7 @@
     }
 
     .lang-modal {
-      background: white;
+      background: var(--card-bg);
       padding: 30px;
       border-radius: 20px;
       width: 90%;
@@ -61,12 +94,13 @@
       text-align: center;
       box-shadow: 0 20px 40px rgba(0,0,0,0.2);
       animation: modalSlideIn 0.5s ease-out;
+      color: var(--text-color);
     }
 
     .lang-modal h2 {
       font-size: 24px;
       margin-bottom: 20px;
-      color: #2b6cb0;
+      color: var(--primary-color);
     }
 
     .lang-options {
@@ -77,17 +111,18 @@
 
     .lang-btn {
       padding: 15px;
-      border: 2px solid #e2e8f0;
+      border: 2px solid var(--border-color);
       border-radius: 12px;
-      background: white;
+      background: var(--card-bg);
       font-size: 16px;
       cursor: pointer;
       transition: all 0.3s ease;
+      color: var(--text-color);
     }
 
     .lang-btn:hover {
-      border-color: #4299e1;
-      background: #ebf8ff;
+      border-color: var(--accent-color);
+      background: rgba(99, 179, 237, 0.1);
       transform: translateY(-2px);
     }
 
@@ -97,23 +132,23 @@
       align-items: center;
       margin-bottom: 30px;
       padding: 18px 20px;
-      background: rgba(255, 255, 255, 0.95);
+      background: var(--card-bg);
       border-radius: 22px;
       backdrop-filter: blur(12px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      box-shadow: var(--shadow);
       animation: slideInUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
     .user-info {
       font-size: 22px;
       font-weight: 700;
-      color: #2b6cb0;
+      color: var(--primary-color);
       letter-spacing: -0.3px;
     }
 
     .greeting {
       font-size: 15px;
-      color: #718096;
+      color: var(--greeting-color);
       margin-top: 6px;
       opacity: 0.9;
     }
@@ -123,7 +158,7 @@
       height: 65px;
       border-radius: 50%;
       object-fit: cover;
-      border: 3px solid #4299e1;
+      border: 3px solid var(--accent-color);
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
@@ -135,7 +170,7 @@
 
     .app-title h1 {
       font-size: 36px;
-      background: linear-gradient(45deg, #2b6cb0, #38b2ac);
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       font-weight: 800;
@@ -144,20 +179,20 @@
     }
 
     .app-title p {
-      color: #718096;
+      color: var(--greeting-color);
       font-size: 18px;
       margin-top: 8px;
       font-weight: 500;
     }
 
     .balance-card {
-      background: linear-gradient(135deg, #2b6cb0 0%, #38b2ac 100%);
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
       color: white;
       padding: 30px;
       border-radius: 24px;
       text-align: center;
       margin: 30px 0;
-      box-shadow: 0 12px 30px rgba(43, 108, 176, 0.3);
+      box-shadow: var(--card-shadow);
       animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       transform: translateY(0);
       transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -188,7 +223,7 @@
     }
 
     .task-btn {
-      background: linear-gradient(135deg, #38b2ac 0%, #2b6cb0 100%);
+      background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
       color: white;
       border: none;
       padding: 20px 12px;
@@ -228,7 +263,7 @@
     }
 
     .task-btn:disabled {
-      background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+      background: var(--disabled-bg);
       cursor: not-allowed;
       transform: none !important;
     }
@@ -236,7 +271,7 @@
     .footer {
       text-align: center;
       margin-top: 35px;
-      color: #a0aec0;
+      color: var(--footer-color);
       font-size: 13px;
       animation: fadeIn 1.2s ease-out;
     }
@@ -248,7 +283,7 @@
       width: 60px;
       height: 60px;
       border-radius: 50%;
-      background: #4299e1;
+      background: var(--accent-color);
       color: white;
       border: none;
       font-size: 24px;
@@ -266,13 +301,13 @@
       align-items: center;
       margin-bottom: 30px;
       padding: 15px;
-      background: rgba(255, 255, 255, 0.95);
+      background: var(--card-bg);
       border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      box-shadow: var(--shadow);
     }
 
     .back-btn {
-      background: #4299e1;
+      background: var(--accent-color);
       color: white;
       border: none;
       width: 40px;
@@ -286,19 +321,19 @@
     .settings-title {
       font-size: 22px;
       font-weight: 600;
-      color: #2b6cb0;
+      color: var(--primary-color);
     }
 
     .settings-content {
-      background: rgba(255, 255, 255, 0.95);
+      background: var(--card-bg);
       border-radius: 20px;
       padding: 25px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      box-shadow: var(--shadow);
     }
 
     .setting-item {
       padding: 18px 15px;
-      border-bottom: 1px solid #e2e8f0;
+      border-bottom: 1px solid var(--border-color);
       cursor: pointer;
       transition: background 0.3s ease;
     }
@@ -308,18 +343,18 @@
     }
 
     .setting-item:hover {
-      background: #f7fafc;
+      background: rgba(99, 179, 237, 0.05);
     }
 
     .setting-label {
       font-size: 18px;
       font-weight: 500;
-      color: #2d3748;
+      color: var(--text-color);
     }
 
     .setting-value {
       font-size: 16px;
-      color: #718096;
+      color: var(--greeting-color);
       margin-top: 4px;
     }
 
@@ -402,7 +437,7 @@
     </div>
 
     <div class="app-title">
-      <h1>🎯 MicroEarn</h1>
+      <h1>MicroEarn</h1>
       <p id="app-subtitle">Work & Earn</p>
     </div>
 
@@ -439,7 +474,7 @@
         <div class="setting-value" id="current-language">English</div>
       </div>
       
-      <div class="setting-item">
+      <div class="setting-item" onclick="toggleTheme()">
         <div class="setting-label" id="theme-setting-label">Theme</div>
         <div class="setting-value" id="theme-value">Light Mode</div>
       </div>
@@ -486,8 +521,8 @@
         themeSettingLabel: 'Theme',
         versionLabel: 'Version',
         aboutLabel: 'About',
-        themeValue: 'Light Mode',
-        aboutValue: 'MicroEarn v1.0',
+        themeValueLight: 'Light Mode',
+        themeValueDark: 'Dark Mode',
         langValue: 'English'
       },
       bn: {
@@ -514,13 +549,19 @@
         themeSettingLabel: 'থিম',
         versionLabel: 'ভার্সন',
         aboutLabel: 'সম্পর্কে',
-        themeValue: 'লাইট মোড',
-        aboutValue: 'মাইক্রোইয়ার্ন ভি১.০',
+        themeValueLight: 'লাইট মোড',
+        themeValueDark: 'ডার্ক মোড',
         langValue: 'বাংলা'
       }
     };
 
     let currentLang = localStorage.getItem('microearn_lang') || null;
+    let currentTheme = localStorage.getItem('microearn_theme') || 'light';
+
+    // Apply saved theme on load
+    if (currentTheme === 'dark') {
+      document.body.classList.add('dark-theme');
+    }
 
     // Check if first visit
     if (!currentLang) {
@@ -559,9 +600,17 @@
       document.getElementById('theme-setting-label').innerText = t.themeSettingLabel;
       document.getElementById('version-label').innerText = t.versionLabel;
       document.getElementById('about-label').innerText = t.aboutLabel;
-      document.getElementById('theme-value').innerText = t.themeValue;
+      document.getElementById('version-value').innerText = t.versionLabel;
       document.getElementById('about-value').innerText = t.aboutValue;
       document.getElementById('current-language').innerText = t.langValue;
+      
+      // Update theme value
+      const themeValElement = document.getElementById('theme-value');
+      if (currentTheme === 'dark') {
+        themeValElement.innerText = t.themeValueDark;
+      } else {
+        themeValElement.innerText = t.themeValueLight;
+      }
     }
 
     function initApp() {
@@ -662,6 +711,20 @@
       const newLang = currentLang === 'en' ? 'bn' : 'en';
       selectLanguage(newLang);
       document.getElementById('current-language').innerText = texts[newLang].langValue;
+    }
+
+    window.toggleTheme = function() {
+      const t = texts[currentLang];
+      if (currentTheme === 'light') {
+        currentTheme = 'dark';
+        document.body.classList.add('dark-theme');
+        document.getElementById('theme-value').innerText = t.themeValueDark;
+      } else {
+        currentTheme = 'light';
+        document.body.classList.remove('dark-theme');
+        document.getElementById('theme-value').innerText = t.themeValueLight;
+      }
+      localStorage.setItem('microearn_theme', currentTheme);
     }
   </script>
 </body>
