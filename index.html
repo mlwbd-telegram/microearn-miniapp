@@ -398,9 +398,22 @@
       margin-bottom: 20px;
       display: none;
     }
+
+    .error-message {
+      background: var(--danger);
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 10px 0;
+      text-align: center;
+      display: none;
+    }
   </style>
 </head>
 <body>
+  <!-- Error Message Container -->
+  <div id="errorMessage" class="error-message"></div>
+
   <!-- First Time Language Modal -->
   <div id="firstTimeModal" class="modal-overlay">
     <div class="modal">
@@ -713,9 +726,13 @@
     async function loadUserData() {
       try {
         const response = await fetch(`${WORKER_URL}/api/user/${user.id}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         userData = await response.json();
       } catch (error) {
-        console.error('Failed to load user ', error);
+        console.error('Failed to load user data:', error);
+        showError(`Failed to load user data: ${error.message}`);
         userData = { balance: 0, tasks: [], total_earned: 0 };
       }
     }
@@ -743,10 +760,20 @@
             task_type: taskType
           })
         });
-        userData = await response.json();
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const updatedData = await response.json();
+        userData = updatedData;
         document.getElementById('balance').innerText = userData.balance;
+        
+        // Hide any previous error
+        hideError();
       } catch (error) {
         console.error('Failed to update balance:', error);
+        showError(`Failed to update balance: ${error.message}`);
       }
     }
 
@@ -894,6 +921,9 @@
     window.showLeaderboard = async function() {
       try {
         const response = await fetch(`${WORKER_URL}/api/leaderboard`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const leaderboard = await response.json();
         
         let html = '<div style="text-align: left;">';
@@ -914,7 +944,7 @@
         document.getElementById('leaderboardModal').style.display = 'flex';
       } catch (error) {
         console.error('Error loading leaderboard:', error);
-        alert('Failed to load leaderboard');
+        alert('Failed to load leaderboard: ' + error.message);
       }
     };
 
@@ -936,6 +966,9 @@
     window.showHistory = async function() {
       try {
         const response = await fetch(`${WORKER_URL}/api/user/${user.id}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const userData = await response.json();
         
         let html = '<div style="text-align: left;">';
@@ -960,7 +993,7 @@
         document.getElementById('historyModal').style.display = 'flex';
       } catch (error) {
         console.error('Error loading history:', error);
-        alert('Failed to load history');
+        alert('Failed to load history: ' + error.message);
       }
     };
 
@@ -1071,6 +1104,22 @@
       setTimeout(() => {
         banner.style.display = 'none';
       }, 5000);
+    }
+
+    // Error handling
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+      
+      setTimeout(() => {
+        hideError();
+      }, 5000);
+    }
+
+    function hideError() {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.style.display = 'none';
     }
 
     // Show notification example
