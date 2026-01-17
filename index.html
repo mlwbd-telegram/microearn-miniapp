@@ -22,6 +22,22 @@
       line-height: 1.6;
     }
 
+    .page {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      min-height: 100vh;
+      padding: 20px;
+      background: inherit;
+      transition: transform 0.3s ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -244,6 +260,69 @@
       justify-content: center;
     }
 
+    /* Settings Page */
+    .settings-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .back-btn {
+      background: #4299e1;
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      margin-right: 15px;
+    }
+
+    .settings-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: #2b6cb0;
+    }
+
+    .settings-content {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+
+    .setting-item {
+      padding: 18px 15px;
+      border-bottom: 1px solid #e2e8f0;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+
+    .setting-item:hover {
+      background: #f7fafc;
+    }
+
+    .setting-label {
+      font-size: 18px;
+      font-weight: 500;
+      color: #2d3748;
+    }
+
+    .setting-value {
+      font-size: 16px;
+      color: #718096;
+      margin-top: 4px;
+    }
+
     /* Animations */
     @keyframes modalSlideIn {
       from { transform: translateY(-50px); opacity: 0; }
@@ -280,6 +359,24 @@
       50% { transform: scale(1.15); }
       100% { transform: scale(1); }
     }
+
+    .slide-in-left {
+      animation: slideInLeft 0.3s ease;
+    }
+
+    .slide-out-left {
+      animation: slideOutLeft 0.3s ease;
+    }
+
+    @keyframes slideInLeft {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+
+    @keyframes slideOutLeft {
+      from { transform: translateX(0); }
+      to { transform: translateX(100%); }
+    }
   </style>
 </head>
 <body>
@@ -294,38 +391,70 @@
     </div>
   </div>
 
-  <!-- Main App Content -->
-  <div class="header">
-    <div>
-      <div class="user-info" id="user-name">Loading...</div>
-      <div class="greeting" id="greeting">Hello!</div>
+  <!-- Main App Page -->
+  <div id="mainPage" class="page active">
+    <div class="header">
+      <div>
+        <div class="user-info" id="user-name">Loading...</div>
+        <div class="greeting" id="greeting">Hello!</div>
+      </div>
+      <img id="avatar" class="avatar" src="https://via.placeholder.com/65?text=👤" alt="Avatar">
     </div>
-    <img id="avatar" class="avatar" src="https://via.placeholder.com/65?text=👤" alt="Avatar">
+
+    <div class="app-title">
+      <h1>🎯 MicroEarn</h1>
+      <p id="app-subtitle">Work & Earn</p>
+    </div>
+
+    <div class="balance-card">
+      <h2 id="balance-label">Your Balance</h2>
+      <div class="amount"><span id="balance">0</span> <span id="coin-label">Coins</span></div>
+    </div>
+
+    <div class="tasks">
+      <button class="task-btn" onclick="watchAd()" id="ad-btn">👁️ Watch Ad</button>
+      <button class="task-btn" onclick="claimDaily()" id="daily-btn">🎁 Daily Bonus</button>
+      <button class="task-btn" onclick="spinWheel()" id="spin-btn">🎡 Lucky Spin</button>
+      <button class="task-btn" disabled id="survey-btn">📝 Survey (Soon)</button>
+    </div>
+
+    <div class="footer">
+      <span id="powered-by">Powered by Telegram • MVP Demo</span>
+    </div>
+
+    <!-- Settings Button -->
+    <button class="settings-btn" onclick="openSettings()">⚙️</button>
   </div>
 
-  <div class="app-title">
-    <h1>🎯 MicroEarn</h1>
-    <p id="app-subtitle">Work & Earn</p>
-  </div>
+  <!-- Settings Page -->
+  <div id="settingsPage" class="page">
+    <div class="settings-header">
+      <button class="back-btn" onclick="goBack()">←</button>
+      <div class="settings-title" id="settings-title">Settings</div>
+    </div>
 
-  <div class="balance-card">
-    <h2 id="balance-label">Your Balance</h2>
-    <div class="amount"><span id="balance">0</span> <span id="coin-label">Coins</span></div>
+    <div class="settings-content">
+      <div class="setting-item" onclick="showLanguageOptions()">
+        <div class="setting-label" id="lang-setting-label">Language</div>
+        <div class="setting-value" id="current-language">English</div>
+      </div>
+      
+      <div class="setting-item">
+        <div class="setting-label" id="theme-setting-label">Theme</div>
+        <div class="setting-value" id="theme-value">Light Mode</div>
+      </div>
+      
+      <div class="setting-item">
+        <div class="setting-label" id="version-label">Version</div>
+        <div class="setting-value" id="version-value">1.0.0</div>
+      </div>
+      
+      <div class="setting-item">
+        <div class="setting-label" id="about-label">About</div>
+        <div class="setting-value" id="about-value">MicroEarn v1.0</div>
+      </div>
+    </div>
   </div>
-
-  <div class="tasks">
-    <button class="task-btn" onclick="watchAd()" id="ad-btn">👁️ Watch Ad</button>
-    <button class="task-btn" onclick="claimDaily()" id="daily-btn">🎁 Daily Bonus</button>
-    <button class="task-btn" onclick="spinWheel()" id="spin-btn">🎡 Lucky Spin</button>
-    <button class="task-btn" disabled id="survey-btn">📝 Survey (Soon)</button>
-  </div>
-
-  <div class="footer">
-    <span id="powered-by">Powered by Telegram • MVP Demo</span>
-  </div>
-
-  <!-- Settings Button -->
-  <button class="settings-btn" onclick="openSettings()">⚙️</button>
 
   <script>
     Telegram.WebApp.ready();
@@ -352,9 +481,14 @@
         alertSpin: 'Lucky Spin! You won {reward} coins!',
         alertAlreadyClaimed: 'You already claimed your daily bonus today!',
         alertAlreadySpun: 'You already used your spin today!',
-        settingsTitle: 'Select Language',
-        langEn: 'English',
-        langBn: 'বাংলা'
+        settingsTitle: 'Settings',
+        langSettingLabel: 'Language',
+        themeSettingLabel: 'Theme',
+        versionLabel: 'Version',
+        aboutLabel: 'About',
+        themeValue: 'Light Mode',
+        aboutValue: 'MicroEarn v1.0',
+        langValue: 'English'
       },
       bn: {
         hello: 'হ্যালো!',
@@ -375,9 +509,14 @@
         alertSpin: 'লাকি স্পিন! আপনি পেয়েছেন {reward} কয়েন!',
         alertAlreadyClaimed: 'আপনি আজকে ইতিমধ্যে বোনাস নিয়েছেন!',
         alertAlreadySpun: 'আপনি আজকে ইতিমধ্যে স্পিন করেছেন!',
-        settingsTitle: 'ভাষা নির্বাচন করুন',
-        langEn: 'English',
-        langBn: 'বাংলা'
+        settingsTitle: 'সেটিংস',
+        langSettingLabel: 'ভাষা',
+        themeSettingLabel: 'থিম',
+        versionLabel: 'ভার্সন',
+        aboutLabel: 'সম্পর্কে',
+        themeValue: 'লাইট মোড',
+        aboutValue: 'মাইক্রোইয়ার্ন ভি১.০',
+        langValue: 'বাংলা'
       }
     };
 
@@ -385,10 +524,8 @@
 
     // Check if first visit
     if (!currentLang) {
-      // Show language modal
       document.getElementById('langModal').style.display = 'flex';
     } else {
-      // Hide modal and load app
       document.getElementById('langModal').style.display = 'none';
       loadApp();
     }
@@ -415,6 +552,16 @@
       document.getElementById('spin-btn').innerText = t.spinBtn;
       document.getElementById('survey-btn').innerText = t.surveyBtn;
       document.getElementById('powered-by').innerText = t.poweredBy;
+      
+      // Settings page texts
+      document.getElementById('settings-title').innerText = t.settingsTitle;
+      document.getElementById('lang-setting-label').innerText = t.langSettingLabel;
+      document.getElementById('theme-setting-label').innerText = t.themeSettingLabel;
+      document.getElementById('version-label').innerText = t.versionLabel;
+      document.getElementById('about-label').innerText = t.aboutLabel;
+      document.getElementById('theme-value').innerText = t.themeValue;
+      document.getElementById('about-value').innerText = t.aboutValue;
+      document.getElementById('current-language').innerText = t.langValue;
     }
 
     function initApp() {
@@ -496,9 +643,25 @@
     }
 
     window.openSettings = function() {
-      const t = texts[currentLang];
-      const selectedLang = currentLang === 'en' ? 'bn' : 'en';
-      selectLanguage(selectedLang);
+      document.getElementById('mainPage').classList.remove('active');
+      document.getElementById('settingsPage').classList.add('active');
+      document.getElementById('settingsPage').classList.add('slide-in-left');
+    }
+
+    window.goBack = function() {
+      document.getElementById('settingsPage').classList.remove('slide-in-left');
+      document.getElementById('settingsPage').classList.add('slide-out-left');
+      setTimeout(() => {
+        document.getElementById('settingsPage').classList.remove('active');
+        document.getElementById('settingsPage').classList.remove('slide-out-left');
+        document.getElementById('mainPage').classList.add('active');
+      }, 300);
+    }
+
+    window.showLanguageOptions = function() {
+      const newLang = currentLang === 'en' ? 'bn' : 'en';
+      selectLanguage(newLang);
+      document.getElementById('current-language').innerText = texts[newLang].langValue;
     }
   </script>
 </body>
