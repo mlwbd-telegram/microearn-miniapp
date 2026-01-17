@@ -85,7 +85,7 @@
       backdrop-filter: blur(5px);
     }
 
-    .lang-modal {
+    .popup-modal {
       background: var(--card-bg);
       padding: 30px;
       border-radius: 20px;
@@ -93,23 +93,23 @@
       max-width: 400px;
       text-align: center;
       box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-      animation: modalSlideIn 0.5s ease-out;
       color: var(--text-color);
+      animation: modalSlideIn 0.5s ease-out;
     }
 
-    .lang-modal h2 {
+    .popup-modal h2 {
       font-size: 24px;
       margin-bottom: 20px;
       color: var(--primary-color);
     }
 
-    .lang-options {
+    .options-list {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
-    .lang-btn {
+    .option-btn {
       padding: 15px;
       border: 2px solid var(--border-color);
       border-radius: 12px;
@@ -120,10 +120,24 @@
       color: var(--text-color);
     }
 
-    .lang-btn:hover {
+    .option-btn:hover {
       border-color: var(--accent-color);
       background: rgba(99, 179, 237, 0.1);
       transform: translateY(-2px);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #e53e3e;
+      color: white;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
     }
 
     .header {
@@ -417,11 +431,24 @@
 <body>
   <!-- Language Selection Modal -->
   <div id="langModal" class="modal-overlay">
-    <div class="lang-modal">
+    <div class="popup-modal">
+      <button class="close-btn" onclick="closeModal('langModal')">✕</button>
       <h2>Select Your Language</h2>
-      <div class="lang-options">
-        <button class="lang-btn" onclick="selectLanguage('en')">English</button>
-        <button class="lang-btn" onclick="selectLanguage('bn')">বাংলা</button>
+      <div class="options-list">
+        <button class="option-btn" onclick="selectLanguage('en')">English</button>
+        <button class="option-btn" onclick="selectLanguage('bn')">বাংলা</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme Selection Modal -->
+  <div id="themeModal" class="modal-overlay" style="display:none;">
+    <div class="popup-modal">
+      <button class="close-btn" onclick="closeModal('themeModal')">✕</button>
+      <h2 id="theme-popup-title">Select Theme</h2>
+      <div class="options-list">
+        <button class="option-btn" onclick="selectTheme('light')" id="theme-light-option">Light Mode</button>
+        <button class="option-btn" onclick="selectTheme('dark')" id="theme-dark-option">Dark Mode</button>
       </div>
     </div>
   </div>
@@ -469,12 +496,12 @@
     </div>
 
     <div class="settings-content">
-      <div class="setting-item" onclick="showLanguageOptions()">
+      <div class="setting-item" onclick="openLanguagePopup()">
         <div class="setting-label" id="lang-setting-label">Language</div>
         <div class="setting-value" id="current-language">English</div>
       </div>
       
-      <div class="setting-item" onclick="toggleTheme()">
+      <div class="setting-item" onclick="openThemePopup()">
         <div class="setting-label" id="theme-setting-label">Theme</div>
         <div class="setting-value" id="theme-value">Light Mode</div>
       </div>
@@ -491,215 +518,288 @@
     </div>
   </div>
 
-  <!-- তোমার আগের index.html এর শেষে, </body> এর আগে এই script টা replace করো -->
+  <script>
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
 
-<script>
-  Telegram.WebApp.ready();
-  Telegram.WebApp.expand();
+    const WORKER_URL = 'https://microearn.abusaifeshovon.workers.dev';
+    const user = Telegram.WebApp.initDataUnsafe?.user;
 
-  const WORKER_URL = 'https://microearn.abusaifeshovon.workers.dev'; // তোমার worker URL
-  const user = Telegram.WebApp.initDataUnsafe?.user;
-
-  if (!user) {
-    alert('Please open this in Telegram!');
-    return;
-  }
-
-  let currentLang = localStorage.getItem('microearn_lang') || null;
-  let currentTheme = localStorage.getItem('microearn_theme') || 'light';
-  let userData = { balance: 0, tasks: [], total_earned: 0 };
-
-  // Apply saved theme
-  if (currentTheme === 'dark') {
-    document.body.classList.add('dark-theme');
-  }
-
-  if (!currentLang) {
-    document.getElementById('langModal').style.display = 'flex';
-  } else {
-    document.getElementById('langModal').style.display = 'none';
-    loadApp();
-  }
-
-  async function loadApp() {
-    updateTexts();
-    await loadUserData();
-    updateUI();
-  }
-
-  async function loadUserData() {
-    try {
-      const response = await fetch(`${WORKER_URL}/api/user/${user.id}`);
-      userData = await response.json();
-    } catch (error) {
-      console.error('Failed to load user data:', error);
-      userData = { balance: 0, tasks: [], total_earned: 0 };
+    if (!user) {
+      alert('Please open this in Telegram!');
+      return;
     }
-  }
 
-  function updateUI() {
-    document.getElementById('balance').innerText = userData.balance;
-    if (user) {
-      document.getElementById('user-name').innerText = user.first_name || 'User';
-      if (user.photo_url) {
-        document.getElementById('avatar').src = user.photo_url;
-      } else {
-        document.getElementById('avatar').src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.first_name || 'User') + '&background=4299e1&color=fff';
+    // Language support
+    const texts = {
+      en: {
+        hello: 'Hello!',
+        subtitle: 'Work & Earn',
+        balanceLabel: 'Your Balance',
+        coinLabel: 'Coins',
+        adBtn: '👁️ Watch Ad',
+        dailyBtn: '🎁 Daily Bonus',
+        spinBtn: '🎡 Lucky Spin',
+        surveyBtn: '📝 Survey (Soon)',
+        poweredBy: 'Powered by Telegram • MVP Demo',
+        greetingMorning: 'Good Morning',
+        greetingAfternoon: 'Good Afternoon',
+        greetingEvening: 'Good Evening',
+        greetingNight: 'Good Night',
+        alertAd: '+10 Coins! Ad watched successfully.',
+        alertDaily: '+20 Coins! Daily bonus claimed.',
+        alertSpin: 'Lucky Spin! You won {reward} coins!',
+        alertAlreadyClaimed: 'You already claimed your daily bonus today!',
+        alertAlreadySpun: 'You already used your spin today!',
+        settingsTitle: 'Settings',
+        langSettingLabel: 'Language',
+        themeSettingLabel: 'Theme',
+        versionLabel: 'Version',
+        aboutLabel: 'About',
+        themeValueLight: 'Light Mode',
+        themeValueDark: 'Dark Mode',
+        langValue: 'English',
+        themePopupTitle: 'Select Theme'
+      },
+      bn: {
+        hello: 'হ্যালো!',
+        subtitle: 'কাজ করুন এবং উপার্জন করুন',
+        balanceLabel: 'আপনার ব্যালেন্স',
+        coinLabel: 'কয়েন',
+        adBtn: '👁️ অ্যাড দেখুন',
+        dailyBtn: '🎁 ডেইলি বোনাস',
+        spinBtn: '🎡 লাকি স্পিন',
+        surveyBtn: '📝 সার্ভে (শীঘ্রই)',
+        poweredBy: 'টেলিগ্রাম দ্বারা চালিত • ডেমো ভার্সন',
+        greetingMorning: 'শুভ সকাল',
+        greetingAfternoon: 'শুভ দুপুর',
+        greetingEvening: 'শুভ সন্ধ্যা',
+        greetingNight: 'শুভ রাত্রি',
+        alertAd: '+10 কয়েন! অ্যাড দেখা হয়েছে।',
+        alertDaily: '+20 কয়েন! ডেইলি বোনাস নেওয়া হয়েছে।',
+        alertSpin: 'লাকি স্পিন! আপনি পেয়েছেন {reward} কয়েন!',
+        alertAlreadyClaimed: 'আপনি আজকে ইতিমধ্যে বোনাস নিয়েছেন!',
+        alertAlreadySpun: 'আপনি আজকে ইতিমধ্যে স্পিন করেছেন!',
+        settingsTitle: 'সেটিংস',
+        langSettingLabel: 'ভাষা',
+        themeSettingLabel: 'থিম',
+        versionLabel: 'ভার্সন',
+        aboutLabel: 'সম্পর্কে',
+        themeValueLight: 'লাইট মোড',
+        themeValueDark: 'ডার্ক মোড',
+        langValue: 'বাংলা',
+        themePopupTitle: 'থিম নির্বাচন করুন'
+      }
+    };
+
+    let currentLang = localStorage.getItem('microearn_lang') || null;
+    let currentTheme = localStorage.getItem('microearn_theme') || 'light';
+    let userData = { balance: 0, tasks: [], total_earned: 0 };
+
+    // Apply saved theme
+    if (currentTheme === 'dark') {
+      document.body.classList.add('dark-theme');
+    }
+
+    if (!currentLang) {
+      document.getElementById('langModal').style.display = 'flex';
+    } else {
+      document.getElementById('langModal').style.display = 'none';
+      loadApp();
+    }
+
+    async function loadApp() {
+      updateTexts();
+      await loadUserData();
+      updateUI();
+    }
+
+    async function loadUserData() {
+      try {
+        const response = await fetch(`${WORKER_URL}/api/user/${user.id}`);
+        userData = await response.json();
+      } catch (error) {
+        console.error('Failed to load user data:', error);
+        userData = { balance: 0, tasks: [], total_earned: 0 };
       }
     }
-  }
 
-  async function updateUserBalance(coins, taskType) {
-    try {
-      const response = await fetch(`${WORKER_URL}/api/user/${user.id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          coins: coins,
-          task_type: taskType
-        })
-      });
-      userData = await response.json();
+    function updateUI() {
       document.getElementById('balance').innerText = userData.balance;
-    } catch (error) {
-      console.error('Failed to update balance:', error);
+      if (user) {
+        document.getElementById('user-name').innerText = user.first_name || 'User';
+        if (user.photo_url) {
+          document.getElementById('avatar').src = user.photo_url;
+        } else {
+          document.getElementById('avatar').src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.first_name || 'User') + '&background=4299e1&color=fff';
+        }
+      }
     }
-  }
 
-  function selectLanguage(lang) {
-    currentLang = lang;
-    localStorage.setItem('microearn_lang', lang);
-    document.getElementById('langModal').style.display = 'none';
-    loadApp();
-  }
-
-  function updateTexts() {
-    const t = texts[currentLang];
-    document.getElementById('app-subtitle').innerText = t.subtitle;
-    document.getElementById('balance-label').innerText = t.balanceLabel;
-    document.getElementById('coin-label').innerText = t.coinLabel;
-    document.getElementById('ad-btn').innerText = t.adBtn;
-    document.getElementById('daily-btn').innerText = t.dailyBtn;
-    document.getElementById('spin-btn').innerText = t.spinBtn;
-    document.getElementById('survey-btn').innerText = t.surveyBtn;
-    document.getElementById('powered-by').innerText = t.poweredBy;
-    
-    // Settings page texts
-    document.getElementById('settings-title').innerText = t.settingsTitle;
-    document.getElementById('lang-setting-label').innerText = t.langSettingLabel;
-    document.getElementById('theme-setting-label').innerText = t.themeSettingLabel;
-    document.getElementById('version-label').innerText = t.versionLabel;
-    document.getElementById('about-label').innerText = t.aboutLabel;
-    document.getElementById('version-value').innerText = t.versionLabel;
-    document.getElementById('about-value').innerText = t.aboutValue;
-    document.getElementById('current-language').innerText = t.langValue;
-    
-    // Update theme value
-    const themeValElement = document.getElementById('theme-value');
-    if (currentTheme === 'dark') {
-      themeValElement.innerText = t.themeValueDark;
-    } else {
-      themeValElement.innerText = t.themeValueLight;
+    async function updateUserBalance(coins, taskType) {
+      try {
+        const response = await fetch(`${WORKER_URL}/api/user/${user.id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            coins: coins,
+            task_type: taskType
+          })
+        });
+        userData = await response.json();
+        document.getElementById('balance').innerText = userData.balance;
+      } catch (error) {
+        console.error('Failed to update balance:', error);
+      }
     }
-  }
 
-  // Task functions
-  window.watchAd = async function() {
-    await updateUserBalance(10, 'ad_watch');
-    animateBalance('+10');
-    alert(texts[currentLang].alertAd);
-  }
-
-  window.claimDaily = async function() {
-    // Simple daily check (can be improved with server-side validation)
-    const today = new Date().toISOString().split('T')[0];
-    const lastDaily = localStorage.getItem('microearn_daily') || '';
-    
-    if (lastDaily === today) {
-      alert(texts[currentLang].alertAlreadyClaimed);
-      return;
+    function selectLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('microearn_lang', lang);
+      document.getElementById('langModal').style.display = 'none';
+      loadApp();
     }
-    
-    localStorage.setItem('microearn_daily', today);
-    await updateUserBalance(20, 'daily_bonus');
-    animateBalance('+20');
-    alert(texts[currentLang].alertDaily);
-  }
 
-  window.spinWheel = async function() {
-    const today = new Date().toISOString().split('T')[0];
-    const lastSpin = localStorage.getItem('microearn_spin') || '';
-    
-    if (lastSpin === today) {
-      alert(texts[currentLang].alertAlreadySpun);
-      return;
+    function selectTheme(theme) {
+      currentTheme = theme;
+      localStorage.setItem('microearn_theme', theme);
+      
+      if (theme === 'dark') {
+        document.body.classList.add('dark-theme');
+        document.getElementById('theme-value').innerText = texts[currentLang].themeValueDark;
+      } else {
+        document.body.classList.remove('dark-theme');
+        document.getElementById('theme-value').innerText = texts[currentLang].themeValueLight;
+      }
+      
+      document.getElementById('themeModal').style.display = 'none';
     }
-    
-    const reward = Math.floor(Math.random() * 51) + 5; // 5 to 55
-    localStorage.setItem('microearn_spin', today);
-    await updateUserBalance(reward, 'lucky_spin');
-    animateBalance(`+${reward}`);
-    alert(texts[currentLang].alertSpin.replace('{reward}', reward));
-  }
 
-  function animateBalance(text) {
-    const el = document.querySelector('.balance-card .amount');
-    el.classList.add('pulse');
-    setTimeout(() => el.classList.remove('pulse'), 600);
-  }
-
-  window.openSettings = function() {
-    document.getElementById('mainPage').classList.remove('active');
-    document.getElementById('settingsPage').classList.add('active');
-    document.getElementById('settingsPage').classList.add('slide-in-left');
-  }
-
-  window.goBack = function() {
-    document.getElementById('settingsPage').classList.remove('slide-in-left');
-    document.getElementById('settingsPage').classList.add('slide-out-left');
-    setTimeout(() => {
-      document.getElementById('settingsPage').classList.remove('active');
-      document.getElementById('settingsPage').classList.remove('slide-out-left');
-      document.getElementById('mainPage').classList.add('active');
-    }, 300);
-  }
-
-  window.showLanguageOptions = function() {
-    const newLang = currentLang === 'en' ? 'bn' : 'en';
-    selectLanguage(newLang);
-    document.getElementById('current-language').innerText = texts[newLang].langValue;
-  }
-
-  window.toggleTheme = function() {
-    const t = texts[currentLang];
-    if (currentTheme === 'light') {
-      currentTheme = 'dark';
-      document.body.classList.add('dark-theme');
-      document.getElementById('theme-value').innerText = t.themeValueDark;
-    } else {
-      currentTheme = 'light';
-      document.body.classList.remove('dark-theme');
-      document.getElementById('theme-value').innerText = t.themeValueLight;
+    function updateTexts() {
+      const t = texts[currentLang];
+      document.getElementById('app-subtitle').innerText = t.subtitle;
+      document.getElementById('balance-label').innerText = t.balanceLabel;
+      document.getElementById('coin-label').innerText = t.coinLabel;
+      document.getElementById('ad-btn').innerText = t.adBtn;
+      document.getElementById('daily-btn').innerText = t.dailyBtn;
+      document.getElementById('spin-btn').innerText = t.spinBtn;
+      document.getElementById('survey-btn').innerText = t.surveyBtn;
+      document.getElementById('powered-by').innerText = t.poweredBy;
+      
+      // Settings page texts
+      document.getElementById('settings-title').innerText = t.settingsTitle;
+      document.getElementById('lang-setting-label').innerText = t.langSettingLabel;
+      document.getElementById('theme-setting-label').innerText = t.themeSettingLabel;
+      document.getElementById('version-label').innerText = t.versionLabel;
+      document.getElementById('about-label').innerText = t.aboutLabel;
+      document.getElementById('version-value').innerText = t.versionLabel;
+      document.getElementById('about-value').innerText = t.aboutValue;
+      document.getElementById('current-language').innerText = t.langValue;
+      
+      // Theme popup text
+      document.getElementById('theme-popup-title').innerText = t.themePopupTitle;
+      document.getElementById('theme-light-option').innerText = t.themeValueLight;
+      document.getElementById('theme-dark-option').innerText = t.themeValueDark;
+      
+      // Update theme value
+      const themeValElement = document.getElementById('theme-value');
+      if (currentTheme === 'dark') {
+        themeValElement.innerText = t.themeValueDark;
+      } else {
+        themeValElement.innerText = t.themeValueLight;
+      }
     }
-    localStorage.setItem('microearn_theme', currentTheme);
-  }
 
-  // Greeting logic
-  function updateGreeting() {
-    const now = new Date();
-    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-    const bdTime = new Date(utc + (6 * 3600000));
-    const hour = bdTime.getHours();
-    const t = texts[currentLang];
-    let greeting = t.greetingNight;
-    if (hour >= 5 && hour < 12) greeting = t.greetingMorning;
-    else if (hour >= 12 && hour < 17) greeting = t.greetingAfternoon;
-    else if (hour >= 17 && hour < 21) greeting = t.greetingEvening;
-    document.getElementById('greeting').innerText = greeting;
-  }
+    // Task functions
+    window.watchAd = async function() {
+      await updateUserBalance(10, 'ad_watch');
+      animateBalance('+10');
+      alert(texts[currentLang].alertAd);
+    }
 
-  // Call greeting on load
-  updateGreeting();
-</script>
+    window.claimDaily = async function() {
+      // Simple daily check (can be improved with server-side validation)
+      const today = new Date().toISOString().split('T')[0];
+      const lastDaily = localStorage.getItem('microearn_daily') || '';
+      
+      if (lastDaily === today) {
+        alert(texts[currentLang].alertAlreadyClaimed);
+        return;
+      }
+      
+      localStorage.setItem('microearn_daily', today);
+      await updateUserBalance(20, 'daily_bonus');
+      animateBalance('+20');
+      alert(texts[currentLang].alertDaily);
+    }
+
+    window.spinWheel = async function() {
+      const today = new Date().toISOString().split('T')[0];
+      const lastSpin = localStorage.getItem('microearn_spin') || '';
+      
+      if (lastSpin === today) {
+        alert(texts[currentLang].alertAlreadySpun);
+        return;
+      }
+      
+      const reward = Math.floor(Math.random() * 51) + 5; // 5 to 55
+      localStorage.setItem('microearn_spin', today);
+      await updateUserBalance(reward, 'lucky_spin');
+      animateBalance(`+${reward}`);
+      alert(texts[currentLang].alertSpin.replace('{reward}', reward));
+    }
+
+    function animateBalance(text) {
+      const el = document.querySelector('.balance-card .amount');
+      el.classList.add('pulse');
+      setTimeout(() => el.classList.remove('pulse'), 600);
+    }
+
+    window.openSettings = function() {
+      document.getElementById('mainPage').classList.remove('active');
+      document.getElementById('settingsPage').classList.add('active');
+      document.getElementById('settingsPage').classList.add('slide-in-left');
+    }
+
+    window.goBack = function() {
+      document.getElementById('settingsPage').classList.remove('slide-in-left');
+      document.getElementById('settingsPage').classList.add('slide-out-left');
+      setTimeout(() => {
+        document.getElementById('settingsPage').classList.remove('active');
+        document.getElementById('settingsPage').classList.remove('slide-out-left');
+        document.getElementById('mainPage').classList.add('active');
+      }, 300);
+    }
+
+    window.openLanguagePopup = function() {
+      document.getElementById('settingsPage').classList.add('modal-overlay');
+      document.getElementById('langModal').style.display = 'flex';
+    }
+
+    window.openThemePopup = function() {
+      document.getElementById('themeModal').style.display = 'flex';
+    }
+
+    window.closeModal = function(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Greeting logic
+    function updateGreeting() {
+      const now = new Date();
+      const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+      const bdTime = new Date(utc + (6 * 3600000));
+      const hour = bdTime.getHours();
+      const t = texts[currentLang];
+      let greeting = t.greetingNight;
+      if (hour >= 5 && hour < 12) greeting = t.greetingMorning;
+      else if (hour >= 12 && hour < 17) greeting = t.greetingAfternoon;
+      else if (hour >= 17 && hour < 21) greeting = t.greetingEvening;
+      document.getElementById('greeting').innerText = greeting;
+    }
+
+    // Call greeting on load
+    updateGreeting();
+  </script>
 </body>
 </html>
