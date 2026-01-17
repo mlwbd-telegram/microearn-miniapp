@@ -354,11 +354,6 @@
       100% { background-position: 200% 0; }
     }
 
-    @keyframes slideDown {
-      from { transform: translateY(-50px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
     .progress-bar-container {
       margin: 20px 0;
       padding: 15px;
@@ -399,21 +394,13 @@
       display: none;
     }
 
-    .error-message {
-      background: var(--danger);
-      color: white;
-      padding: 10px;
-      border-radius: 8px;
-      margin: 10px 0;
-      text-align: center;
-      display: none;
+    @keyframes slideDown {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
   </style>
 </head>
 <body>
-  <!-- Error Message Container -->
-  <div id="errorMessage" class="error-message"></div>
-
   <!-- First Time Language Modal -->
   <div id="firstTimeModal" class="modal-overlay">
     <div class="modal">
@@ -461,43 +448,41 @@
     </div>
   </div>
 
-  <!-- Leaderboard Modal -->
-  <div id="leaderboardModal" class="modal-overlay" style="display:none;">
+  <!-- Withdraw Modal -->
+  <div id="withdrawModal" class="modal-overlay" style="display:none;">
     <div class="modal">
-      <button class="close-btn" onclick="closeModal('leaderboardModal')"><i class="fas fa-times"></i></button>
-      <h2><i class="fas fa-trophy"></i> Top Earners</h2>
-      <div id="leaderboardList" style="max-height: 300px; overflow-y: auto; margin-top: 20px;">
-        <!-- লিডারবোর্ড ডেটা এখানে লোড হবে -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Referral Modal -->
-  <div id="referralModal" class="modal-overlay" style="display:none;">
-    <div class="modal">
-      <button class="close-btn" onclick="closeModal('referralModal')"><i class="fas fa-times"></i></button>
-      <h2><i class="fas fa-user-plus"></i> Refer & Earn</h2>
-      <div style="text-align: center; margin: 20px 0;">
-        <div style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">Share Your Link</div>
-        <input type="text" id="referralLink" readonly 
-               style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; margin: 10px 0; background: var(--card-bg); color: var(--text);">
-        <button onclick="copyReferralLink()" style="width: 100%; padding: 12px; background: var(--gradient); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 10px;">
-          <i class="fas fa-copy"></i> Copy Link
-        </button>
-        <div style="margin-top: 15px; font-size: 14px; color: var(--text-secondary);">
-          Earn 100 coins for each friend who joins!
+      <button class="close-btn" onclick="closeModal('withdrawModal')"><i class="fas fa-times"></i></button>
+      <h2><i class="fas fa-money-bill-wave"></i> Withdraw Earnings</h2>
+      
+      <div style="margin-top: 20px;">
+        <div style="margin-bottom: 15px;">
+          <label>Available Balance:</label>
+          <div style="font-size: 18px; font-weight: 700; color: var(--success);"><span id="availableBalance">0</span> coins</div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- History Modal -->
-  <div id="historyModal" class="modal-overlay" style="display:none;">
-    <div class="modal">
-      <button class="close-btn" onclick="closeModal('historyModal')"><i class="fas fa-times"></i></button>
-      <h2><i class="fas fa-history"></i> Task History</h2>
-      <div id="historyList" style="max-height: 300px; overflow-y: auto; margin-top: 20px;">
-        <!-- হিস্টোরি ডেটা এখানে লোড হবে -->
+        
+        <div style="margin-bottom: 15px;">
+          <label>Withdraw Amount (min 10 coins = 1 BDT):</label>
+          <input type="number" id="withdrawAmount" placeholder="Enter amount" min="10" max="10000" 
+                 style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; margin: 5px 0; background: var(--card-bg); color: var(--text);">
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <label>Payment Method:</label>
+          <select id="paymentMethod" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; margin: 5px 0; background: var(--card-bg); color: var(--text);">
+            <option value="bkash">bKash</option>
+            <option value="nagad">Nagad</option>
+          </select>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <label>Phone Number:</label>
+          <input type="tel" id="phoneNumber" placeholder="01XXX-XXXXXX" 
+                 style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; margin: 5px 0; background: var(--card-bg); color: var(--text);">
+        </div>
+        
+        <button onclick="submitWithdraw()" style="width: 100%; padding: 15px; background: var(--gradient); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 16px;">
+          <i class="fas fa-paper-plane"></i> Submit Request
+        </button>
       </div>
     </div>
   </div>
@@ -621,6 +606,11 @@
         <span style="margin-left: auto; opacity: 0.7;" id="currentThemeDisplay">Light</span>
       </div>
       
+      <div class="option-btn" onclick="showWithdrawForm()">
+        <i class="fas fa-money-bill-wave"></i> Withdraw Earnings
+        <span style="margin-left: auto; opacity: 0.7;">Cash Out</span>
+      </div>
+      
       <div class="option-btn" onclick="showLeaderboard()">
         <i class="fas fa-trophy"></i> Leaderboard
         <span style="margin-left: auto; opacity: 0.7;">Top Earners</span>
@@ -634,11 +624,6 @@
       <div class="option-btn" onclick="showHistory()">
         <i class="fas fa-history"></i> Task History
         <span style="margin-left: auto; opacity: 0.7;">View All</span>
-      </div>
-      
-      <div class="option-btn">
-        <i class="fas fa-wallet"></i> Withdraw
-        <span style="margin-left: auto; opacity: 0.7;">Coming Soon</span>
       </div>
       
       <div class="option-btn">
@@ -656,7 +641,7 @@
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
 
-    const WORKER_URL = 'https://microearn.abusaifeshovon.workers.dev';
+    const WORKER_URL = 'https://microearn.abusaifeshovon.workers.dev'; // আপনার Worker URL
     const user = Telegram.WebApp.initDataUnsafe?.user;
 
     if (!user) {
@@ -731,8 +716,7 @@
         }
         userData = await response.json();
       } catch (error) {
-        console.error('Failed to load user data:', error);
-        showError(`Failed to load user data: ${error.message}`);
+        console.error('Failed to load user ', error);
         userData = { balance: 0, tasks: [], total_earned: 0 };
       }
     }
@@ -768,12 +752,8 @@
         const updatedData = await response.json();
         userData = updatedData;
         document.getElementById('balance').innerText = userData.balance;
-        
-        // Hide any previous error
-        hideError();
       } catch (error) {
         console.error('Failed to update balance:', error);
-        showError(`Failed to update balance: ${error.message}`);
       }
     }
 
@@ -917,6 +897,53 @@
       document.getElementById('mainPage').style.display = 'block';
     }
 
+    // Withdraw function
+    window.showWithdrawForm = function() {
+      document.getElementById('availableBalance').textContent = userData.balance;
+      document.getElementById('withdrawModal').style.display = 'flex';
+    };
+
+    window.submitWithdraw = async function() {
+      const amount = parseInt(document.getElementById('withdrawAmount').value);
+      const method = document.getElementById('paymentMethod').value;
+      const number = document.getElementById('phoneNumber').value;
+
+      if (!amount || !method || !number) {
+        alert('Please fill all fields');
+        return;
+      }
+
+      if (amount < 10 || amount > userData.balance) {
+        alert('Invalid amount');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${WORKER_URL}/api/withdraw/${user.id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount,
+            method,
+            number
+          })
+        });
+
+        if (response.ok) {
+          alert('Withdrawal request submitted successfully!');
+          closeModal('withdrawModal');
+          // Reload user data
+          await loadUserData();
+          updateUI();
+        } else {
+          const error = await response.text();
+          alert('Error: ' + error);
+        }
+      } catch (error) {
+        alert('Error submitting request: ' + error.message);
+      }
+    };
+
     // Leaderboard function
     window.showLeaderboard = async function() {
       try {
@@ -953,13 +980,6 @@
       const referralLink = `https://t.me/microearn_bot?start=${user.id}`;
       document.getElementById('referralLink').value = referralLink;
       document.getElementById('referralModal').style.display = 'flex';
-    };
-
-    window.copyReferralLink = function() {
-      const copyText = document.getElementById('referralLink');
-      copyText.select();
-      document.execCommand('copy');
-      alert('Referral link copied to clipboard!');
     };
 
     // History function
@@ -1104,22 +1124,6 @@
       setTimeout(() => {
         banner.style.display = 'none';
       }, 5000);
-    }
-
-    // Error handling
-    function showError(message) {
-      const errorDiv = document.getElementById('errorMessage');
-      errorDiv.textContent = message;
-      errorDiv.style.display = 'block';
-      
-      setTimeout(() => {
-        hideError();
-      }, 5000);
-    }
-
-    function hideError() {
-      const errorDiv = document.getElementById('errorMessage');
-      errorDiv.style.display = 'none';
     }
 
     // Show notification example
