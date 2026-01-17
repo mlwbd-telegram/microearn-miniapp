@@ -9,52 +9,83 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
         
         body {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #fff;
+            color: #ffffff;
             min-height: 100vh;
             padding: 20px;
-            position: relative;
-        }
-        
-        .container {
-            max-width: 430px;
-            margin: 0 auto;
+            padding-top: 60px;
         }
         
         .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .greeting {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 8px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4f46e5, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            overflow: hidden;
+        }
+        
+        .user-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .app-title {
             text-align: center;
             margin-bottom: 30px;
-            opacity: 0;
-            animation: fadeInUp 0.6s ease-out forwards;
         }
         
         .app-name {
             font-size: 28px;
             font-weight: 700;
-            margin-bottom: 4px;
             background: linear-gradient(45deg, #ff6b6b, #ffa502);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            margin-bottom: 4px;
+            animation: fadeInUp 0.6s ease-out 0.2s forwards;
+            opacity: 0;
         }
         
-        .subtitle {
+        .app-subtitle {
             font-size: 16px;
             color: rgba(255, 255, 255, 0.7);
             font-weight: 500;
-        }
-        
-        .greeting {
-            font-size: 18px;
-            margin-bottom: 25px;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.9);
+            animation: fadeInUp 0.6s ease-out 0.3s forwards;
             opacity: 0;
-            animation: fadeInUp 0.6s ease-out 0.2s forwards;
         }
         
         .balance-card {
@@ -64,8 +95,8 @@
             margin-bottom: 30px;
             text-align: center;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            opacity: 0;
             animation: fadeInUp 0.6s ease-out 0.4s forwards;
+            opacity: 0;
         }
         
         .balance-label {
@@ -101,32 +132,14 @@
             cursor: pointer;
             transition: all 0.2s ease;
             box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
+            animation: fadeInUp 0.6s ease-out calc(0.5s + var(--delay)) forwards;
             opacity: 0;
-            animation: fadeInUp 0.6s ease-out 0.6s forwards;
         }
         
-        .action-button:nth-child(2) {
-            animation-delay: 0.7s;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
-        }
-        
-        .action-button:nth-child(3) {
-            animation-delay: 0.8s;
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
-        }
-        
-        .action-button:nth-child(4) {
-            animation-delay: 0.9s;
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
-        }
-        
-        .action-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
-        }
+        .action-button:nth-child(1) { --delay: 0.1s; }
+        .action-button:nth-child(2) { --delay: 0.2s; background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3); }
+        .action-button:nth-child(3) { --delay: 0.3s; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3); }
+        .action-button:nth-child(4) { --delay: 0.4s; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3); }
         
         .action-button:active {
             transform: scale(0.96);
@@ -135,7 +148,7 @@
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
@@ -144,8 +157,9 @@
         }
         
         @media (max-width: 430px) {
-            .container {
+            body {
                 padding: 16px;
+                padding-top: 50px;
             }
             
             .app-name {
@@ -164,31 +178,51 @@
                 padding: 18px;
                 font-size: 16px;
             }
+            
+            .greeting {
+                font-size: 18px;
+            }
+            
+            .user-photo {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+            
+            .user-name {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1 class="app-name">MicroEarn</h1>
-            <p class="subtitle">Work & Earn</p>
+    <div class="header">
+        <div>
+            <div class="greeting" id="greeting">Loading...</div>
         </div>
-        
-        <div class="greeting" id="greeting">
-            Hello, Guest
+        <div class="user-info">
+            <div class="user-photo" id="userPhoto">
+                <span>👤</span>
+            </div>
+            <div class="user-name" id="userName">Guest</div>
         </div>
-        
-        <div class="balance-card">
-            <div class="balance-label">Your Balance</div>
-            <div class="balance-amount">1,250 coins</div>
-        </div>
-        
-        <div class="action-buttons">
-            <button class="action-button" onclick="showAlert('💰 Earn Coins')">💰 Earn Coins</button>
-            <button class="action-button" onclick="showAlert('📋 Surveys')">📋 Surveys</button>
-            <button class="action-button" onclick="showAlert('🎁 Daily Bonus')">🎁 Daily Bonus</button>
-            <button class="action-button" onclick="showAlert('💳 Withdraw')">💳 Withdraw</button>
-        </div>
+    </div>
+    
+    <div class="app-title">
+        <h1 class="app-name">MicroEarn</h1>
+        <p class="app-subtitle">Work & Earn</p>
+    </div>
+    
+    <div class="balance-card">
+        <div class="balance-label">Your Balance</div>
+        <div class="balance-amount">1,250 coins</div>
+    </div>
+    
+    <div class="action-buttons">
+        <button class="action-button" onclick="showAlert('💰 Earn Coins')">💰 Earn Coins</button>
+        <button class="action-button" onclick="showAlert('📋 Surveys')">📋 Surveys</button>
+        <button class="action-button" onclick="showAlert('🎁 Daily Bonus')">🎁 Daily Bonus</button>
+        <button class="action-button" onclick="showAlert('💳 Withdraw')">💳 Withdraw</button>
     </div>
 
     <script>
@@ -200,20 +234,41 @@
             }
         }
 
+        function getTimeBasedGreeting() {
+            const hour = new Date().getHours();
+            if (hour >= 5 && hour < 12) return "Good Morning";
+            if (hour >= 12 && hour < 17) return "Good Afternoon";
+            if (hour >= 17 && hour < 22) return "Good Evening";
+            return "Good Night";
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            let firstName = 'Guest';
-            
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.ready();
                 window.Telegram.WebApp.expand();
                 
                 const initData = window.Telegram.WebApp.initDataUnsafe;
-                if (initData && initData.user && initData.user.first_name) {
-                    firstName = initData.user.first_name;
+                if (initData && initData.user) {
+                    const user = initData.user;
+                    
+                    // Update greeting with user's name
+                    document.getElementById('greeting').textContent = `${getTimeBasedGreeting()}, ${user.first_name}`;
+                    
+                    // Update user name
+                    document.getElementById('userName').textContent = user.first_name;
+                    
+                    // Update user photo if available
+                    if (user.photo_url) {
+                        document.getElementById('userPhoto').innerHTML = `<img src="${user.photo_url}" alt="">`;
+                    }
+                } else {
+                    // Fallback for development
+                    document.getElementById('greeting').textContent = `${getTimeBasedGreeting()}, Guest`;
                 }
+            } else {
+                // Fallback for development
+                document.getElementById('greeting').textContent = `${getTimeBasedGreeting()}, Guest`;
             }
-            
-            document.getElementById('greeting').textContent = `Hello, ${firstName}`;
         });
     </script>
 </body>
