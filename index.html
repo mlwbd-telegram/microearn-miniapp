@@ -430,7 +430,7 @@
 </head>
 <body>
   <!-- First Time Language Selection Modal -->
-  <div id="firstTimeLangModal" class="modal-overlay">
+  <div id="firstTimeLangModal" class="modal-overlay" style="display:flex;">
     <div class="popup-modal">
       <h2>Select Your Language</h2>
       <div class="options-list">
@@ -465,7 +465,7 @@
   </div>
 
   <!-- Main App Page -->
-  <div id="mainPage" class="page active">
+  <div id="mainPage" class="page" style="display:none;">
     <div class="header">
       <div>
         <div class="user-info" id="user-name">Loading...</div>
@@ -500,7 +500,7 @@
   </div>
 
   <!-- Settings Page -->
-  <div id="settingsPage" class="page">
+  <div id="settingsPage" class="page" style="display:none;">
     <div class="settings-header">
       <button class="back-btn" onclick="goBack()">←</button>
       <div class="settings-title" id="settings-title">Settings</div>
@@ -625,6 +625,9 @@
       updateTexts();
       await loadUserData();
       updateUI();
+      // Show main page
+      document.getElementById('mainPage').style.display = 'block';
+      document.getElementById('firstTimeLangModal').style.display = 'none';
     }
 
     async function loadUserData() {
