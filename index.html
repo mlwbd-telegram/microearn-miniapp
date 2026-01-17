@@ -821,5 +821,63 @@
     // Call greeting on load
     updateGreeting();
   </script>
+  <script>
+  // First time language selection fix
+  function setFirstTimeLanguage(lang) {
+    localStorage.setItem('microearn_lang', lang);
+    location.reload(); // Reload to apply language
+  }
+
+  // Normal language change from settings
+  function selectLanguage(lang) {
+    localStorage.setItem('microearn_lang', lang);
+    location.reload();
+  }
+
+  // Theme change
+  function selectTheme(theme) {
+    localStorage.setItem('microearn_theme', theme);
+    if (theme === 'dark') {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
+    }
+    document.getElementById('themeModal').style.display = 'none';
+  }
+
+  // Close modal
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+  }
+
+  // Open modals
+  function openLanguagePopup() {
+    document.getElementById('langModal').style.display = 'flex';
+  }
+
+  function openThemePopup() {
+    document.getElementById('themeModal').style.display = 'flex';
+  }
+
+  // Go back
+  function goBack() {
+    document.getElementById('settingsPage').classList.remove('active');
+    document.getElementById('mainPage').classList.add('active');
+  }
+
+  // Open settings
+  function openSettings() {
+    document.getElementById('mainPage').classList.remove('active');
+    document.getElementById('settingsPage').classList.add('active');
+  }
+
+  // Initialize on load
+  document.addEventListener('DOMContentLoaded', function() {
+    const currentLang = localStorage.getItem('microearn_lang');
+    if (!currentLang) {
+      document.getElementById('firstTimeLangModal').style.display = 'flex';
+    }
+  });
+</script>
 </body>
 </html>
