@@ -429,11 +429,22 @@
   </style>
 </head>
 <body>
+  <!-- First Time Language Selection Modal -->
+  <div id="firstTimeLangModal" class="modal-overlay">
+    <div class="popup-modal">
+      <h2>Select Your Language</h2>
+      <div class="options-list">
+        <button class="option-btn" onclick="setFirstTimeLanguage('en')">English</button>
+        <button class="option-btn" onclick="setFirstTimeLanguage('bn')">বাংলা</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Language Selection Modal -->
-  <div id="langModal" class="modal-overlay">
+  <div id="langModal" class="modal-overlay" style="display:none;">
     <div class="popup-modal">
       <button class="close-btn" onclick="closeModal('langModal')">✕</button>
-      <h2>Select Your Language</h2>
+      <h2>Select Language</h2>
       <div class="options-list">
         <button class="option-btn" onclick="selectLanguage('en')">English</button>
         <button class="option-btn" onclick="selectLanguage('bn')">বাংলা</button>
@@ -592,7 +603,7 @@
       }
     };
 
-    let currentLang = localStorage.getItem('microearn_lang') || null;
+    let currentLang = localStorage.getItem('microearn_lang');
     let currentTheme = localStorage.getItem('microearn_theme') || 'light';
     let userData = { balance: 0, tasks: [], total_earned: 0 };
 
@@ -601,11 +612,20 @@
       document.body.classList.add('dark-theme');
     }
 
-    // Check if first visit
+    // Check if first time user (no language set)
     if (!currentLang) {
-      document.getElementById('langModal').style.display = 'flex';
+      // Show first time language modal
+      document.getElementById('firstTimeLangModal').style.display = 'flex';
     } else {
-      document.getElementById('langModal').style.display = 'none';
+      // Load app normally
+      loadApp();
+    }
+
+    // Function called when first time user selects language
+    function setFirstTimeLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('microearn_lang', lang);
+      document.getElementById('firstTimeLangModal').style.display = 'none';
       loadApp();
     }
 
