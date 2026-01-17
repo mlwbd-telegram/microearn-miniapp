@@ -601,6 +601,7 @@
       document.body.classList.add('dark-theme');
     }
 
+    // Check if first visit
     if (!currentLang) {
       document.getElementById('langModal').style.display = 'flex';
     } else {
@@ -619,7 +620,7 @@
         const response = await fetch(`${WORKER_URL}/api/user/${user.id}`);
         userData = await response.json();
       } catch (error) {
-        console.error('Failed to load user data:', error);
+        console.error('Failed to load user ', error);
         userData = { balance: 0, tasks: [], total_earned: 0 };
       }
     }
@@ -772,7 +773,6 @@
     }
 
     window.openLanguagePopup = function() {
-      document.getElementById('settingsPage').classList.add('modal-overlay');
       document.getElementById('langModal').style.display = 'flex';
     }
 
