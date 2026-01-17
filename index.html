@@ -14,11 +14,65 @@
     }
 
     body {
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%);
       min-height: 100vh;
       padding: 20px;
       color: #2d3748;
       overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+    }
+
+    .lang-modal {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      animation: modalSlideIn 0.5s ease-out;
+    }
+
+    .lang-modal h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #2b6cb0;
+    }
+
+    .lang-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .lang-btn {
+      padding: 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .lang-btn:hover {
+      border-color: #4299e1;
+      background: #ebf8ff;
+      transform: translateY(-2px);
     }
 
     .header {
@@ -26,105 +80,109 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 30px;
-      padding: 15px 20px;
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      animation: slideInUp 0.6s ease-out;
+      padding: 18px 20px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 22px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      animation: slideInUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
     .user-info {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 700;
       color: #2b6cb0;
+      letter-spacing: -0.3px;
     }
 
     .greeting {
-      font-size: 14px;
+      font-size: 15px;
       color: #718096;
-      margin-top: 5px;
+      margin-top: 6px;
       opacity: 0.9;
     }
 
     .avatar {
-      width: 60px;
-      height: 60px;
+      width: 65px;
+      height: 65px;
       border-radius: 50%;
       object-fit: cover;
       border: 3px solid #4299e1;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
     .app-title {
       text-align: center;
-      margin: 20px 0 30px;
+      margin: 20px 0 35px;
       animation: fadeInDown 0.8s ease-out;
     }
 
     .app-title h1 {
-      font-size: 32px;
-      background: linear-gradient(45deg, #4299e1, #68d391);
+      font-size: 36px;
+      background: linear-gradient(45deg, #2b6cb0, #38b2ac);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       font-weight: 800;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.8px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
     .app-title p {
       color: #718096;
-      font-size: 16px;
-      margin-top: 6px;
+      font-size: 18px;
+      margin-top: 8px;
+      font-weight: 500;
     }
 
     .balance-card {
-      background: linear-gradient(135deg, #4299e1 0%, #38b2ac 100%);
+      background: linear-gradient(135deg, #2b6cb0 0%, #38b2ac 100%);
       color: white;
-      padding: 25px;
-      border-radius: 20px;
+      padding: 30px;
+      border-radius: 24px;
       text-align: center;
-      margin: 25px 0;
-      box-shadow: 0 10px 25px rgba(66, 153, 225, 0.3);
-      animation: bounceIn 0.7s ease-out;
+      margin: 30px 0;
+      box-shadow: 0 12px 30px rgba(43, 108, 176, 0.3);
+      animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       transform: translateY(0);
-      transition: transform 0.3s ease;
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
     .balance-card:hover {
-      transform: translateY(-5px);
+      transform: translateY(-6px);
     }
 
     .balance-card h2 {
-      font-size: 18px;
-      opacity: 0.9;
-      margin-bottom: 10px;
+      font-size: 20px;
+      opacity: 0.92;
+      margin-bottom: 12px;
+      font-weight: 600;
     }
 
     .balance-card .amount {
-      font-size: 36px;
+      font-size: 42px;
       font-weight: 800;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      text-shadow: 0 3px 6px rgba(0,0,0,0.2);
     }
 
     .tasks {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 18px;
-      margin-bottom: 30px;
+      gap: 20px;
+      margin-bottom: 35px;
     }
 
     .task-btn {
-      background: linear-gradient(135deg, #68d391 0%, #4299e1 100%);
+      background: linear-gradient(135deg, #38b2ac 0%, #2b6cb0 100%);
       color: white;
       border: none;
-      padding: 18px 10px;
-      border-radius: 15px;
-      font-size: 16px;
+      padding: 20px 12px;
+      border-radius: 18px;
+      font-size: 17px;
       font-weight: 600;
       cursor: pointer;
       text-align: center;
-      box-shadow: 0 4px 12px rgba(66, 153, 225, 0.2);
-      transition: all 0.3s ease;
+      box-shadow: 0 6px 16px rgba(43, 108, 176, 0.25);
+      transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       position: relative;
       overflow: hidden;
     }
@@ -137,12 +195,12 @@
       width: 100%;
       height: 100%;
       background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-      transition: 0.5s;
+      transition: 0.6s;
     }
 
     .task-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 16px rgba(66, 153, 225, 0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 22px rgba(43, 108, 176, 0.35);
     }
 
     .task-btn:hover::before {
@@ -150,38 +208,62 @@
     }
 
     .task-btn:active {
-      transform: scale(0.95);
+      transform: scale(0.96);
     }
 
     .task-btn:disabled {
-      background: #cbd5e0;
+      background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
       cursor: not-allowed;
       transform: none !important;
     }
 
     .footer {
       text-align: center;
-      margin-top: 30px;
+      margin-top: 35px;
       color: #a0aec0;
-      font-size: 12px;
-      animation: fadeIn 1s ease-out;
+      font-size: 13px;
+      animation: fadeIn 1.2s ease-out;
+    }
+
+    .settings-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #4299e1;
+      color: white;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     /* Animations */
+    @keyframes modalSlideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
     @keyframes slideInUp {
       from { transform: translate3d(0, 100%, 0); opacity: 0; }
       to { transform: translate3d(0, 0, 0); opacity: 1; }
     }
 
     @keyframes fadeInDown {
-      from { opacity: 0; transform: translate3d(0, -20%, 0); }
+      from { opacity: 0; transform: translate3d(0, -25%, 0); }
       to { opacity: 1; transform: translate3d(0, 0, 0); }
     }
 
     @keyframes bounceIn {
-      from { opacity: 0; transform: scale(0.3); }
-      50% { opacity: 1; transform: scale(1.05); }
-      to { transform: scale(1); }
+      0% { opacity: 0; transform: scale(0.3); }
+      50% { opacity: 1; transform: scale(1.08); }
+      100% { transform: scale(1); }
     }
 
     @keyframes fadeIn {
@@ -189,123 +271,234 @@
       to { opacity: 1; }
     }
 
-    /* Coin counter animation */
     .pulse {
-      animation: pulse 0.5s ease-in-out;
+      animation: pulse 0.6s ease-in-out;
     }
 
     @keyframes pulse {
       0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
+      50% { transform: scale(1.15); }
       100% { transform: scale(1); }
     }
   </style>
 </head>
 <body>
+  <!-- Language Selection Modal -->
+  <div id="langModal" class="modal-overlay">
+    <div class="lang-modal">
+      <h2>Select Your Language</h2>
+      <div class="lang-options">
+        <button class="lang-btn" onclick="selectLanguage('en')">English</button>
+        <button class="lang-btn" onclick="selectLanguage('bn')">বাংলা</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App Content -->
   <div class="header">
     <div>
       <div class="user-info" id="user-name">Loading...</div>
       <div class="greeting" id="greeting">Hello!</div>
     </div>
-    <img id="avatar" class="avatar" src="https://via.placeholder.com/60?text=👤" alt="Avatar">
+    <img id="avatar" class="avatar" src="https://via.placeholder.com/65?text=👤" alt="Avatar">
   </div>
 
   <div class="app-title">
     <h1>🎯 MicroEarn</h1>
-    <p>Work & Earn</p>
+    <p id="app-subtitle">Work & Earn</p>
   </div>
 
   <div class="balance-card">
-    <h2>Your Balance</h2>
-    <div class="amount"><span id="balance">0</span> Coins</div>
+    <h2 id="balance-label">Your Balance</h2>
+    <div class="amount"><span id="balance">0</span> <span id="coin-label">Coins</span></div>
   </div>
 
   <div class="tasks">
-    <button class="task-btn" onclick="watchAd()">👁️ Watch Ad</button>
-    <button class="task-btn" onclick="claimDaily()">🎁 Daily Bonus</button>
-    <button class="task-btn" onclick="spinWheel()">🎡 Lucky Spin</button>
-    <button class="task-btn" disabled>📝 Survey (Soon)</button>
+    <button class="task-btn" onclick="watchAd()" id="ad-btn">👁️ Watch Ad</button>
+    <button class="task-btn" onclick="claimDaily()" id="daily-btn">🎁 Daily Bonus</button>
+    <button class="task-btn" onclick="spinWheel()" id="spin-btn">🎡 Lucky Spin</button>
+    <button class="task-btn" disabled id="survey-btn">📝 Survey (Soon)</button>
   </div>
 
   <div class="footer">
-    Powered by Telegram • MVP Demo
+    <span id="powered-by">Powered by Telegram • MVP Demo</span>
   </div>
+
+  <!-- Settings Button -->
+  <button class="settings-btn" onclick="openSettings()">⚙️</button>
 
   <script>
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
 
-    const user = Telegram.WebApp.initDataUnsafe?.user;
-    let balance = parseInt(localStorage.getItem('microearn_balance')) || 100;
-    let lastDaily = localStorage.getItem('microearn_daily') || '';
-    let lastSpin = localStorage.getItem('microearn_spin') || '';
-
-    const today = new Date().toISOString().split('T')[0];
-
-    // Update UI
-    document.getElementById('balance').innerText = balance;
-    if (user) {
-      document.getElementById('user-name').innerText = user.first_name || 'User';
-      if (user.photo_url) {
-        document.getElementById('avatar').src = user.photo_url;
+    // Language support
+    const texts = {
+      en: {
+        hello: 'Hello!',
+        subtitle: 'Work & Earn',
+        balanceLabel: 'Your Balance',
+        coinLabel: 'Coins',
+        adBtn: '👁️ Watch Ad',
+        dailyBtn: '🎁 Daily Bonus',
+        spinBtn: '🎡 Lucky Spin',
+        surveyBtn: '📝 Survey (Soon)',
+        poweredBy: 'Powered by Telegram • MVP Demo',
+        greetingMorning: 'Good Morning',
+        greetingAfternoon: 'Good Afternoon',
+        greetingEvening: 'Good Evening',
+        greetingNight: 'Good Night',
+        alertAd: '+10 Coins! Ad watched successfully.',
+        alertDaily: '+20 Coins! Daily bonus claimed.',
+        alertSpin: 'Lucky Spin! You won {reward} coins!',
+        alertAlreadyClaimed: 'You already claimed your daily bonus today!',
+        alertAlreadySpun: 'You already used your spin today!',
+        settingsTitle: 'Select Language',
+        langEn: 'English',
+        langBn: 'বাংলা'
+      },
+      bn: {
+        hello: 'হ্যালো!',
+        subtitle: 'কাজ করুন এবং উপার্জন করুন',
+        balanceLabel: 'আপনার ব্যালেন্স',
+        coinLabel: 'কয়েন',
+        adBtn: '👁️ অ্যাড দেখুন',
+        dailyBtn: '🎁 ডেইলি বোনাস',
+        spinBtn: '🎡 লাকি স্পিন',
+        surveyBtn: '📝 সার্ভে (শীঘ্রই)',
+        poweredBy: 'টেলিগ্রাম দ্বারা চালিত • ডেমো ভার্সন',
+        greetingMorning: 'শুভ সকাল',
+        greetingAfternoon: 'শুভ দুপুর',
+        greetingEvening: 'শুভ সন্ধ্যা',
+        greetingNight: 'শুভ রাত্রি',
+        alertAd: '+10 কয়েন! অ্যাড দেখা হয়েছে।',
+        alertDaily: '+20 কয়েন! ডেইলি বোনাস নেওয়া হয়েছে।',
+        alertSpin: 'লাকি স্পিন! আপনি পেয়েছেন {reward} কয়েন!',
+        alertAlreadyClaimed: 'আপনি আজকে ইতিমধ্যে বোনাস নিয়েছেন!',
+        alertAlreadySpun: 'আপনি আজকে ইতিমধ্যে স্পিন করেছেন!',
+        settingsTitle: 'ভাষা নির্বাচন করুন',
+        langEn: 'English',
+        langBn: 'বাংলা'
       }
+    };
+
+    let currentLang = localStorage.getItem('microearn_lang') || null;
+
+    // Check if first visit
+    if (!currentLang) {
+      // Show language modal
+      document.getElementById('langModal').style.display = 'flex';
+    } else {
+      // Hide modal and load app
+      document.getElementById('langModal').style.display = 'none';
+      loadApp();
     }
 
-    // Greeting logic (Bangladesh time: UTC+6)
-    const now = new Date();
-    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-    const bdTime = new Date(utc + (6 * 3600000));
-    const hour = bdTime.getHours();
-    let greeting = "Good Night";
-    if (hour >= 5 && hour < 12) greeting = "Good Morning";
-    else if (hour >= 12 && hour < 17) greeting = "Good Afternoon";
-    else if (hour >= 17 && hour < 21) greeting = "Good Evening";
-    document.getElementById('greeting').innerText = greeting;
-
-    // Task functions
-    function watchAd() {
-      balance += 10;
-      saveBalance();
-      animateBalance('+10');
-      alert("✅ +10 Coins! Ad watched successfully.");
+    function selectLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('microearn_lang', lang);
+      document.getElementById('langModal').style.display = 'none';
+      loadApp();
     }
 
-    function claimDaily() {
-      if (lastDaily === today) {
-        alert("❌ You already claimed your daily bonus today!");
-        return;
-      }
-      balance += 20;
-      lastDaily = today;
-      localStorage.setItem('microearn_daily', lastDaily);
-      saveBalance();
-      animateBalance('+20');
-      alert("🎉 +20 Coins! Daily bonus claimed.");
+    function loadApp() {
+      updateTexts();
+      initApp();
     }
 
-    function spinWheel() {
-      if (lastSpin === today) {
-        alert("❌ You already used your spin today!");
-        return;
-      }
-      const reward = Math.floor(Math.random() * 51) + 5; // 5 to 55
-      balance += reward;
-      lastSpin = today;
-      localStorage.setItem('microearn_spin', lastSpin);
-      saveBalance();
-      animateBalance(`+${reward}`);
-      alert(`🎡 Lucky Spin! You won ${reward} coins!`);
+    function updateTexts() {
+      const t = texts[currentLang];
+      document.getElementById('app-subtitle').innerText = t.subtitle;
+      document.getElementById('balance-label').innerText = t.balanceLabel;
+      document.getElementById('coin-label').innerText = t.coinLabel;
+      document.getElementById('ad-btn').innerText = t.adBtn;
+      document.getElementById('daily-btn').innerText = t.dailyBtn;
+      document.getElementById('spin-btn').innerText = t.spinBtn;
+      document.getElementById('survey-btn').innerText = t.surveyBtn;
+      document.getElementById('powered-by').innerText = t.poweredBy;
     }
 
-    function saveBalance() {
-      localStorage.setItem('microearn_balance', balance);
+    function initApp() {
+      const user = Telegram.WebApp.initDataUnsafe?.user;
+      let balance = parseInt(localStorage.getItem('microearn_balance')) || 100;
+      let lastDaily = localStorage.getItem('microearn_daily') || '';
+      let lastSpin = localStorage.getItem('microearn_spin') || '';
+
+      const today = new Date().toISOString().split('T')[0];
+      const t = texts[currentLang];
+
+      // Update UI
       document.getElementById('balance').innerText = balance;
+      if (user) {
+        document.getElementById('user-name').innerText = user.first_name || 'User';
+        if (user.photo_url) {
+          document.getElementById('avatar').src = user.photo_url;
+        } else {
+          document.getElementById('avatar').src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.first_name || 'User') + '&background=4299e1&color=fff';
+        }
+      }
+
+      // Greeting logic (Bangladesh time: UTC+6)
+      const now = new Date();
+      const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+      const bdTime = new Date(utc + (6 * 3600000));
+      const hour = bdTime.getHours();
+      let greeting = t.greetingNight;
+      if (hour >= 5 && hour < 12) greeting = t.greetingMorning;
+      else if (hour >= 12 && hour < 17) greeting = t.greetingAfternoon;
+      else if (hour >= 17 && hour < 21) greeting = t.greetingEvening;
+      document.getElementById('greeting').innerText = greeting;
+
+      // Task functions
+      window.watchAd = function() {
+        balance += 10;
+        saveBalance();
+        animateBalance('+10');
+        alert(t.alertAd);
+      }
+
+      window.claimDaily = function() {
+        if (lastDaily === today) {
+          alert(t.alertAlreadyClaimed);
+          return;
+        }
+        balance += 20;
+        lastDaily = today;
+        localStorage.setItem('microearn_daily', lastDaily);
+        saveBalance();
+        animateBalance('+20');
+        alert(t.alertDaily);
+      }
+
+      window.spinWheel = function() {
+        if (lastSpin === today) {
+          alert(t.alertAlreadySpun);
+          return;
+        }
+        const reward = Math.floor(Math.random() * 51) + 5; // 5 to 55
+        balance += reward;
+        lastSpin = today;
+        localStorage.setItem('microearn_spin', lastSpin);
+        saveBalance();
+        animateBalance(`+${reward}`);
+        alert(t.alertSpin.replace('{reward}', reward));
+      }
+
+      function saveBalance() {
+        localStorage.setItem('microearn_balance', balance);
+        document.getElementById('balance').innerText = balance;
+      }
+
+      function animateBalance(text) {
+        const el = document.querySelector('.balance-card .amount');
+        el.classList.add('pulse');
+        setTimeout(() => el.classList.remove('pulse'), 600);
+      }
     }
 
-    function animateBalance(text) {
-      const el = document.querySelector('.balance-card .amount');
-      el.classList.add('pulse');
-      setTimeout(() => el.classList.remove('pulse'), 500);
+    window.openSettings = function() {
+      const t = texts[currentLang];
+      const selectedLang = currentLang === 'en' ? 'bn' : 'en';
+      selectLanguage(selectedLang);
     }
   </script>
 </body>
