@@ -79,6 +79,27 @@
             padding-bottom: 80px;
         }
 
+        section {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 0 0 80px 0;
+        }
+
+        section.active {
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .header {
             padding: 32px 20px 24px;
             text-align: center;
@@ -198,6 +219,82 @@
             background: linear-gradient(135deg, #e55a2b, #e0841a);
         }
 
+        .section-header {
+            padding: 32px 20px 24px;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 400;
+        }
+
+        .content-section {
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card h3 {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .card p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .back-button-container {
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .back-button {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 16px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .back-button:active {
+            transform: scale(0.96);
+        }
+
         .entrance-animation {
             animation: fadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
@@ -269,48 +366,179 @@
     </div>
 
     <div class="app-container">
-        <div class="header">
-            <h1 class="app-name entrance-animation delay-1">MicroEarn</h1>
-            <p class="app-subtitle entrance-animation delay-2">Work & Earn</p>
-        </div>
-
-        <div class="greeting-section entrance-animation delay-3">
-            <p class="greeting-text">Hello, <span id="user-name">Guest</span></p>
-        </div>
-
-        <div class="balance-container">
-            <div class="balance-card balance-enter">
-                <p class="balance-label">Your Balance</p>
-                <p class="balance-value">1,250 coins</p>
+        <!-- Home Section -->
+        <section id="home" class="active">
+            <div class="header">
+                <h1 class="app-name entrance-animation delay-1">MicroEarn</h1>
+                <p class="app-subtitle entrance-animation delay-2">Work & Earn</p>
             </div>
-        </div>
 
-        <div class="actions-section">
-            <button class="action-button primary entrance-animation delay-4" onclick="showAlert('Earn Coins')">
-                <span><span class="coin-icon"></span> Earn Coins</span>
-            </button>
+            <div class="greeting-section entrance-animation delay-3">
+                <p class="greeting-text">Hello, <span id="user-name">Guest</span></p>
+            </div>
 
-            <button class="action-button entrance-animation delay-5" onclick="showAlert('Surveys')">
-                <span>📋 Surveys</span>
-            </button>
+            <div class="balance-container">
+                <div class="balance-card balance-enter">
+                    <p class="balance-label">Your Balance</p>
+                    <p class="balance-value">1,250 coins</p>
+                </div>
+            </div>
 
-            <button class="action-button entrance-animation delay-6" onclick="showAlert('Daily Bonus')">
-                <span>🎁 Daily Bonus</span>
-            </button>
+            <div class="actions-section">
+                <button class="action-button primary entrance-animation delay-4" onclick="showSection('earn')">
+                    <span><span class="coin-icon"></span> Earn Coins</span>
+                </button>
 
-            <button class="action-button entrance-animation delay-7" onclick="showAlert('Withdraw')">
-                <span>💰 Withdraw</span>
-            </button>
-        </div>
+                <button class="action-button entrance-animation delay-5" onclick="showSection('surveys')">
+                    <span>📋 Surveys</span>
+                </button>
+
+                <button class="action-button entrance-animation delay-6" onclick="showSection('bonus')">
+                    <span>🎁 Daily Bonus</span>
+                </button>
+
+                <button class="action-button entrance-animation delay-7" onclick="showSection('withdraw')">
+                    <span>💰 Withdraw</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Earn Section -->
+        <section id="earn">
+            <div class="section-header">
+                <h1 class="section-title">Earn Coins</h1>
+                <p class="section-subtitle">Complete tasks to earn</p>
+            </div>
+
+            <div class="content-section">
+                <div class="card">
+                    <h3>Watch Video Ad</h3>
+                    <p>+50 coins</p>
+                </div>
+
+                <div class="card">
+                    <h3>Play Game</h3>
+                    <p>+30 coins</p>
+                </div>
+
+                <div class="card">
+                    <h3>Refer Friend</h3>
+                    <p>+100 coins</p>
+                </div>
+            </div>
+
+            <div class="back-button-container">
+                <button class="back-button" onclick="showSection('home')">← Back to Home</button>
+            </div>
+        </section>
+
+        <!-- Surveys Section -->
+        <section id="surveys">
+            <div class="section-header">
+                <h1 class="section-title">Surveys</h1>
+                <p class="section-subtitle">Answer questions to earn</p>
+            </div>
+
+            <div class="content-section">
+                <div class="card">
+                    <h3>Product Feedback</h3>
+                    <p>5 min • 75 coins</p>
+                </div>
+
+                <div class="card">
+                    <h3>Market Research</h3>
+                    <p>8 min • 120 coins</p>
+                </div>
+
+                <div class="card">
+                    <h3>User Experience</h3>
+                    <p>6 min • 90 coins</p>
+                </div>
+            </div>
+
+            <div class="back-button-container">
+                <button class="back-button" onclick="showSection('home')">← Back to Home</button>
+            </div>
+        </section>
+
+        <!-- Bonus Section -->
+        <section id="bonus">
+            <div class="section-header">
+                <h1 class="section-title">Daily Bonus</h1>
+                <p class="section-subtitle">Claim your daily reward</p>
+            </div>
+
+            <div class="content-section">
+                <div class="card">
+                    <div style="text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🎁</div>
+                        <h3>Daily Bonus Available</h3>
+                        <p>+50 coins</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Streak Info</h3>
+                    <p>🔥 3 day streak</p>
+                    <p>Keep claiming daily for more rewards!</p>
+                </div>
+            </div>
+
+            <div class="back-button-container">
+                <button class="back-button" onclick="showSection('home')">← Back to Home</button>
+            </div>
+        </section>
+
+        <!-- Withdraw Section -->
+        <section id="withdraw">
+            <div class="section-header">
+                <h1 class="section-title">Withdraw</h1>
+                <p class="section-subtitle">Convert coins to cash</p>
+            </div>
+
+            <div class="content-section">
+                <div class="card">
+                    <h3>Balance</h3>
+                    <p>1,250 coins</p>
+                </div>
+
+                <div class="card">
+                    <h3>Payment Methods</h3>
+                    <p>Bkash / Nagad coming soon...</p>
+                </div>
+
+                <div class="card">
+                    <h3>Info</h3>
+                    <p>Minimum withdrawal: 100 coins</p>
+                    <p>Processing time: 1-3 business days</p>
+                </div>
+            </div>
+
+            <div class="back-button-container">
+                <button class="back-button" onclick="showSection('home')">← Back to Home</button>
+            </div>
+        </section>
     </div>
 
     <script>
         function showAlert(message) {
             if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.showAlert(`${message} clicked!`);
+                window.Telegram.WebApp.showAlert(message);
             } else {
-                alert(`${message} clicked!`);
+                alert(message);
             }
+        }
+
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show target section
+            const targetSection = document.getElementById(sectionId);
+            targetSection.classList.add('active');
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -324,10 +552,10 @@
                 }
             }
 
-            const buttons = document.querySelectorAll('.action-button');
+            const buttons = document.querySelectorAll('button');
             buttons.forEach(button => {
                 button.addEventListener('touchstart', function() {
-                    this.style.transform = 'scale(0.96) translateY(1px)';
+                    this.style.transform = 'scale(0.96)';
                 });
                 
                 button.addEventListener('touchend', function() {
