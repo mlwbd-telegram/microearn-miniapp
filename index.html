@@ -174,6 +174,7 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             letter-spacing: -1px;
+            transition: transform 0.2s ease;
         }
 
         .actions-section {
@@ -295,6 +296,24 @@
             transform: scale(0.96);
         }
 
+        .earn-button {
+            background: linear-gradient(135deg, #00c853, #64dd17);
+            border: none;
+            border-radius: 16px;
+            padding: 16px 24px;
+            color: white;
+            font-weight: 500;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        .earn-button:active {
+            transform: scale(0.96);
+        }
+
         .entrance-animation {
             animation: fadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
@@ -380,7 +399,7 @@
             <div class="balance-container">
                 <div class="balance-card balance-enter">
                     <p class="balance-label">Your Balance</p>
-                    <p class="balance-value">1,250 coins</p>
+                    <p class="balance-value" id="balance-value">1,250</p>
                 </div>
             </div>
 
@@ -425,6 +444,8 @@
                     <h3>Refer Friend</h3>
                     <p>+100 coins</p>
                 </div>
+
+                <button class="earn-button" onclick="earnCoins(50, '+50 coins earned!')">Earn +50 Coins</button>
             </div>
 
             <div class="back-button-container">
@@ -454,6 +475,8 @@
                     <h3>User Experience</h3>
                     <p>6 min • 90 coins</p>
                 </div>
+
+                <button class="earn-button" onclick="earnCoins(100, '+100 coins earned!')">Earn +100 Coins</button>
             </div>
 
             <div class="back-button-container">
@@ -473,7 +496,7 @@
                     <div style="text-align: center;">
                         <div style="font-size: 48px; margin-bottom: 16px;">🎁</div>
                         <h3>Daily Bonus Available</h3>
-                        <p>+50 coins</p>
+                        <p>+200 coins</p>
                     </div>
                 </div>
 
@@ -482,6 +505,8 @@
                     <p>🔥 3 day streak</p>
                     <p>Keep claiming daily for more rewards!</p>
                 </div>
+
+                <button class="earn-button" onclick="earnCoins(200, '+200 coins earned!')">Claim +200 Bonus</button>
             </div>
 
             <div class="back-button-container">
@@ -499,7 +524,7 @@
             <div class="content-section">
                 <div class="card">
                     <h3>Balance</h3>
-                    <p>1,250 coins</p>
+                    <p id="withdraw-balance">1,250 coins</p>
                 </div>
 
                 <div class="card">
@@ -521,6 +546,48 @@
     </div>
 
     <script>
+        let currentBalance = 1250;
+
+        function updateBalanceDisplay() {
+            document.getElementById('balance-value').textContent = currentBalance.toLocaleString();
+            document.getElementById('withdraw-balance').textContent = `${currentBalance.toLocaleString()} coins`;
+        }
+
+        function animateBalanceIncrease(newBalance) {
+            const balanceElement = document.getElementById('balance-value');
+            const startValue = parseInt(balanceElement.textContent.replace(/,/g, ''));
+            const increment = (newBalance - startValue) / 30;
+            let current = startValue;
+            
+            const animate = () => {
+                current += increment;
+                if ((increment > 0 && current >= newBalance) || (increment < 0 && current <= newBalance)) {
+                    current = newBalance;
+                    clearInterval(timer);
+                }
+                balanceElement.textContent = Math.floor(current).toLocaleString();
+                balanceElement.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    balanceElement.style.transform = 'scale(1)';
+                }, 100);
+            };
+            
+            const timer = setInterval(animate, 30);
+        }
+
+        function earnCoins(amount, message) {
+            const newBalance = currentBalance + amount;
+            animateBalanceIncrease(newBalance);
+            currentBalance = newBalance;
+            updateBalanceDisplay();
+            
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.showAlert(message);
+            } else {
+                alert(message);
+            }
+        }
+
         function showAlert(message) {
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.showAlert(message);
@@ -530,13 +597,11 @@
         }
 
         function showSection(sectionId) {
-            // Hide all sections
             const sections = document.querySelectorAll('section');
             sections.forEach(section => {
                 section.classList.remove('active');
             });
 
-            // Show target section
             const targetSection = document.getElementById(sectionId);
             targetSection.classList.add('active');
         }
