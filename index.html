@@ -621,14 +621,6 @@
       loadApp();
     }
 
-    // Function called when first time user selects language
-    function setFirstTimeLanguage(lang) {
-      currentLang = lang;
-      localStorage.setItem('microearn_lang', lang);
-      document.getElementById('firstTimeLangModal').style.display = 'none';
-      loadApp();
-    }
-
     async function loadApp() {
       updateTexts();
       await loadUserData();
@@ -672,28 +664,6 @@
       } catch (error) {
         console.error('Failed to update balance:', error);
       }
-    }
-
-    function selectLanguage(lang) {
-      currentLang = lang;
-      localStorage.setItem('microearn_lang', lang);
-      document.getElementById('langModal').style.display = 'none';
-      loadApp();
-    }
-
-    function selectTheme(theme) {
-      currentTheme = theme;
-      localStorage.setItem('microearn_theme', theme);
-      
-      if (theme === 'dark') {
-        document.body.classList.add('dark-theme');
-        document.getElementById('theme-value').innerText = texts[currentLang].themeValueDark;
-      } else {
-        document.body.classList.remove('dark-theme');
-        document.getElementById('theme-value').innerText = texts[currentLang].themeValueLight;
-      }
-      
-      document.getElementById('themeModal').style.display = 'none';
     }
 
     function updateTexts() {
@@ -776,34 +746,6 @@
       setTimeout(() => el.classList.remove('pulse'), 600);
     }
 
-    window.openSettings = function() {
-      document.getElementById('mainPage').classList.remove('active');
-      document.getElementById('settingsPage').classList.add('active');
-      document.getElementById('settingsPage').classList.add('slide-in-left');
-    }
-
-    window.goBack = function() {
-      document.getElementById('settingsPage').classList.remove('slide-in-left');
-      document.getElementById('settingsPage').classList.add('slide-out-left');
-      setTimeout(() => {
-        document.getElementById('settingsPage').classList.remove('active');
-        document.getElementById('settingsPage').classList.remove('slide-out-left');
-        document.getElementById('mainPage').classList.add('active');
-      }, 300);
-    }
-
-    window.openLanguagePopup = function() {
-      document.getElementById('langModal').style.display = 'flex';
-    }
-
-    window.openThemePopup = function() {
-      document.getElementById('themeModal').style.display = 'flex';
-    }
-
-    window.closeModal = function(modalId) {
-      document.getElementById(modalId).style.display = 'none';
-    }
-
     // Greeting logic
     function updateGreeting() {
       const now = new Date();
@@ -821,63 +763,55 @@
     // Call greeting on load
     updateGreeting();
   </script>
+
   <script>
-  // First time language selection fix
-  function setFirstTimeLanguage(lang) {
-    localStorage.setItem('microearn_lang', lang);
-    location.reload(); // Reload to apply language
-  }
-
-  // Normal language change from settings
-  function selectLanguage(lang) {
-    localStorage.setItem('microearn_lang', lang);
-    location.reload();
-  }
-
-  // Theme change
-  function selectTheme(theme) {
-    localStorage.setItem('microearn_theme', theme);
-    if (theme === 'dark') {
-      document.body.classList.add('dark-theme');
-    } else {
-      document.body.classList.remove('dark-theme');
+    // All popup functions here
+    function setFirstTimeLanguage(lang) {
+      localStorage.setItem('microearn_lang', lang);
+      location.reload();
     }
-    document.getElementById('themeModal').style.display = 'none';
-  }
 
-  // Close modal
-  function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-  }
-
-  // Open modals
-  function openLanguagePopup() {
-    document.getElementById('langModal').style.display = 'flex';
-  }
-
-  function openThemePopup() {
-    document.getElementById('themeModal').style.display = 'flex';
-  }
-
-  // Go back
-  function goBack() {
-    document.getElementById('settingsPage').classList.remove('active');
-    document.getElementById('mainPage').classList.add('active');
-  }
-
-  // Open settings
-  function openSettings() {
-    document.getElementById('mainPage').classList.remove('active');
-    document.getElementById('settingsPage').classList.add('active');
-  }
-
-  // Initialize on load
-  document.addEventListener('DOMContentLoaded', function() {
-    const currentLang = localStorage.getItem('microearn_lang');
-    if (!currentLang) {
-      document.getElementById('firstTimeLangModal').style.display = 'flex';
+    function selectLanguage(lang) {
+      localStorage.setItem('microearn_lang', lang);
+      location.reload();
     }
-  });
-</script>
+
+    function selectTheme(theme) {
+      currentTheme = theme;
+      localStorage.setItem('microearn_theme', theme);
+      
+      if (theme === 'dark') {
+        document.body.classList.add('dark-theme');
+        document.getElementById('theme-value').innerText = texts[currentLang].themeValueDark;
+      } else {
+        document.body.classList.remove('dark-theme');
+        document.getElementById('theme-value').innerText = texts[currentLang].themeValueLight;
+      }
+      
+      document.getElementById('themeModal').style.display = 'none';
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+
+    function openLanguagePopup() {
+      document.getElementById('langModal').style.display = 'flex';
+    }
+
+    function openThemePopup() {
+      document.getElementById('themeModal').style.display = 'flex';
+    }
+
+    function goBack() {
+      document.getElementById('settingsPage').classList.remove('active');
+      document.getElementById('mainPage').classList.add('active');
+    }
+
+    function openSettings() {
+      document.getElementById('mainPage').classList.remove('active');
+      document.getElementById('settingsPage').classList.add('active');
+    }
+  </script>
 </body>
 </html>
