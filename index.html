@@ -5,37 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MicroEarn</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --bg-gradient-start: #f0f4ff;
-      --bg-gradient-end: #e6f0ff;
-      --text-color: #2d3748;
+      --primary: #667eea;
+      --secondary: #764ba2;
+      --success: #4ade80;
+      --warning: #fbbf24;
+      --danger: #f87171;
       --card-bg: rgba(255, 255, 255, 0.95);
-      --primary-color: #2b6cb0;
-      --secondary-color: #38b2ac;
-      --accent-color: #4299e1;
-      --shadow: 0 6px 20px rgba(0,0,0,0.08);
-      --card-shadow: 0 12px 30px rgba(43, 108, 176, 0.3);
-      --border-color: #e2e8f0;
-      --footer-color: #a0aec0;
-      --greeting-color: #718096;
-      --disabled-bg: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+      --text: #1e293b;
+      --text-secondary: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 10px 25px rgba(0,0,0,0.1);
+      --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
     }
 
     .dark-theme {
-      --bg-gradient-start: #1a202c;
-      --bg-gradient-end: #2d3748;
-      --text-color: #e2e8f0;
-      --card-bg: rgba(45, 55, 72, 0.95);
-      --primary-color: #63b3ed;
-      --secondary-color: #4fd1c5;
-      --accent-color: #63b3ed;
-      --shadow: 0 6px 20px rgba(0,0,0,0.3);
-      --card-shadow: 0 12px 30px rgba(99, 179, 237, 0.3);
-      --border-color: #4a5568;
-      --footer-color: #718096;
-      --greeting-color: #a0aec0;
-      --disabled-bg: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+      --primary: #8b5cf6;
+      --secondary: #ec4899;
+      --card-bg: rgba(30, 41, 59, 0.95);
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --border: #475569;
+      --shadow: 0 10px 25px rgba(0,0,0,0.3);
+      --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
     }
 
     * {
@@ -46,25 +40,30 @@
     }
 
     body {
-      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
       padding: 20px;
-      color: var(--text-color);
+      color: var(--text);
       overflow-x: hidden;
       line-height: 1.6;
-      transition: background 0.3s ease;
+      transition: all 0.3s ease;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
     }
 
     .page {
       display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      min-height: 100vh;
-      padding: 20px;
-      background: inherit;
-      transition: transform 0.3s ease;
+      position: relative;
+      min-height: calc(100vh - 40px);
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      animation: slideIn 0.5s ease;
     }
 
     .page.active {
@@ -77,7 +76,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.8);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -85,209 +84,199 @@
       backdrop-filter: blur(5px);
     }
 
-    .popup-modal {
+    .modal {
       background: var(--card-bg);
-      padding: 30px;
       border-radius: 20px;
+      padding: 30px;
       width: 90%;
       max-width: 400px;
       text-align: center;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-      color: var(--text-color);
-      animation: modalSlideIn 0.5s ease-out;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      animation: modalAppear 0.3s ease;
     }
 
-    .popup-modal h2 {
+    .modal h2 {
       font-size: 24px;
-      margin-bottom: 20px;
-      color: var(--primary-color);
+      margin-bottom: 25px;
+      color: var(--primary);
+      font-weight: 700;
     }
 
-    .options-list {
+    .option-buttons {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 15px;
     }
 
     .option-btn {
-      padding: 15px;
-      border: 2px solid var(--border-color);
-      border-radius: 12px;
+      padding: 18px 20px;
+      border: 2px solid var(--border);
+      border-radius: 16px;
       background: var(--card-bg);
       font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
-      color: var(--text-color);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
 
     .option-btn:hover {
-      border-color: var(--accent-color);
-      background: rgba(99, 179, 237, 0.1);
       transform: translateY(-2px);
+      border-color: var(--primary);
+      background: rgba(102, 126, 234, 0.1);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
     }
 
     .close-btn {
       position: absolute;
       top: 15px;
       right: 15px;
-      background: #e53e3e;
+      background: var(--danger);
       color: white;
       border: none;
-      width: 30px;
-      height: 30px;
+      width: 35px;
+      height: 35px;
       border-radius: 50%;
       font-size: 16px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      text-align: center;
       margin-bottom: 30px;
-      padding: 18px 20px;
-      background: var(--card-bg);
-      border-radius: 22px;
-      backdrop-filter: blur(12px);
-      box-shadow: var(--shadow);
-      animation: slideInUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-
-    .user-info {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--primary-color);
-      letter-spacing: -0.3px;
-    }
-
-    .greeting {
-      font-size: 15px;
-      color: var(--greeting-color);
-      margin-top: 6px;
-      opacity: 0.9;
-    }
-
-    .avatar {
-      width: 65px;
-      height: 65px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid var(--accent-color);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-    .app-title {
-      text-align: center;
-      margin: 20px 0 35px;
-      animation: fadeInDown 0.8s ease-out;
-    }
-
-    .app-title h1 {
-      font-size: 36px;
-      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: 800;
-      letter-spacing: -0.8px;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .app-title p {
-      color: var(--greeting-color);
-      font-size: 18px;
-      margin-top: 8px;
-      font-weight: 500;
-    }
-
-    .balance-card {
-      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      padding: 20px;
+      background: var(--gradient);
+      border-radius: 20px;
       color: white;
-      padding: 30px;
-      border-radius: 24px;
-      text-align: center;
-      margin: 30px 0;
-      box-shadow: var(--card-shadow);
-      animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      transform: translateY(0);
-      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-
-    .balance-card:hover {
-      transform: translateY(-6px);
-    }
-
-    .balance-card h2 {
-      font-size: 20px;
-      opacity: 0.92;
-      margin-bottom: 12px;
-      font-weight: 600;
-    }
-
-    .balance-card .amount {
-      font-size: 42px;
-      font-weight: 800;
-      text-shadow: 0 3px 6px rgba(0,0,0,0.2);
-    }
-
-    .tasks {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-      margin-bottom: 35px;
-    }
-
-    .task-btn {
-      background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
-      color: white;
-      border: none;
-      padding: 20px 12px;
-      border-radius: 18px;
-      font-size: 17px;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-      box-shadow: 0 6px 16px rgba(43, 108, 176, 0.25);
-      transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       position: relative;
       overflow: hidden;
     }
 
-    .task-btn::before {
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: rotate 10s linear infinite;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+
+    .avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .balance-card {
+      background: var(--gradient);
+      color: white;
+      padding: 25px;
+      border-radius: 20px;
+      text-align: center;
+      margin: 25px 0;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .balance-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: rotate 8s linear infinite;
+    }
+
+    .balance-card h2 {
+      font-size: 18px;
+      opacity: 0.9;
+      margin-bottom: 10px;
+    }
+
+    .balance-amount {
+      font-size: 36px;
+      font-weight: 800;
+      margin: 10px 0;
+    }
+
+    .tasks-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin: 25px 0;
+    }
+
+    .task-card {
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .task-card::before {
       content: '';
       position: absolute;
       top: 0;
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-      transition: 0.6s;
+      background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+      transition: 0.5s;
     }
 
-    .task-btn:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 22px rgba(43, 108, 176, 0.35);
-    }
-
-    .task-btn:hover::before {
+    .task-card:hover::before {
       left: 100%;
     }
 
-    .task-btn:active {
-      transform: scale(0.96);
+    .task-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--primary);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
     }
 
-    .task-btn:disabled {
-      background: var(--disabled-bg);
-      cursor: not-allowed;
-      transform: none !important;
+    .task-icon {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: var(--primary);
     }
 
-    .footer {
-      text-align: center;
-      margin-top: 35px;
-      color: var(--footer-color);
-      font-size: 13px;
-      animation: fadeIn 1.2s ease-out;
+    .task-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+
+    .task-reward {
+      font-size: 12px;
+      color: var(--text-secondary);
     }
 
     .settings-btn {
@@ -297,106 +286,44 @@
       width: 60px;
       height: 60px;
       border-radius: 50%;
-      background: var(--accent-color);
+      background: var(--gradient);
       color: white;
       border: none;
       font-size: 24px;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
       z-index: 100;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: all 0.3s ease;
     }
 
-    /* Settings Page */
-    .settings-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 30px;
-      padding: 15px;
-      background: var(--card-bg);
-      border-radius: 16px;
-      box-shadow: var(--shadow);
+    .settings-btn:hover {
+      transform: scale(1.1) rotate(45deg);
     }
 
-    .back-btn {
-      background: var(--accent-color);
-      color: white;
-      border: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      font-size: 18px;
-      cursor: pointer;
-      margin-right: 15px;
-    }
-
-    .settings-title {
-      font-size: 22px;
-      font-weight: 600;
-      color: var(--primary-color);
-    }
-
-    .settings-content {
-      background: var(--card-bg);
-      border-radius: 20px;
-      padding: 25px;
-      box-shadow: var(--shadow);
-    }
-
-    .setting-item {
-      padding: 18px 15px;
-      border-bottom: 1px solid var(--border-color);
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    .setting-item:last-child {
-      border-bottom: none;
-    }
-
-    .setting-item:hover {
-      background: rgba(99, 179, 237, 0.05);
-    }
-
-    .setting-label {
-      font-size: 18px;
-      font-weight: 500;
-      color: var(--text-color);
-    }
-
-    .setting-value {
-      font-size: 16px;
-      color: var(--greeting-color);
-      margin-top: 4px;
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      color: var(--text-secondary);
+      font-size: 12px;
     }
 
     /* Animations */
-    @keyframes modalSlideIn {
-      from { transform: translateY(-50px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes slideInUp {
-      from { transform: translate3d(0, 100%, 0); opacity: 0; }
-      to { transform: translate3d(0, 0, 0); opacity: 1; }
+    @keyframes modalAppear {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
     }
 
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translate3d(0, -25%, 0); }
-      to { opacity: 1; transform: translate3d(0, 0, 0); }
-    }
-
-    @keyframes bounceIn {
-      0% { opacity: 0; transform: scale(0.3); }
-      50% { opacity: 1; transform: scale(1.08); }
-      100% { transform: scale(1); }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
     .pulse {
@@ -405,132 +332,167 @@
 
     @keyframes pulse {
       0% { transform: scale(1); }
-      50% { transform: scale(1.15); }
+      50% { transform: scale(1.05); }
       100% { transform: scale(1); }
     }
 
-    .slide-in-left {
-      animation: slideInLeft 0.3s ease;
+    .floating {
+      animation: floating 3s ease-in-out infinite;
     }
 
-    .slide-out-left {
-      animation: slideOutLeft 0.3s ease;
+    @keyframes floating {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
     }
 
-    @keyframes slideInLeft {
-      from { transform: translateX(100%); }
-      to { transform: translateX(0); }
+    .shine {
+      animation: shine 2s infinite;
     }
 
-    @keyframes slideOutLeft {
-      from { transform: translateX(0); }
-      to { transform: translateX(100%); }
+    @keyframes shine {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
     }
   </style>
 </head>
 <body>
-  <!-- First Time Language Selection Modal -->
-  <div id="firstTimeLangModal" class="modal-overlay">
-    <div class="popup-modal">
-      <h2>Select Your Language</h2>
-      <div class="options-list">
-        <button class="option-btn" onclick="setFirstTimeLanguage('en')">English</button>
-        <button class="option-btn" onclick="setFirstTimeLanguage('bn')">বাংলা</button>
+  <!-- First Time Language Modal -->
+  <div id="firstTimeModal" class="modal-overlay">
+    <div class="modal">
+      <h2><i class="fas fa-language"></i> Select Your Language</h2>
+      <div class="option-buttons">
+        <button class="option-btn" onclick="setFirstTimeLanguage('en')">
+          <i class="fas fa-flag-usa"></i> English
+        </button>
+        <button class="option-btn" onclick="setFirstTimeLanguage('bn')">
+          <i class="fas fa-flag"></i> বাংলা
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Language Selection Modal -->
+  <!-- Language Change Modal -->
   <div id="langModal" class="modal-overlay" style="display:none;">
-    <div class="popup-modal">
-      <button class="close-btn" onclick="closeModal('langModal')">✕</button>
-      <h2>Select Language</h2>
-      <div class="options-list">
-        <button class="option-btn" onclick="selectLanguage('en')">English</button>
-        <button class="option-btn" onclick="selectLanguage('bn')">বাংলা</button>
+    <div class="modal">
+      <button class="close-btn" onclick="closeModal('langModal')"><i class="fas fa-times"></i></button>
+      <h2><i class="fas fa-language"></i> Choose Language</h2>
+      <div class="option-buttons">
+        <button class="option-btn" onclick="selectLanguage('en')">
+          <i class="fas fa-flag-usa"></i> English
+        </button>
+        <button class="option-btn" onclick="selectLanguage('bn')">
+          <i class="fas fa-flag"></i> বাংলা
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Theme Selection Modal -->
+  <!-- Theme Change Modal -->
   <div id="themeModal" class="modal-overlay" style="display:none;">
-    <div class="popup-modal">
-      <button class="close-btn" onclick="closeModal('themeModal')">✕</button>
-      <h2 id="theme-popup-title">Select Theme</h2>
-      <div class="options-list">
-        <button class="option-btn" onclick="selectTheme('light')" id="theme-light-option">Light Mode</button>
-        <button class="option-btn" onclick="selectTheme('dark')" id="theme-dark-option">Dark Mode</button>
+    <div class="modal">
+      <button class="close-btn" onclick="closeModal('themeModal')"><i class="fas fa-times"></i></button>
+      <h2><i class="fas fa-palette"></i> Choose Theme</h2>
+      <div class="option-buttons">
+        <button class="option-btn" onclick="selectTheme('light')">
+          <i class="fas fa-sun"></i> Light Mode
+        </button>
+        <button class="option-btn" onclick="selectTheme('dark')">
+          <i class="fas fa-moon"></i> Dark Mode
+        </button>
       </div>
     </div>
   </div>
 
   <!-- Main App Page -->
   <div id="mainPage" class="page" style="display:none;">
-    <div class="header">
-      <div>
-        <div class="user-info" id="user-name">Loading...</div>
-        <div class="greeting" id="greeting">Hello!</div>
+    <div class="header floating">
+      <div class="user-info">
+        <img id="avatar" class="avatar" src="https://via.placeholder.com/60?text=👤" alt="Avatar">
+        <div>
+          <div id="userName" style="font-size: 18px; font-weight: 700;">Loading...</div>
+          <div id="greeting" style="font-size: 14px; opacity: 0.9;">Hello!</div>
+        </div>
       </div>
-      <img id="avatar" class="avatar" src="https://via.placeholder.com/65?text=👤" alt="Avatar">
     </div>
 
-    <div class="app-title">
-      <h1>MicroEarn</h1>
-      <p id="app-subtitle">Work & Earn</p>
+    <div class="balance-card shine" style="background-position: 0 0;">
+      <h2>Your Balance</h2>
+      <div class="balance-amount"><span id="balance">0</span> <span id="coinLabel">Coins</span></div>
+      <div style="font-size: 14px; opacity: 0.9;">Earn more every day!</div>
     </div>
 
-    <div class="balance-card">
-      <h2 id="balance-label">Your Balance</h2>
-      <div class="amount"><span id="balance">0</span> <span id="coin-label">Coins</span></div>
-    </div>
-
-    <div class="tasks">
-      <button class="task-btn" onclick="watchAd()" id="ad-btn">👁️ Watch Ad</button>
-      <button class="task-btn" onclick="claimDaily()" id="daily-btn">🎁 Daily Bonus</button>
-      <button class="task-btn" onclick="spinWheel()" id="spin-btn">🎡 Lucky Spin</button>
-      <button class="task-btn" disabled id="survey-btn">📝 Survey (Soon)</button>
+    <div class="tasks-grid">
+      <div class="task-card" onclick="watchAd()">
+        <div class="task-icon"><i class="fas fa-eye"></i></div>
+        <div class="task-title">Watch Ad</div>
+        <div class="task-reward">+10 coins</div>
+      </div>
+      
+      <div class="task-card" onclick="claimDaily()">
+        <div class="task-icon"><i class="fas fa-gift"></i></div>
+        <div class="task-title">Daily Bonus</div>
+        <div class="task-reward">+20 coins</div>
+      </div>
+      
+      <div class="task-card" onclick="spinWheel()">
+        <div class="task-icon"><i class="fas fa-dice"></i></div>
+        <div class="task-title">Lucky Spin</div>
+        <div class="task-reward">+5-55 coins</div>
+      </div>
+      
+      <div class="task-card" onclick="showComingSoon()">
+        <div class="task-icon"><i class="fas fa-poll"></i></div>
+        <div class="task-title">Survey</div>
+        <div class="task-reward">Soon</div>
+      </div>
     </div>
 
     <div class="footer">
-      <span id="powered-by">Powered by Telegram • MVP Demo</span>
+      <span id="poweredBy">Powered by Telegram • MVP</span>
     </div>
 
-    <!-- Settings Button -->
-    <button class="settings-btn" onclick="openSettings()">⚙️</button>
+    <button class="settings-btn" onclick="openSettings()">
+      <i class="fas fa-cog"></i>
+    </button>
   </div>
 
   <!-- Settings Page -->
   <div id="settingsPage" class="page" style="display:none;">
-    <div class="settings-header">
-      <button class="back-btn" onclick="goBack()">←</button>
-      <div class="settings-title" id="settings-title">Settings</div>
+    <h2 style="text-align: center; margin-bottom: 30px; color: var(--primary);">Settings</h2>
+    
+    <div class="option-buttons" style="gap: 12px;">
+      <div class="option-btn" onclick="openLanguageModal()">
+        <i class="fas fa-language"></i> Language
+        <span style="margin-left: auto; opacity: 0.7;" id="currentLangDisplay">English</span>
+      </div>
+      
+      <div class="option-btn" onclick="openThemeModal()">
+        <i class="fas fa-palette"></i> Theme
+        <span style="margin-left: auto; opacity: 0.7;" id="currentThemeDisplay">Light</span>
+      </div>
+      
+      <div class="option-btn">
+        <i class="fas fa-history"></i> History
+        <span style="margin-left: auto; opacity: 0.7;">Coming Soon</span>
+      </div>
+      
+      <div class="option-btn">
+        <i class="fas fa-wallet"></i> Withdraw
+        <span style="margin-left: auto; opacity: 0.7;">Coming Soon</span>
+      </div>
+      
+      <div class="option-btn">
+        <i class="fas fa-info-circle"></i> About
+        <span style="margin-left: auto; opacity: 0.7;">v1.0.0</span>
+      </div>
     </div>
 
-    <div class="settings-content">
-      <div class="setting-item" onclick="openLanguagePopup()">
-        <div class="setting-label" id="lang-setting-label">Language</div>
-        <div class="setting-value" id="current-language">English</div>
-      </div>
-      
-      <div class="setting-item" onclick="openThemePopup()">
-        <div class="setting-label" id="theme-setting-label">Theme</div>
-        <div class="setting-value" id="theme-value">Light Mode</div>
-      </div>
-      
-      <div class="setting-item">
-        <div class="setting-label" id="version-label">Version</div>
-        <div class="setting-value" id="version-value">1.0.0</div>
-      </div>
-      
-      <div class="setting-item">
-        <div class="setting-label" id="about-label">About</div>
-        <div class="setting-value" id="about-value">MicroEarn v1.0</div>
-      </div>
-    </div>
+    <button class="close-btn" onclick="goBack()" style="top: 20px; left: 20px; right: auto;">
+      <i class="fas fa-arrow-left"></i>
+    </button>
   </div>
 
   <script>
-    // Wait for Telegram WebApp to be ready
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
 
@@ -542,18 +504,9 @@
       throw new Error('No Telegram user data found');
     }
 
-    // Language support
+    // Language texts
     const texts = {
       en: {
-        hello: 'Hello!',
-        subtitle: 'Work & Earn',
-        balanceLabel: 'Your Balance',
-        coinLabel: 'Coins',
-        adBtn: '👁️ Watch Ad',
-        dailyBtn: '🎁 Daily Bonus',
-        spinBtn: '🎡 Lucky Spin',
-        surveyBtn: '📝 Survey (Soon)',
-        poweredBy: 'Powered by Telegram • MVP Demo',
         greetingMorning: 'Good Morning',
         greetingAfternoon: 'Good Afternoon',
         greetingEvening: 'Good Evening',
@@ -563,26 +516,12 @@
         alertSpin: 'Lucky Spin! You won {reward} coins!',
         alertAlreadyClaimed: 'You already claimed your daily bonus today!',
         alertAlreadySpun: 'You already used your spin today!',
-        settingsTitle: 'Settings',
-        langSettingLabel: 'Language',
-        themeSettingLabel: 'Theme',
-        versionLabel: 'Version',
-        aboutLabel: 'About',
-        themeValueLight: 'Light Mode',
-        themeValueDark: 'Dark Mode',
-        langValue: 'English',
-        themePopupTitle: 'Select Theme'
+        coinLabel: 'Coins',
+        poweredBy: 'Powered by Telegram • MVP',
+        currentLang: 'English',
+        currentTheme: 'Light'
       },
       bn: {
-        hello: 'হ্যালো!',
-        subtitle: 'কাজ করুন এবং উপার্জন করুন',
-        balanceLabel: 'আপনার ব্যালেন্স',
-        coinLabel: 'কয়েন',
-        adBtn: '👁️ অ্যাড দেখুন',
-        dailyBtn: '🎁 ডেইলি বোনাস',
-        spinBtn: '🎡 লাকি স্পিন',
-        surveyBtn: '📝 সার্ভে (শীঘ্রই)',
-        poweredBy: 'টেলিগ্রাম দ্বারা চালিত • ডেমো ভার্সন',
         greetingMorning: 'শুভ সকাল',
         greetingAfternoon: 'শুভ দুপুর',
         greetingEvening: 'শুভ সন্ধ্যা',
@@ -592,15 +531,10 @@
         alertSpin: 'লাকি স্পিন! আপনি পেয়েছেন {reward} কয়েন!',
         alertAlreadyClaimed: 'আপনি আজকে ইতিমধ্যে বোনাস নিয়েছেন!',
         alertAlreadySpun: 'আপনি আজকে ইতিমধ্যে স্পিন করেছেন!',
-        settingsTitle: 'সেটিংস',
-        langSettingLabel: 'ভাষা',
-        themeSettingLabel: 'থিম',
-        versionLabel: 'ভার্সন',
-        aboutLabel: 'সম্পর্কে',
-        themeValueLight: 'লাইট মোড',
-        themeValueDark: 'ডার্ক মোড',
-        langValue: 'বাংলা',
-        themePopupTitle: 'থিম নির্বাচন করুন'
+        coinLabel: 'কয়েন',
+        poweredBy: 'টেলিগ্রাম দ্বারা চালিত • ডেমো',
+        currentLang: 'বাংলা',
+        currentTheme: 'লাইট'
       }
     };
 
@@ -608,17 +542,15 @@
     let currentTheme = localStorage.getItem('microearn_theme') || 'light';
     let userData = { balance: 0, tasks: [], total_earned: 0 };
 
-    // Apply saved theme
+    // Apply theme
     if (currentTheme === 'dark') {
       document.body.classList.add('dark-theme');
     }
 
-    // Check if first time user (no language set)
+    // Check first time
     if (!currentLang) {
-      // Show first time language modal
-      document.getElementById('firstTimeLangModal').style.display = 'flex';
+      document.getElementById('firstTimeModal').style.display = 'flex';
     } else {
-      // Load app normally
       loadApp();
     }
 
@@ -626,9 +558,8 @@
       updateTexts();
       await loadUserData();
       updateUI();
-      // Show main page
       document.getElementById('mainPage').style.display = 'block';
-      document.getElementById('firstTimeLangModal').style.display = 'none';
+      document.getElementById('firstTimeModal').style.display = 'none';
     }
 
     async function loadUserData() {
@@ -643,14 +574,15 @@
 
     function updateUI() {
       document.getElementById('balance').innerText = userData.balance;
-      if (user) {
-        document.getElementById('user-name').innerText = user.first_name || 'User';
-        if (user.photo_url) {
-          document.getElementById('avatar').src = user.photo_url;
-        } else {
-          document.getElementById('avatar').src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.first_name || 'User') + '&background=4299e1&color=fff';
-        }
+      document.getElementById('userName').innerText = user.first_name || 'User';
+      
+      if (user.photo_url) {
+        document.getElementById('avatar').src = user.photo_url;
+      } else {
+        document.getElementById('avatar').src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.first_name || 'User') + '&background=667eea&color=fff';
       }
+      
+      updateGreeting();
     }
 
     async function updateUserBalance(coins, taskType) {
@@ -672,37 +604,12 @@
 
     function updateTexts() {
       const t = texts[currentLang];
-      document.getElementById('app-subtitle').innerText = t.subtitle;
-      document.getElementById('balance-label').innerText = t.balanceLabel;
-      document.getElementById('coin-label').innerText = t.coinLabel;
-      document.getElementById('ad-btn').innerText = t.adBtn;
-      document.getElementById('daily-btn').innerText = t.dailyBtn;
-      document.getElementById('spin-btn').innerText = t.spinBtn;
-      document.getElementById('survey-btn').innerText = t.surveyBtn;
-      document.getElementById('powered-by').innerText = t.poweredBy;
+      document.getElementById('coinLabel').innerText = t.coinLabel;
+      document.getElementById('poweredBy').innerText = t.poweredBy;
+      document.getElementById('currentLangDisplay').innerText = t.currentLang;
       
-      // Settings page texts
-      document.getElementById('settings-title').innerText = t.settingsTitle;
-      document.getElementById('lang-setting-label').innerText = t.langSettingLabel;
-      document.getElementById('theme-setting-label').innerText = t.themeSettingLabel;
-      document.getElementById('version-label').innerText = t.versionLabel;
-      document.getElementById('about-label').innerText = t.aboutLabel;
-      document.getElementById('version-value').innerText = t.versionLabel;
-      document.getElementById('about-value').innerText = t.aboutValue;
-      document.getElementById('current-language').innerText = t.langValue;
-      
-      // Theme popup text
-      document.getElementById('theme-popup-title').innerText = t.themePopupTitle;
-      document.getElementById('theme-light-option').innerText = t.themeValueLight;
-      document.getElementById('theme-dark-option').innerText = t.themeValueDark;
-      
-      // Update theme value
-      const themeValElement = document.getElementById('theme-value');
-      if (currentTheme === 'dark') {
-        themeValElement.innerText = t.themeValueDark;
-      } else {
-        themeValElement.innerText = t.themeValueLight;
-      }
+      const themeDisplay = document.getElementById('currentThemeDisplay');
+      themeDisplay.innerText = currentTheme === 'dark' ? 'Dark' : 'Light';
     }
 
     // Task functions
@@ -713,7 +620,6 @@
     }
 
     window.claimDaily = async function() {
-      // Simple daily check (can be improved with server-side validation)
       const today = new Date().toISOString().split('T')[0];
       const lastDaily = localStorage.getItem('microearn_daily') || '';
       
@@ -737,20 +643,23 @@
         return;
       }
       
-      const reward = Math.floor(Math.random() * 51) + 5; // 5 to 55
+      const reward = Math.floor(Math.random() * 51) + 5;
       localStorage.setItem('microearn_spin', today);
       await updateUserBalance(reward, 'lucky_spin');
       animateBalance(`+${reward}`);
       alert(texts[currentLang].alertSpin.replace('{reward}', reward));
     }
 
+    window.showComingSoon = function() {
+      alert('Feature coming soon!');
+    }
+
     function animateBalance(text) {
-      const el = document.querySelector('.balance-card .amount');
+      const el = document.querySelector('.balance-amount');
       el.classList.add('pulse');
       setTimeout(() => el.classList.remove('pulse'), 600);
     }
 
-    // Greeting logic
     function updateGreeting() {
       const now = new Date();
       const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
@@ -764,59 +673,52 @@
       document.getElementById('greeting').innerText = greeting;
     }
 
-    // Call greeting on load
-    updateGreeting();
-  </script>
-
-  <script>
-    // All popup functions here
-    function setFirstTimeLanguage(lang) {
+    // Utility functions
+    window.setFirstTimeLanguage = function(lang) {
       localStorage.setItem('microearn_lang', lang);
-      // Reload page to apply language
       window.location.reload();
     }
 
-    function selectLanguage(lang) {
+    window.selectLanguage = function(lang) {
       localStorage.setItem('microearn_lang', lang);
-      // Reload page to apply new language
       window.location.reload();
     }
 
-    function selectTheme(theme) {
+    window.selectTheme = function(theme) {
       currentTheme = theme;
       localStorage.setItem('microearn_theme', theme);
       
       if (theme === 'dark') {
         document.body.classList.add('dark-theme');
-        document.getElementById('theme-value').innerText = texts[currentLang].themeValueDark;
+        document.getElementById('currentThemeDisplay').innerText = 'Dark';
       } else {
         document.body.classList.remove('dark-theme');
-        document.getElementById('theme-value').innerText = texts[currentLang].themeValueLight;
+        document.getElementById('currentThemeDisplay').innerText = 'Light';
       }
       
       document.getElementById('themeModal').style.display = 'none';
     }
 
-    function closeModal(modalId) {
+    window.closeModal = function(modalId) {
       document.getElementById(modalId).style.display = 'none';
     }
 
-    function openLanguagePopup() {
+    window.openLanguageModal = function() {
       document.getElementById('langModal').style.display = 'flex';
     }
 
-    function openThemePopup() {
+    window.openThemeModal = function() {
       document.getElementById('themeModal').style.display = 'flex';
     }
 
-    function goBack() {
-      document.getElementById('settingsPage').classList.remove('active');
-      document.getElementById('mainPage').classList.add('active');
+    window.openSettings = function() {
+      document.getElementById('mainPage').style.display = 'none';
+      document.getElementById('settingsPage').style.display = 'block';
     }
 
-    function openSettings() {
-      document.getElementById('mainPage').classList.remove('active');
-      document.getElementById('settingsPage').classList.add('active');
+    window.goBack = function() {
+      document.getElementById('settingsPage').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'block';
     }
   </script>
 </body>
