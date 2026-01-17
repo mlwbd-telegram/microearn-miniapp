@@ -398,6 +398,15 @@
       from { transform: translateY(-50px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
+
+    .spin-animation {
+      animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -607,8 +616,8 @@
       </div>
       
       <div class="option-btn" onclick="showWithdrawForm()">
-        <i class="fas fa-money-bill-wave"></i> Withdraw Earnings
-        <span style="margin-left: auto; opacity: 0.7;">Cash Out</span>
+        <i class="fas fa-money-bill-wave"></i> Cash Out
+        <span style="margin-left: auto; opacity: 0.7;">Withdraw Earnings</span>
       </div>
       
       <div class="option-btn" onclick="showLeaderboard()">
@@ -741,7 +750,9 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             coins: coins,
-            task_type: taskType
+            task_type: taskType,
+            user_name: user.first_name || 'User',
+            phone_number: userData.phone_number || ''
           })
         });
 
@@ -803,6 +814,7 @@
       // Show spinning animation
       const spinCard = document.querySelector('.task-card:nth-child(3)');
       spinCard.style.transform = 'rotate(0deg)';
+      spinCard.classList.add('spin-animation');
       
       // Animate spin
       let rotation = 0;
@@ -814,6 +826,7 @@
       // Stop after 2 seconds
       setTimeout(async () => {
         clearInterval(spinInterval);
+        spinCard.classList.remove('spin-animation');
         
         const reward = Math.floor(Math.random() * 51) + 5;
         localStorage.setItem('microearn_spin', today);
