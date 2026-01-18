@@ -1,841 +1,1726 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="auto">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MicroEarn - Earn Money on Telegram</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MicroEarn</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        /* ============================================
+           TELEGRAM-ONLY ACCESS STYLE
+        ============================================ */
+        #telegramBlocked {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            z-index: 9999;
+            text-align: center;
+            padding: 40px 20px;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        /* ============================================
+           CSS VARIABLES FOR THEME SYSTEM
+        ============================================ */
         :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f5f5f5;
-            --bg-card: #ffffff;
-            --text-primary: #333333;
-            --text-secondary: #666666;
-            --border-color: #e0e0e0;
-            --primary-color: #0088cc;
-            --primary-dark: #006699;
-            --success-color: #4caf50;
-            --warning-color: #ff9800;
-            --danger-color: #f44336;
-            --shadow: 0 2px 8px rgba(0,0,0,0.1);
-            --radius: 12px;
-        }
-        
-        [data-theme="dark"] {
-            --bg-primary: #1a1a1a;
-            --bg-secondary: #2d2d2d;
+            /* Dark Theme (Default) */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
             --bg-card: #2d2d2d;
+            --bg-overlay: rgba(0, 0, 0, 0.7);
             --text-primary: #ffffff;
-            --text-secondary: #cccccc;
+            --text-secondary: #b0b0b0;
+            --text-muted: #808080;
             --border-color: #404040;
-            --primary-color: #0088cc;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+            --primary: #0088cc;
+            --primary-light: rgba(0, 136, 204, 0.2);
             --primary-dark: #006699;
-            --shadow: 0 2px 8px rgba(0,0,0,0.3);
+            --success: #00a884;
+            --success-light: rgba(0, 168, 132, 0.2);
+            --warning: #ff9500;
+            --warning-light: rgba(255, 149, 0, 0.2);
+            --danger: #ff3b30;
+            --danger-light: rgba(255, 59, 48, 0.2);
+            --info: #5856d6;
+            --info-light: rgba(88, 86, 214, 0.2);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-family-bn: 'Noto Sans Bengali', 'Poppins', sans-serif;
         }
-        
+
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-card: #ffffff;
+            --bg-overlay: rgba(0, 0, 0, 0.5);
+            --text-primary: #1a1a1a;
+            --text-secondary: #6c757d;
+            --text-muted: #adb5bd;
+            --border-color: #e9ecef;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --primary: #0088cc;
+            --primary-light: #e6f7ff;
+            --primary-dark: #006699;
+            --success: #00a884;
+            --success-light: #e7f7f2;
+            --warning: #ff9500;
+            --warning-light: #fff4e6;
+            --danger: #ff3b30;
+            --danger-light: #ffe6e5;
+            --info: #5856d6;
+            --info-light: #f0f0ff;
+        }
+
+        /* ============================================
+           BASE STYLES
+        ============================================ */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
-        
+
+        html {
+            font-size: 16px;
+            height: 100%;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: var(--font-family);
             background: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.5;
+            min-height: 100vh;
             padding-bottom: 80px;
+            overflow-x: hidden;
+            transition: var(--transition);
         }
-        
+
+        body.bn {
+            font-family: var(--font-family-bn);
+        }
+
         .container {
+            width: 100%;
             max-width: 500px;
             margin: 0 auto;
-            padding: 16px;
+            padding: 0 16px;
         }
-        
-        .header {
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border-color);
-            padding: 16px;
+
+        /* ============================================
+           TYPOGRAPHY
+        ============================================ */
+        h1, h2, h3, h4 {
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .text-primary { color: var(--primary); }
+        .text-success { color: var(--success); }
+        .text-warning { color: var(--warning); }
+        .text-danger { color: var(--danger); }
+        .text-muted { color: var(--text-muted); }
+
+        /* ============================================
+           HEADER
+        ============================================ */
+        .app-header {
+            background: var(--bg-primary);
+            padding: 16px 0;
             position: sticky;
             top: 0;
             z-index: 100;
-            backdrop-filter: blur(10px);
-            background: rgba(var(--bg-card-rgb), 0.8);
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(20px);
+            background: rgba(var(--bg-primary-rgb), 0.9);
         }
-        
-        .profile-section {
+
+        .header-content {
             display: flex;
             align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .header-actions {
+            display: flex;
             gap: 12px;
-            margin-bottom: 20px;
         }
-        
-        .avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--primary-color);
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: var(--bg-secondary);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: var(--transition);
         }
-        
-        .profile-info h2 {
-            font-size: 18px;
-            margin-bottom: 4px;
+
+        .icon-btn:hover {
+            background: var(--border-color);
         }
-        
-        .profile-info p {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-        
+
+        /* ============================================
+           BALANCE CARD
+        ============================================ */
         .balance-card {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: white;
-            border-radius: var(--radius);
-            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-lg);
+            padding: 24px;
             margin: 20px 0;
-            box-shadow: var(--shadow);
+            color: white;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+        }
+
         .balance-label {
-            font-size: 14px;
+            font-size: 0.875rem;
             opacity: 0.9;
-            margin-bottom: 4px;
-        }
-        
-        .balance-amount {
-            font-size: 32px;
-            font-weight: bold;
             margin-bottom: 8px;
         }
-        
+
+        .balance-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+
         .balance-sub {
-            font-size: 14px;
+            font-size: 0.875rem;
             opacity: 0.9;
         }
-        
+
+        /* ============================================
+           STATS GRID
+        ============================================ */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
-            margin: 20px 0;
+            margin: 24px 0;
         }
-        
+
         .stat-card {
             background: var(--bg-card);
-            border-radius: var(--radius);
+            border-radius: var(--radius-md);
             padding: 16px;
-            text-align: center;
-            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
         }
-        
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
         .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
             margin-bottom: 4px;
         }
-        
+
         .stat-label {
-            font-size: 12px;
+            font-size: 0.75rem;
             color: var(--text-secondary);
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        
+
+        /* ============================================
+           SECTION HEADERS
+        ============================================ */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 32px 0 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
         .section-title {
-            font-size: 18px;
-            margin: 24px 0 12px;
+            font-size: 1.125rem;
+            font-weight: 600;
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        
-        .earn-options {
+
+        /* ============================================
+           QUICK ACTIONS
+        ============================================ */
+        .quick-actions {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 12px;
             margin: 20px 0;
         }
-        
-        .earn-card {
+
+        .action-btn {
             background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 20px;
-            text-align: center;
-            box-shadow: var(--shadow);
-            transition: transform 0.2s;
-            cursor: pointer;
             border: 1px solid var(--border-color);
-        }
-        
-        .earn-card:active {
-            transform: scale(0.98);
-        }
-        
-        .earn-card.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .earn-icon {
-            font-size: 32px;
-            margin-bottom: 12px;
-            color: var(--primary-color);
-        }
-        
-        .earn-title {
-            font-size: 16px;
-            margin-bottom: 8px;
-        }
-        
-        .earn-amount {
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--success-color);
-            margin-bottom: 8px;
-        }
-        
-        .earn-cooldown {
-            font-size: 12px;
-            color: var(--warning-color);
-            margin-top: 4px;
-        }
-        
-        .nav-tabs {
-            display: flex;
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 4px;
-            margin: 20px 0;
-        }
-        
-        .nav-tab {
-            flex: 1;
+            border-radius: var(--radius-md);
+            padding: 16px 8px;
             text-align: center;
-            padding: 12px;
-            border-radius: 8px;
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        
-        .nav-tab.active {
-            background: var(--primary-color);
-            color: white;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .withdraw-methods {
-            display: grid;
-            gap: 12px;
-            margin: 20px 0;
-        }
-        
-        .method-card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 16px;
+            transition: var(--transition);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s;
+            gap: 8px;
         }
-        
-        .method-card.active {
-            border-color: var(--primary-color);
-            background: rgba(0, 136, 204, 0.05);
+
+        .action-btn:hover:not(.disabled) {
+            background: var(--bg-secondary);
+            transform: translateY(-2px);
         }
-        
-        .method-icon {
-            font-size: 32px;
-            color: var(--primary-color);
-        }
-        
-        .method-info h3 {
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-        
-        .method-info p {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-        
-        .form-group {
-            margin-bottom: 16px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            background: var(--bg-card);
-            color: var(--text-primary);
-            font-size: 16px;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-        
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-        }
-        
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-        
-        .btn-primary:active {
-            background: var(--primary-dark);
-        }
-        
-        .btn-success {
-            background: var(--success-color);
-            color: white;
-        }
-        
-        .btn:disabled {
+
+        .action-btn.disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-        
-        .referral-section {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin: 20px 0;
-            text-align: center;
-            box-shadow: var(--shadow);
-        }
-        
-        .referral-code {
-            background: var(--bg-secondary);
-            border-radius: var(--radius);
-            padding: 12px;
-            font-family: monospace;
-            font-size: 18px;
-            letter-spacing: 1px;
-            margin: 16px 0;
-            cursor: pointer;
-            user-select: all;
-        }
-        
-        .notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100px);
-            background: var(--success-color);
-            color: white;
-            padding: 12px 24px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            z-index: 1000;
-            transition: transform 0.3s;
-        }
-        
-        .notification.show {
-            transform: translateX(-50%) translateY(0);
-        }
-        
-        .notification.error {
-            background: var(--danger-color);
-        }
-        
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: none;
+
+        .action-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
-            padding: 16px;
+            font-size: 1.5rem;
         }
-        
-        .modal.show {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 24px;
-            max-width: 400px;
-            width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .modal-title {
-            font-size: 20px;
-            margin-bottom: 16px;
-        }
-        
-        .close-modal {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: none;
-            border: none;
-            font-size: 24px;
+
+        .action-btn:nth-child(1) .action-icon { background: var(--primary-light); color: var(--primary); }
+        .action-btn:nth-child(2) .action-icon { background: var(--success-light); color: var(--success); }
+        .action-btn:nth-child(3) .action-icon { background: var(--warning-light); color: var(--warning); }
+        .action-btn:nth-child(4) .action-icon { background: var(--info-light); color: var(--info); }
+
+        .action-text {
+            font-size: 0.75rem;
             color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .action-amount {
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        /* ============================================
+           EARN CARDS
+        ============================================ */
+        .earn-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .earn-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
             cursor: pointer;
         }
-        
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--border-color);
-            border-top-color: var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+
+        .earn-card:hover:not(.disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+
+        .earn-card.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
-        
-        .footer {
+
+        .earn-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .earn-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .earn-card:nth-child(1) .earn-icon { background: var(--primary-light); color: var(--primary); }
+        .earn-card:nth-child(2) .earn-icon { background: var(--success-light); color: var(--success); }
+        .earn-card:nth-child(3) .earn-icon { background: var(--warning-light); color: var(--warning); }
+
+        .earn-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .earn-desc {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .earn-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .earn-amount {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .cooldown {
+            font-size: 0.75rem;
+            color: var(--warning);
+            padding: 4px 8px;
+            background: var(--warning-light);
+            border-radius: var(--radius-sm);
+        }
+
+        /* ============================================
+           BOTTOM NAVIGATION
+        ============================================ */
+        .bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             background: var(--bg-card);
             border-top: 1px solid var(--border-color);
-            padding: 12px;
+            padding: 12px 16px;
             display: flex;
             justify-content: space-around;
-            z-index: 100;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            background: rgba(var(--bg-card-rgb), 0.95);
         }
-        
-        .footer-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 24px;
-            cursor: pointer;
-            padding: 8px;
-        }
-        
-        .footer-btn.active {
-            color: var(--primary-color);
-        }
-        
-        .history-item {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 16px;
-            margin-bottom: 12px;
+
+        .nav-item {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            min-width: 60px;
         }
-        
-        .history-amount {
-            font-weight: bold;
-            color: var(--success-color);
+
+        .nav-item.active {
+            background: var(--primary-light);
+            color: var(--primary);
         }
-        
-        .history-amount.negative {
-            color: var(--danger-color);
+
+        .nav-icon {
+            font-size: 1.25rem;
         }
-        
-        .language-switcher {
-            position: absolute;
-            top: 16px;
-            right: 16px;
+
+        .nav-label {
+            font-size: 0.6875rem;
+            font-weight: 500;
         }
-        
-        .lang-btn {
+
+        /* ============================================
+           PAGE CONTENT
+        ============================================ */
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* ============================================
+           MODALS
+        ============================================ */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-overlay);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
             background: var(--bg-secondary);
             border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: var(--text-primary);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
             cursor: pointer;
         }
-        
-        @media (max-width: 400px) {
+
+        /* ============================================
+           LANGUAGE SELECTION
+        ============================================ */
+        .language-options {
+            display: grid;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .language-btn {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .language-btn:hover {
+            background: var(--border-color);
+        }
+
+        .language-btn.active {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .language-flag {
+            font-size: 2rem;
+        }
+
+        .language-info h3 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .language-info p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* ============================================
+           SETTINGS
+        ============================================ */
+        .settings-list {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-item:hover {
+            background: var(--bg-secondary);
+        }
+
+        .settings-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .settings-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-text h3 {
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .settings-text p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .settings-value {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .theme-options {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .theme-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .theme-btn.active {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        /* ============================================
+           PROFILE SECTION
+        ============================================ */
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 32px 0;
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23006699' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid white;
+            object-fit: cover;
+            margin-bottom: 12px;
+        }
+
+        .profile-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .profile-username {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        /* ============================================
+           LOADING & NOTIFICATIONS
+        ============================================ */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--border-color) 50%, var(--bg-secondary) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: var(--radius-md);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        /* ============================================
+           ANIMATIONS
+        ============================================ */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ============================================
+           RESPONSIVE
+        ============================================ */
+        @media (max-width: 480px) {
             .container {
-                padding: 12px;
+                padding: 0 12px;
             }
-            
-            .earn-options {
-                grid-template-columns: 1fr;
-            }
-            
             .stats-grid {
                 grid-template-columns: 1fr;
             }
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .balance-amount {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 350px) {
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            .nav-label {
+                display: none;
+            }
+        }
+
+        /* ============================================
+           BUTTONS & FORMS
+        ============================================ */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: var(--primary);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.875rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="profile-section">
-            <img id="userAvatar" src="" alt="Avatar" class="avatar">
-            <div class="profile-info">
-                <h2 id="userName">Loading...</h2>
-                <p id="userUsername">@username</p>
-            </div>
-        </div>
-        
-        <div class="balance-card">
-            <div class="balance-label">Your Balance</div>
-            <div class="balance-amount" id="balanceAmount">0</div>
-            <div class="balance-sub" id="balanceSub">0 coins = 0 BDT</div>
-        </div>
-        
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value" id="todayEarnings">0</div>
-                <div class="stat-label">Today</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="totalEarnings">0</div>
-                <div class="stat-label">Total Earned</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="referralCount">0</div>
-                <div class="stat-label">Referrals</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="pendingWithdrawal">0</div>
-                <div class="stat-label">Pending</div>
-            </div>
-        </div>
+    <!-- Telegram-Only Access Block -->
+    <div id="telegramBlocked">
+        <div style="font-size: 3rem; margin-bottom: 24px;">🚫</div>
+        <h1 style="font-size: 1.5rem; margin-bottom: 16px;">This app can only be used inside Telegram</h1>
+        <p style="margin-bottom: 24px; opacity: 0.9;">Please open this app through Telegram Mini App</p>
+        <button onclick="location.reload()" style="padding: 12px 24px; background: white; color: #667eea; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+            Reload Page
+        </button>
     </div>
-    
-    <div class="container">
-        <!-- Home Tab -->
-        <div id="homeTab" class="tab-content active">
-            <div class="section-title">
-                <i class="fas fa-coins"></i>
-                <span>Earn Coins</span>
-            </div>
-            
-            <div class="earn-options">
-                <div class="earn-card" onclick="watchAd('video_ad')" id="videoAdCard">
-                    <div class="earn-icon">
-                        <i class="fas fa-video"></i>
-                    </div>
-                    <div class="earn-title">Watch Video</div>
-                    <div class="earn-amount">+10 coins</div>
-                    <div class="earn-cooldown" id="videoCooldown"></div>
-                </div>
-                
-                <div class="earn-card" onclick="claimDailyBonus()" id="dailyBonusCard">
-                    <div class="earn-icon">
-                        <i class="fas fa-gift"></i>
-                    </div>
-                    <div class="earn-title">Daily Bonus</div>
-                    <div class="earn-amount" id="dailyBonusAmount">+50 coins</div>
-                    <div class="earn-cooldown" id="dailyBonusStatus">Claim now!</div>
-                </div>
-                
-                <div class="earn-card" onclick="openSurveys()">
-                    <div class="earn-icon">
-                        <i class="fas fa-clipboard-list"></i>
-                    </div>
-                    <div class="earn-title">Surveys</div>
-                    <div class="earn-amount">+100-500 coins</div>
-                    <div class="earn-cooldown">High paying</div>
-                </div>
-                
-                <div class="earn-card" onclick="openReferral()">
-                    <div class="earn-icon">
-                        <i class="fas fa-user-plus"></i>
-                    </div>
-                    <div class="earn-title">Refer Friends</div>
-                    <div class="earn-amount">+50 coins each</div>
-                    <div class="earn-cooldown">Unlimited</div>
-                </div>
-            </div>
-            
-            <div class="section-title">
-                <i class="fas fa-fire"></i>
-                <span>Daily Streak</span>
-            </div>
-            
-            <div class="referral-section">
-                <div style="font-size: 48px; margin-bottom: 12px;">🔥</div>
-                <h3 id="streakDays">Day 1</h3>
-                <p>Claim daily bonus every day to increase your streak!</p>
-                <div style="margin-top: 12px; font-size: 14px; color: var(--text-secondary);">
-                    Current bonus: <span id="currentBonus">50</span> coins
-                </div>
-            </div>
-        </div>
-        
-        <!-- Withdraw Tab -->
-        <div id="withdrawTab" class="tab-content">
-            <div class="section-title">
-                <i class="fas fa-wallet"></i>
-                <span>Withdraw Money</span>
-            </div>
-            
-            <p style="margin-bottom: 20px; color: var(--text-secondary);">
-                Minimum withdrawal: 1000 coins (100 BDT)<br>
-                Processing: Manual approval (24-48 hours)
-            </p>
-            
-            <div class="withdraw-methods">
-                <div class="method-card" onclick="selectMethod('bkash')" id="bkashMethod">
-                    <div class="method-icon">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <div class="method-info">
-                        <h3>bKash</h3>
-                        <p>Bangladesh's #1 mobile wallet</p>
-                    </div>
-                </div>
-                
-                <div class="method-card" onclick="selectMethod('nagad')" id="nagadMethod">
-                    <div class="method-icon">
-                        <i class="fas fa-wallet"></i>
-                    </div>
-                    <div class="method-info">
-                        <h3>Nagad</h3>
-                        <p>Fast & secure payments</p>
-                    </div>
-                </div>
-            </div>
-            
-            <form id="withdrawForm" onsubmit="submitWithdraw(event)">
-                <div class="form-group">
-                    <label class="form-label">Account Number</label>
-                    <input type="tel" class="form-input" id="accountNumber" 
-                           placeholder="01XXXXXXXXX" required
-                           pattern="^(?:\+88)?01[3-9]\d{8}$">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Amount (coins)</label>
-                    <input type="number" class="form-input" id="withdrawAmount" 
-                           min="1000" max="50000" step="100" 
-                           placeholder="1000" required>
-                    <div style="font-size: 12px; margin-top: 4px; color: var(--text-secondary);">
-                        You will receive: <span id="bdAmount">0</span> BDT
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn btn-primary" id="withdrawBtn">
-                    Request Withdrawal
-                </button>
-            </form>
-        </div>
-        
-        <!-- History Tab -->
-        <div id="historyTab" class="tab-content">
-            <div class="section-title">
-                <i class="fas fa-history"></i>
-                <span>Transaction History</span>
-            </div>
-            
-            <div class="nav-tabs" style="margin-top: 0;">
-                <div class="nav-tab active" onclick="showHistory('earnings')">Earnings</div>
-                <div class="nav-tab" onclick="showHistory('withdrawals')">Withdrawals</div>
-            </div>
-            
-            <div id="earningsHistory" class="tab-content active">
-                <!-- Earnings list will be loaded here -->
-                <div id="earningsList"></div>
-            </div>
-            
-            <div id="withdrawalsHistory" class="tab-content">
-                <!-- Withdrawals list will be loaded here -->
-                <div id="withdrawalsList"></div>
-            </div>
-        </div>
-        
-        <!-- Referral Tab -->
-        <div id="referralTab" class="tab-content">
-            <div class="section-title">
-                <i class="fas fa-user-plus"></i>
-                <span>Refer & Earn</span>
-            </div>
-            
-            <div class="referral-section">
-                <h3>Invite friends and earn 50 coins each!</h3>
-                <p style="margin: 12px 0;">Share your referral link:</p>
-                
-                <div class="referral-code" id="referralCode">
-                    Loading...
-                </div>
-                
-                <button class="btn btn-primary" onclick="copyReferral()">
-                    <i class="fas fa-copy"></i> Copy Link
-                </button>
-                
-                <div style="margin-top: 20px;">
-                    <h4>How it works:</h4>
-                    <ol style="text-align: left; margin-top: 8px; padding-left: 20px;">
-                        <li>Share your link with friends</li>
-                        <li>They join using your link</li>
-                        <li>You get 50 coins instantly</li>
-                        <li>No limit on referrals!</li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Notification -->
-    <div class="notification" id="notification"></div>
-    
-    <!-- Modal for surveys -->
-    <div class="modal" id="surveyModal">
+
+    <!-- Language Selection Modal -->
+    <div class="modal" id="languageModal">
         <div class="modal-content">
-            <button class="close-modal" onclick="closeModal()">&times;</button>
-            <h3 class="modal-title">Complete Surveys</h3>
-            <p>Earn 100-500 coins per survey! Surveys are provided by our partners.</p>
-            
-            <div style="margin: 20px 0;">
-                <button class="btn btn-primary" onclick="openCpx()" style="margin-bottom: 12px;">
-                    <i class="fas fa-poll"></i> CPX Research
-                </button>
-                <button class="btn btn-success" onclick="openBitlabs()">
-                    <i class="fas fa-chart-bar"></i> BitLabs
-                </button>
+            <div class="modal-header">
+                <h2 class="modal-title" data-i18n="choose_language">Choose Language</h2>
             </div>
-            
-            <p style="font-size: 12px; color: var(--text-secondary);">
-                Note: You will be redirected to survey provider's website.
-                Rewards are credited automatically upon completion.
-            </p>
+            <div class="language-options">
+                <div class="language-btn" data-lang="bn">
+                    <div class="language-flag">🇧🇩</div>
+                    <div class="language-info">
+                        <h3>বাংলা</h3>
+                        <p>Bangla language</p>
+                    </div>
+                </div>
+                <div class="language-btn" data-lang="en">
+                    <div class="language-flag">🇺🇸</div>
+                    <div class="language-info">
+                        <h3>English</h3>
+                        <p>English language</p>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="saveLanguage()" style="width: 100%; margin-top: 20px; padding: 12px;">
+                <span data-i18n="continue">Continue</span>
+            </button>
         </div>
     </div>
-    
-    <!-- Footer Navigation -->
-    <div class="footer">
-        <button class="footer-btn active" onclick="showTab('homeTab')">
-            <i class="fas fa-home"></i>
-        </button>
-        <button class="footer-btn" onclick="showTab('withdrawTab')">
-            <i class="fas fa-wallet"></i>
-        </button>
-        <button class="footer-btn" onclick="showTab('historyTab')">
-            <i class="fas fa-history"></i>
-        </button>
-        <button class="footer-btn" onclick="showTab('referralTab')">
-            <i class="fas fa-user-plus"></i>
-        </button>
+
+    <!-- App Content (Only shown if Telegram detected) -->
+    <div id="appContent" style="display: none;">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo">
+                        <i class="fas fa-coins"></i>
+                        <span>MicroEarn</span>
+                    </div>
+                    <div class="header-actions">
+                        <button class="icon-btn" onclick="refreshData()" title="Refresh">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container">
+            <!-- Home Page -->
+            <div id="homePage" class="page active">
+                <!-- Profile Card -->
+                <div id="profileSection" style="display: none;">
+                    <div class="profile-header">
+                        <img id="userAvatar" src="" alt="Avatar" class="profile-avatar skeleton">
+                        <h2 class="profile-name" id="userName"></h2>
+                        <p class="profile-username" id="userUsername"></p>
+                    </div>
+                </div>
+
+                <!-- Balance Card -->
+                <div class="balance-card skeleton" id="balanceCard">
+                    <div class="balance-label" data-i18n="your_balance">Your Balance</div>
+                    <div class="balance-amount" id="balanceAmount">0</div>
+                    <div class="balance-sub" id="balanceSub">0 coins = 0 BDT</div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="todayEarnings">0</div>
+                        <div class="stat-label" data-i18n="today">Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalEarnings">0</div>
+                        <div class="stat-label" data-i18n="total_earned">Total Earned</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="referralCount">0</div>
+                        <div class="stat-label" data-i18n="referrals">Referrals</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pendingWithdrawal">0</div>
+                        <div class="stat-label" data-i18n="pending">Pending</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-bolt"></i>
+                        <span data-i18n="quick_actions">Quick Actions</span>
+                    </h3>
+                </div>
+                <div class="quick-actions">
+                    <div class="action-btn" onclick="navigateTo('earnPage')">
+                        <div class="action-icon">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <div class="action-amount" id="dailyBonusQuick">+50</div>
+                        <div class="action-text" data-i18n="daily_bonus">Daily Bonus</div>
+                    </div>
+                    <div class="action-btn" onclick="watchAd('video_ad')" id="videoAdQuick">
+                        <div class="action-icon">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <div class="action-amount">+10</div>
+                        <div class="action-text" data-i18n="watch_video">Watch Video</div>
+                    </div>
+                    <div class="action-btn" onclick="navigateTo('referralPage')">
+                        <div class="action-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="action-amount">+50</div>
+                        <div class="action-text" data-i18n="refer_friend">Refer Friend</div>
+                    </div>
+                    <div class="action-btn" onclick="navigateTo('walletPage')">
+                        <div class="action-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="action-text" data-i18n="withdraw">Withdraw</div>
+                    </div>
+                </div>
+
+                <!-- Earn More -->
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-gem"></i>
+                        <span data-i18n="earn_more">Earn More</span>
+                    </h3>
+                </div>
+                <div class="earn-grid">
+                    <div class="earn-card" onclick="watchAd('video_ad')" id="videoAdCard">
+                        <div class="earn-header">
+                            <div class="earn-icon">
+                                <i class="fas fa-video"></i>
+                            </div>
+                            <div class="earn-amount">+10</div>
+                        </div>
+                        <h3 class="earn-title" data-i18n="watch_video_ad">Watch Video Ad</h3>
+                        <p class="earn-desc" data-i18n="video_ad_desc">Watch a short video to earn coins</p>
+                        <div class="earn-footer">
+                            <div class="cooldown" id="videoCooldown" data-i18n="ready">Ready!</div>
+                            <button class="btn btn-sm" onclick="event.stopPropagation(); watchAd('video_ad')">
+                                <span data-i18n="watch_now">Watch Now</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="earn-card" onclick="claimDailyBonus()" id="dailyBonusCard">
+                        <div class="earn-header">
+                            <div class="earn-icon">
+                                <i class="fas fa-gift"></i>
+                            </div>
+                            <div class="earn-amount" id="dailyBonusAmount">+50</div>
+                        </div>
+                        <h3 class="earn-title" data-i18n="daily_bonus">Daily Bonus</h3>
+                        <p class="earn-desc" data-i18n="daily_bonus_desc">Claim your daily bonus</p>
+                        <div class="earn-footer">
+                            <div class="cooldown" id="dailyBonusStatus" data-i18n="claim_now">Claim Now!</div>
+                            <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); claimDailyBonus()">
+                                <span data-i18n="claim">Claim</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="earn-card" onclick="openSurveys()">
+                        <div class="earn-header">
+                            <div class="earn-icon">
+                                <i class="fas fa-poll"></i>
+                            </div>
+                            <div class="earn-amount">+100-500</div>
+                        </div>
+                        <h3 class="earn-title" data-i18n="complete_surveys">Complete Surveys</h3>
+                        <p class="earn-desc" data-i18n="survey_desc">Answer surveys and earn big rewards</p>
+                        <div class="earn-footer">
+                            <div class="cooldown" data-i18n="high_paying">High Paying</div>
+                            <button class="btn btn-sm btn-success" onclick="event.stopPropagation(); openSurveys()">
+                                <span data-i18n="start">Start</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Earn Page -->
+            <div id="earnPage" class="page">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span data-i18n="earn_money">Earn Money</span>
+                    </h3>
+                </div>
+
+                <div class="earn-grid">
+                    <!-- Dynamic earn cards will be added here -->
+                </div>
+
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-chart-line"></i>
+                        <span data-i18n="other_ways">Other Ways to Earn</span>
+                    </h3>
+                </div>
+
+                <div class="settings-list">
+                    <div class="settings-item" onclick="openSurveys()">
+                        <div class="settings-item-left">
+                            <div class="settings-icon">
+                                <i class="fas fa-poll"></i>
+                            </div>
+                            <div class="settings-text">
+                                <h3 data-i18n="surveys">Surveys</h3>
+                                <p data-i18n="survey_earn_desc">Earn 100-500 coins per survey</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+
+                    <div class="settings-item" onclick="openReferral()">
+                        <div class="settings-item-left">
+                            <div class="settings-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="settings-text">
+                                <h3 data-i18n="referral_program">Referral Program</h3>
+                                <p data-i18n="referral_earn_desc">Earn 50 coins for each friend</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wallet Page -->
+            <div id="walletPage" class="page">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-wallet"></i>
+                        <span data-i18n="wallet">Wallet</span>
+                    </h3>
+                </div>
+
+                <div class="balance-card" style="margin-bottom: 32px;">
+                    <div class="balance-label" data-i18n="available_balance">Available Balance</div>
+                    <div class="balance-amount" id="walletBalance">0</div>
+                    <div class="balance-sub" id="walletSub">0 coins = 0 BDT</div>
+                </div>
+
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-money-bill-transfer"></i>
+                        <span data-i18n="withdraw_funds">Withdraw Funds</span>
+                    </h3>
+                </div>
+
+                <div class="earn-card">
+                    <h3 class="earn-title" data-i18n="withdraw_to_bank">Withdraw to bKash/Nagad</h3>
+                    <p class="earn-desc" data-i18n="withdraw_desc">Minimum 1000 coins (100 BDT). Manual approval within 24-48 hours.</p>
+                    <button class="btn btn-primary" onclick="openWithdrawModal()" style="width: 100%; margin-top: 16px; padding: 12px;">
+                        <span data-i18n="request_withdrawal">Request Withdrawal</span>
+                    </button>
+                </div>
+
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-history"></i>
+                        <span data-i18n="transaction_history">Transaction History</span>
+                    </h3>
+                </div>
+
+                <div id="transactionHistory">
+                    <div class="earn-card" style="text-align: center; padding: 40px 20px;">
+                        <i class="fas fa-history" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 16px;"></i>
+                        <h3 data-i18n="no_transactions">No Transactions Yet</h3>
+                        <p class="earn-desc" data-i18n="start_earning">Start earning to see your transaction history</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile/Settings Page -->
+            <div id="profilePage" class="page">
+                <div class="profile-header">
+                    <img id="profileAvatar" src="" alt="Avatar" class="profile-avatar skeleton">
+                    <h2 class="profile-name" id="profileName"></h2>
+                    <p class="profile-username" id="profileUsername"></p>
+                </div>
+
+                <div class="settings-list">
+                    <div class="settings-item" onclick="openLanguageSettings()">
+                        <div class="settings-item-left">
+                            <div class="settings-icon">
+                                <i class="fas fa-language"></i>
+                            </div>
+                            <div class="settings-text">
+                                <h3 data-i18n="language">Language</h3>
+                                <p data-i18n="change_app_language">Change app language</p>
+                            </div>
+                        </div>
+                        <div class="settings-value" id="currentLanguage">English</div>
+                    </div>
+
+                    <div class="settings-item" onclick="openThemeSettings()">
+                        <div class="settings-item-left">
+                            <div class="settings-icon">
+                                <i class="fas fa-palette"></i>
+                            </div>
+                            <div class="settings-text">
+                                <h3 data-i18n="theme">Theme</h3>
+                                <p data-i18n="change_app_theme">Change app theme</p>
+                            </div>
+                        </div>
+                        <div class="settings-value" id="currentTheme">Dark</div>
+                    </div>
+
+                    <div class="settings-item" onclick="openReferral()">
+                        <div class="settings-item-left">
+                            <div class="settings-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="settings-text">
+                                <h3 data-i18n="referral_program">Referral Program</h3>
+                                <p data-i18n="invite_friends_earn">Invite friends and earn coins</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+
+                    <div class="settings-item" onclick="openAbout()">
+                        <div class="settings-item-left">
+                            <div class="settings-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="settings-text">
+                                <h3 data-i18n="about">About</h3>
+                                <p data-i18n="about_microearn">About MicroEarn</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+
+                    <!-- Admin Panel Button -->
+                    <div class="settings-item" id="adminPanelBtn" style="display: none;" onclick="openAdminPanel()">
+                        <div class="settings-item-left">
+                            <div class="settings-icon" style="background: var(--danger-light); color: var(--danger);">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <div class="settings-text">
+                                <h3 data-i18n="admin_panel">Admin Panel</h3>
+                                <p data-i18n="admin_controls">Administrator controls</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+
+                <div class="earn-card" style="margin-top: 24px; text-align: center;">
+                    <h3 class="earn-title" data-i18n="support">Support</h3>
+                    <p class="earn-desc" data-i18n="support_desc">Need help? Contact our support team</p>
+                    <button class="btn btn-primary" onclick="openSupport()" style="width: 100%; margin-top: 16px; padding: 12px;">
+                        <i class="fas fa-headset"></i>
+                        <span data-i18n="contact_support">Contact Support</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="navigateTo('homePage')">
+                <i class="nav-icon fas fa-home"></i>
+                <span class="nav-label" data-i18n="home">Home</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('earnPage')">
+                <i class="nav-icon fas fa-coins"></i>
+                <span class="nav-label" data-i18n="earn">Earn</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('walletPage')">
+                <i class="nav-icon fas fa-wallet"></i>
+                <span class="nav-label" data-i18n="wallet">Wallet</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('profilePage')">
+                <i class="nav-icon fas fa-user"></i>
+                <span class="nav-label" data-i18n="profile">Profile</span>
+            </div>
+        </nav>
+
+        <!-- Withdraw Modal -->
+        <div class="modal" id="withdrawModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" data-i18n="request_withdrawal">Request Withdrawal</h3>
+                    <button class="modal-close" onclick="closeModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="withdrawForm">
+                    <!-- Form loaded dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme Settings Modal -->
+        <div class="modal" id="themeModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" data-i18n="choose_theme">Choose Theme</h3>
+                    <button class="modal-close" onclick="closeModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="theme-options">
+                    <button class="theme-btn" data-theme="dark" onclick="changeTheme('dark')">
+                        <i class="fas fa-moon"></i>
+                        <div style="margin-top: 8px;" data-i18n="dark">Dark</div>
+                    </button>
+                    <button class="theme-btn" data-theme="light" onclick="changeTheme('light')">
+                        <i class="fas fa-sun"></i>
+                        <div style="margin-top: 8px;" data-i18n="light">Light</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Language Settings Modal -->
+        <div class="modal" id="languageSettingsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" data-i18n="choose_language">Choose Language</h3>
+                    <button class="modal-close" onclick="closeModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="language-options">
+                    <div class="language-btn" data-lang="bn" onclick="setLanguage('bn')">
+                        <div class="language-flag">🇧🇩</div>
+                        <div class="language-info">
+                            <h3>বাংলা</h3>
+                            <p>Bangla language</p>
+                        </div>
+                    </div>
+                    <div class="language-btn" data-lang="en" onclick="setLanguage('en')">
+                        <div class="language-flag">🇺🇸</div>
+                        <div class="language-info">
+                            <h3>English</h3>
+                            <p>English language</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification -->
+        <div class="notification" id="notification">
+            <i class="fas fa-check-circle"></i>
+            <span id="notificationText"></span>
+        </div>
     </div>
-    
+
     <script>
-        // Telegram WebApp initialization
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.BackButton.hide();
-        
-        // State
-        let userData = null;
-        let selectedMethod = 'bkash';
-        let currentTab = 'homeTab';
-        
-        // Initialize
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Set theme based on Telegram or system
-            const theme = tg.colorScheme || 'light';
-            document.documentElement.setAttribute('data-theme', theme);
+        // ============================================
+        // TELEGRAM-ONLY ACCESS CHECK (CRITICAL)
+        // ============================================
+        (function() {
+            const blockedScreen = document.getElementById('telegramBlocked');
+            const appContent = document.getElementById('appContent');
             
-            // Load user profile from Telegram
-            loadTelegramProfile();
-            
-            // Initialize user data
-            await fetchUserData();
-            
-            // Setup event listeners
-            document.getElementById('withdrawAmount').addEventListener('input', updateBDAmount);
-            document.getElementById('accountNumber').addEventListener('input', validateAccountNumber);
-            
-            // Set referral link
-            if (userData && userData.user_id) {
-                const referralLink = `https://t.me/${tg.initDataUnsafe.user?.username || 'your_bot'}?startapp=ref_${userData.user_id}`;
-                document.getElementById('referralCode').textContent = referralLink;
+            // Check for Telegram environment
+            if (!window.Telegram || !window.Telegram.WebApp || !Telegram.WebApp.initData) {
+                blockedScreen.style.display = 'flex';
+                appContent.style.display = 'none';
+                // Stop all further execution
+                throw new Error('Telegram environment not detected');
             }
             
-            // Load initial history
-            loadEarningsHistory();
-        });
-        
-        // Load Telegram profile
-        function loadTelegramProfile() {
+            // Telegram detected, show app
+            blockedScreen.style.display = 'none';
+            appContent.style.display = 'block';
+            
+            // Initialize Telegram WebApp
+            const tg = window.Telegram.WebApp;
+            tg.expand();
+            tg.BackButton.hide();
+        })();
+
+        // ============================================
+        // TRANSLATION SYSTEM (LANGUAGE HANDLING)
+        // ============================================
+        const translations = {
+            en: {
+                // Navigation
+                home: "Home",
+                earn: "Earn",
+                wallet: "Wallet",
+                profile: "Profile",
+                
+                // Common
+                continue: "Continue",
+                success: "Success",
+                error: "Error",
+                
+                // Language
+                choose_language: "Choose Language",
+                language: "Language",
+                change_app_language: "Change app language",
+                
+                // Theme
+                choose_theme: "Choose Theme",
+                theme: "Theme",
+                change_app_theme: "Change app theme",
+                dark: "Dark",
+                light: "Light",
+                
+                // Balance
+                your_balance: "Your Balance",
+                available_balance: "Available Balance",
+                today: "Today",
+                total_earned: "Total Earned",
+                referrals: "Referrals",
+                pending: "Pending",
+                
+                // Quick Actions
+                quick_actions: "Quick Actions",
+                daily_bonus: "Daily Bonus",
+                watch_video: "Watch Video",
+                refer_friend: "Refer Friend",
+                withdraw: "Withdraw",
+                
+                // Earn
+                earn_more: "Earn More",
+                earn_money: "Earn Money",
+                watch_video_ad: "Watch Video Ad",
+                video_ad_desc: "Watch a short video to earn coins",
+                watch_now: "Watch Now",
+                daily_bonus_desc: "Claim your daily bonus",
+                claim_now: "Claim Now",
+                claim: "Claim",
+                complete_surveys: "Complete Surveys",
+                survey_desc: "Answer surveys and earn big rewards",
+                high_paying: "High Paying",
+                start: "Start",
+                ready: "Ready!",
+                
+                // Wallet
+                withdraw_funds: "Withdraw Funds",
+                withdraw_to_bank: "Withdraw to bKash/Nagad",
+                withdraw_desc: "Minimum 1000 coins (100 BDT). Manual approval within 24-48 hours.",
+                request_withdrawal: "Request Withdrawal",
+                transaction_history: "Transaction History",
+                no_transactions: "No Transactions Yet",
+                start_earning: "Start earning to see your transaction history",
+                
+                // Profile
+                referral_program: "Referral Program",
+                invite_friends_earn: "Invite friends and earn coins",
+                referral_earn_desc: "Earn 50 coins for each friend",
+                about: "About",
+                about_microearn: "About MicroEarn",
+                support: "Support",
+                support_desc: "Need help? Contact our support team",
+                contact_support: "Contact Support",
+                
+                // Admin
+                admin_panel: "Admin Panel",
+                admin_controls: "Administrator controls",
+                
+                // Notifications
+                earned_coins: "Earned {{amount}} coins!",
+                daily_bonus_claimed: "Daily bonus claimed! {{amount}} coins",
+                insufficient_balance: "Insufficient balance",
+                withdrawal_requested: "Withdrawal requested successfully",
+                cooldown_active: "Cooldown active",
+                already_claimed: "Already claimed today",
+                
+                // Surveys
+                surveys: "Surveys",
+                survey_earn_desc: "Earn 100-500 coins per survey",
+                other_ways: "Other Ways to Earn"
+            },
+            bn: {
+                // Navigation
+                home: "হোম",
+                earn: "আয় করুন",
+                wallet: "ওয়ালেট",
+                profile: "প্রোফাইল",
+                
+                // Common
+                continue: "চালিয়ে যান",
+                success: "সফল",
+                error: "ত্রুটি",
+                
+                // Language
+                choose_language: "ভাষা নির্বাচন করুন",
+                language: "ভাষা",
+                change_app_language: "অ্যাপের ভাষা পরিবর্তন করুন",
+                
+                // Theme
+                choose_theme: "থিম নির্বাচন করুন",
+                theme: "থিম",
+                change_app_theme: "অ্যাপের থিম পরিবর্তন করুন",
+                dark: "ডার্ক",
+                light: "লাইট",
+                
+                // Balance
+                your_balance: "আপনার ব্যালেন্স",
+                available_balance: "উপলব্ধ ব্যালেন্স",
+                today: "আজ",
+                total_earned: "মোট আয়",
+                referrals: "রেফারেল",
+                pending: "পেন্ডিং",
+                
+                // Quick Actions
+                quick_actions: "দ্রুত কাজ",
+                daily_bonus: "দৈনিক বোনাস",
+                watch_video: "ভিডিও দেখুন",
+                refer_friend: "বন্ধুকে আমন্ত্রণ করুন",
+                withdraw: "উত্তোলন",
+                
+                // Earn
+                earn_more: "আরও আয় করুন",
+                earn_money: "টাকা আয় করুন",
+                watch_video_ad: "ভিডিও বিজ্ঞাপন দেখুন",
+                video_ad_desc: "কয়েন পেতে একটি সংক্ষিপ্ত ভিডিও দেখুন",
+                watch_now: "এখনই দেখুন",
+                daily_bonus_desc: "আপনার দৈনিক বোনাস নিন",
+                claim_now: "এখনই নিন",
+                claim: "নিন",
+                complete_surveys: "সার্ভে সম্পন্ন করুন",
+                survey_desc: "সার্ভে উত্তর দিয়ে বড় পুরস্কার পান",
+                high_paying: "উচ্চ আয়",
+                start: "শুরু করুন",
+                ready: "প্রস্তুত!",
+                
+                // Wallet
+                withdraw_funds: "টাকা উত্তোলন",
+                withdraw_to_bank: "bKash/Nagad-এ উত্তোলন",
+                withdraw_desc: "ন্যূনতম ১০০০ কয়েন (১০০ টাকা)। ম্যানুয়াল অনুমোদন ২৪-৪৮ ঘন্টার মধ্যে।",
+                request_withdrawal: "উত্তোলনের অনুরোধ",
+                transaction_history: "লেনদেনের ইতিহাস",
+                no_transactions: "এখনও কোন লেনদেন নেই",
+                start_earning: "লেনদেনের ইতিহাস দেখতে আয় করা শুরু করুন",
+                
+                // Profile
+                referral_program: "রেফারেল প্রোগ্রাম",
+                invite_friends_earn: "বন্ধুদের আমন্ত্রণ করুন এবং কয়েন আয় করুন",
+                referral_earn_desc: "প্রতিটি বন্ধুর জন্য ৫০ কয়েন আয় করুন",
+                about: "সম্পর্কে",
+                about_microearn: "মাইক্রোইয়ার্ন সম্পর্কে",
+                support: "সাপোর্ট",
+                support_desc: "সাহায্য প্রয়োজন? আমাদের সাপোর্ট টিমের সাথে যোগাযোগ করুন",
+                contact_support: "সাপোর্টে যোগাযোগ করুন",
+                
+                // Admin
+                admin_panel: "অ্যাডমিন প্যানেল",
+                admin_controls: "অ্যাডমিনিস্ট্রেটর কন্ট্রোল",
+                
+                // Notifications
+                earned_coins: "{{amount}} কয়েন আয় করেছেন!",
+                daily_bonus_claimed: "দৈনিক বোনাস নেওয়া হয়েছে! {{amount}} কয়েন",
+                insufficient_balance: "অপর্যাপ্ত ব্যালেন্স",
+                withdrawal_requested: "উত্তোলনের অনুরোধ সফলভাবে জমা হয়েছে",
+                cooldown_active: "কুলডাউন সক্রিয়",
+                already_claimed: "আজ ইতিমধ্যে নেওয়া হয়েছে",
+                
+                // Surveys
+                surveys: "সার্ভে",
+                survey_earn_desc: "প্রতি সার্ভেতে ১০০-৫০০ কয়েন আয় করুন",
+                other_ways: "আয়ের অন্যান্য উপায়"
+            }
+        };
+
+        // ============================================
+        // STATE MANAGEMENT
+        // ============================================
+        const tg = window.Telegram.WebApp;
+        let userData = null;
+        let selectedLanguage = 'en';
+        let selectedTheme = 'dark';
+        let currentPage = 'homePage';
+
+        // ============================================
+        // LANGUAGE SYSTEM FUNCTIONS
+        // ============================================
+        function loadLanguage() {
+            const savedLang = localStorage.getItem('microearn_language');
+            if (savedLang) {
+                selectedLanguage = savedLang;
+                applyLanguage();
+            } else {
+                showLanguageModal();
+            }
+        }
+
+        function applyLanguage() {
+            document.documentElement.lang = selectedLanguage;
+            document.body.classList.toggle('bn', selectedLanguage === 'bn');
+            
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[selectedLanguage][key]) {
+                    element.textContent = translations[selectedLanguage][key];
+                }
+            });
+            
+            const currentLangEl = document.getElementById('currentLanguage');
+            if (currentLangEl) {
+                currentLangEl.textContent = selectedLanguage === 'bn' ? 'বাংলা' : 'English';
+            }
+            
+            localStorage.setItem('microearn_language', selectedLanguage);
+        }
+
+        function showLanguageModal() {
+            document.getElementById('languageModal').classList.add('active');
+            document.querySelectorAll('.language-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === selectedLanguage);
+            });
+        }
+
+        function saveLanguage() {
+            const selected = document.querySelector('.language-btn.active');
+            if (selected) {
+                selectedLanguage = selected.dataset.lang;
+                applyLanguage();
+                closeModal();
+                loadUserData();
+            }
+        }
+
+        function setLanguage(lang) {
+            selectedLanguage = lang;
+            applyLanguage();
+            closeModal();
+            showNotification(getTranslation('language') + ' ' + getTranslation('success'));
+        }
+
+        function openLanguageSettings() {
+            document.getElementById('languageSettingsModal').classList.add('active');
+            document.querySelectorAll('.language-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === selectedLanguage);
+            });
+        }
+
+        function getTranslation(key, params = {}) {
+            let text = translations[selectedLanguage][key] || translations.en[key] || key;
+            Object.keys(params).forEach(param => {
+                text = text.replace(`{{${param}}}`, params[param]);
+            });
+            return text;
+        }
+
+        // ============================================
+        // THEME SYSTEM FUNCTIONS
+        // ============================================
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('microearn_theme');
+            if (savedTheme) {
+                selectedTheme = savedTheme;
+            }
+            applyTheme();
+        }
+
+        function applyTheme() {
+            document.documentElement.setAttribute('data-theme', selectedTheme);
+            
+            const currentThemeEl = document.getElementById('currentTheme');
+            if (currentThemeEl) {
+                currentThemeEl.textContent = selectedTheme === 'dark' ? getTranslation('dark') : getTranslation('light');
+            }
+            
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.theme === selectedTheme);
+            });
+            
+            localStorage.setItem('microearn_theme', selectedTheme);
+        }
+
+        function changeTheme(theme) {
+            selectedTheme = theme;
+            applyTheme();
+            closeModal();
+            showNotification(getTranslation('theme') + ' ' + getTranslation('success'));
+        }
+
+        function openThemeSettings() {
+            document.getElementById('themeModal').classList.add('active');
+        }
+
+        // ============================================
+        // TELEGRAM USER DATA FUNCTIONS
+        // ============================================
+        function loadTelegramUser() {
             const user = tg.initDataUnsafe.user;
             if (user) {
                 document.getElementById('userName').textContent = 
                     [user.first_name, user.last_name].filter(Boolean).join(' ');
                 document.getElementById('userUsername').textContent = 
-                    user.username ? `@${user.username}` : 'No username';
+                    user.username ? `@${user.username}` : '';
+                document.getElementById('profileName').textContent = 
+                    [user.first_name, user.last_name].filter(Boolean).join(' ');
+                document.getElementById('profileUsername').textContent = 
+                    user.username ? `@${user.username}` : '';
                 
                 if (user.photo_url) {
                     document.getElementById('userAvatar').src = user.photo_url;
+                    document.getElementById('profileAvatar').src = user.photo_url;
                 } else {
-                    document.getElementById('userAvatar').src = 'https://via.placeholder.com/60';
+                    const defaultAvatar = 'https://ui-avatars.com/api/?name=' + 
+                        encodeURIComponent(user.first_name || 'User') + '&background=0088cc&color=fff';
+                    document.getElementById('userAvatar').src = defaultAvatar;
+                    document.getElementById('profileAvatar').src = defaultAvatar;
                 }
+                
+                document.getElementById('profileSection').style.display = 'block';
+                document.querySelectorAll('.skeleton').forEach(el => el.classList.remove('skeleton'));
             }
         }
-        
-        // Fetch user data from backend
-        async function fetchUserData() {
+
+        // ============================================
+        // API INTEGRATION FUNCTIONS
+        // ============================================
+        async function loadUserData() {
             try {
                 const initData = tg.initData;
                 const response = await fetch('https://microearn.abusaifeshovon.workers.dev/api/user', {
-                    headers: {
-                        'Authorization': `Bearer ${initData}`
-                    }
+                    headers: { 'Authorization': `Bearer ${initData}` }
                 });
                 
-                const data = await response.json();
+                if (!response.ok) throw new Error('API request failed');
                 
+                const data = await response.json();
                 if (data.success) {
                     userData = data.data;
                     updateUI();
                 }
             } catch (error) {
-                showNotification('Failed to load data', true);
+                console.error('Failed to load user data:', error);
+                showNotification(getTranslation('error'), true);
             }
         }
-        
-        // Update UI with user data
+
         function updateUI() {
             if (!userData) return;
             
@@ -843,31 +1728,34 @@
             document.getElementById('balanceAmount').textContent = userData.balance;
             document.getElementById('balanceSub').textContent = 
                 `${userData.balance} coins = ${Math.floor(userData.balance / 10)} BDT`;
+            document.getElementById('walletBalance').textContent = userData.balance;
+            document.getElementById('walletSub').textContent = 
+                `${userData.balance} coins = ${Math.floor(userData.balance / 10)} BDT`;
             
             // Update stats
             document.getElementById('todayEarnings').textContent = userData.today_earnings;
             document.getElementById('totalEarnings').textContent = userData.total_earned;
-            document.getElementById('referralCount').textContent = userData.referral_count;
-            document.getElementById('pendingWithdrawal').textContent = userData.pending_withdrawal;
+            document.getElementById('referralCount').textContent = userData.referral_count || 0;
+            document.getElementById('pendingWithdrawal').textContent = userData.pending_withdrawal || 0;
             
-            // Update cooldowns
-            updateCooldowns();
-            
-            // Update daily bonus
-            updateDailyBonus();
+            // Update quick actions
+            updateQuickActions();
             
             // Update streak
             if (userData.daily_bonus) {
-                document.getElementById('streakDays').textContent = 
-                    `Day ${userData.daily_bonus.streak_days}`;
-                const bonus = 50 + Math.min(userData.daily_bonus.streak_days * 10, 100);
-                document.getElementById('currentBonus').textContent = bonus;
-                document.getElementById('dailyBonusAmount').textContent = `+${bonus} coins`;
+                document.getElementById('dailyBonusAmount').textContent = `+${50 + Math.min(userData.daily_bonus.streak_days * 10, 100)}`;
+                document.getElementById('dailyBonusQuick').textContent = `+${50 + Math.min(userData.daily_bonus.streak_days * 10, 100)}`;
             }
+            
+            // Show admin panel button if user is admin
+            if (userData.is_admin) {
+                document.getElementById('adminPanelBtn').style.display = 'flex';
+            }
+            
+            document.getElementById('balanceCard').classList.remove('skeleton');
         }
-        
-        // Update cooldown displays
-        function updateCooldowns() {
+
+        function updateQuickActions() {
             if (!userData || !userData.ad_cooldowns) return;
             
             const now = new Date();
@@ -880,39 +1768,39 @@
                 if (cooldownEnd > now) {
                     const minutesLeft = Math.ceil((cooldownEnd - now) / 60000);
                     document.getElementById('videoCooldown').textContent = 
-                        `${minutesLeft}m cooldown`;
+                        `${minutesLeft}m ${getTranslation('cooldown_active').toLowerCase()}`;
                     document.getElementById('videoAdCard').classList.add('disabled');
+                    document.getElementById('videoAdQuick').classList.add('disabled');
                 } else {
-                    document.getElementById('videoCooldown').textContent = 'Ready!';
+                    document.getElementById('videoCooldown').textContent = getTranslation('ready');
                     document.getElementById('videoAdCard').classList.remove('disabled');
+                    document.getElementById('videoAdQuick').classList.remove('disabled');
                 }
-            } else {
-                document.getElementById('videoCooldown').textContent = 'Ready!';
-                document.getElementById('videoAdCard').classList.remove('disabled');
+            }
+            
+            if (userData.daily_bonus) {
+                const today = new Date().toDateString();
+                const lastClaimed = userData.daily_bonus.last_claimed ? 
+                    new Date(userData.daily_bonus.last_claimed).toDateString() : null;
+                
+                if (lastClaimed === today) {
+                    document.getElementById('dailyBonusStatus').textContent = getTranslation('already_claimed');
+                    document.getElementById('dailyBonusCard').classList.add('disabled');
+                    document.getElementById('dailyBonusQuick').parentElement.classList.add('disabled');
+                } else {
+                    document.getElementById('dailyBonusStatus').textContent = getTranslation('claim_now');
+                    document.getElementById('dailyBonusCard').classList.remove('disabled');
+                    document.getElementById('dailyBonusQuick').parentElement.classList.remove('disabled');
+                }
             }
         }
-        
-        // Update daily bonus status
-        function updateDailyBonus() {
-            if (!userData || !userData.daily_bonus) return;
-            
-            const today = new Date().toDateString();
-            const lastClaimed = userData.daily_bonus.last_claimed ? 
-                new Date(userData.daily_bonus.last_claimed).toDateString() : null;
-            
-            if (lastClaimed === today) {
-                document.getElementById('dailyBonusStatus').textContent = 'Claimed today';
-                document.getElementById('dailyBonusCard').classList.add('disabled');
-            } else {
-                document.getElementById('dailyBonusStatus').textContent = 'Claim now!';
-                document.getElementById('dailyBonusCard').classList.remove('disabled');
-            }
-        }
-        
-        // Watch ad
+
         async function watchAd(adType) {
             const card = document.getElementById('videoAdCard');
-            if (card.classList.contains('disabled')) return;
+            if (card.classList.contains('disabled')) {
+                showNotification(getTranslation('cooldown_active'), true);
+                return;
+            }
             
             try {
                 const initData = tg.initData;
@@ -926,22 +1814,23 @@
                 });
                 
                 const data = await response.json();
-                
                 if (data.success) {
-                    showNotification(`+${data.reward} coins earned!`);
-                    await fetchUserData(); // Refresh data
+                    showNotification(getTranslation('earned_coins', { amount: data.reward }));
+                    await loadUserData();
                 } else {
-                    showNotification(data.error, true);
+                    showNotification(data.error || getTranslation('error'), true);
                 }
             } catch (error) {
-                showNotification('Failed to earn coins', true);
+                showNotification(getTranslation('error'), true);
             }
         }
-        
-        // Claim daily bonus
+
         async function claimDailyBonus() {
             const card = document.getElementById('dailyBonusCard');
-            if (card.classList.contains('disabled')) return;
+            if (card.classList.contains('disabled')) {
+                showNotification(getTranslation('already_claimed'), true);
+                return;
+            }
             
             try {
                 const initData = tg.initData;
@@ -954,86 +1843,130 @@
                 });
                 
                 const data = await response.json();
-                
                 if (data.success) {
-                    showNotification(`+${data.bonus} coins daily bonus! (Streak: ${data.streak_days} days)`);
-                    await fetchUserData(); // Refresh data
+                    showNotification(getTranslation('daily_bonus_claimed', { amount: data.bonus }));
+                    await loadUserData();
                 } else {
-                    showNotification(data.error, true);
+                    showNotification(data.error || getTranslation('error'), true);
                 }
             } catch (error) {
-                showNotification('Failed to claim bonus', true);
+                showNotification(getTranslation('error'), true);
             }
         }
-        
-        // Select withdrawal method
-        function selectMethod(method) {
-            selectedMethod = method;
+
+        // ============================================
+        // NAVIGATION FUNCTIONS
+        // ============================================
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
             
-            // Update UI
-            document.getElementById('bkashMethod').classList.remove('active');
-            document.getElementById('nagadMethod').classList.remove('active');
-            document.getElementById(method + 'Method').classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             
-            // Update placeholder
-            document.getElementById('accountNumber').placeholder = 
-                method === 'bkash' ? '01XXXXXXXXX' : '01XXXXXXXXX';
-        }
-        
-        // Update BDT amount
-        function updateBDAmount() {
-            const coins = parseInt(document.getElementById('withdrawAmount').value) || 0;
-            const bdt = Math.floor(coins / 10);
-            document.getElementById('bdAmount').textContent = bdt;
-        }
-        
-        // Validate account number
-        function validateAccountNumber() {
-            const input = document.getElementById('accountNumber');
-            const value = input.value.trim();
-            
-            // Remove non-digits
-            const digits = value.replace(/\D/g, '');
-            
-            // Add +88 if it starts with 01 and is 11 digits
-            let formatted = digits;
-            if (digits.length === 11 && digits.startsWith('01')) {
-                formatted = '+88' + digits;
+            const navMap = { 'homePage': 0, 'earnPage': 1, 'walletPage': 2, 'profilePage': 3 };
+            if (navMap[pageId] !== undefined) {
+                document.querySelectorAll('.nav-item')[navMap[pageId]].classList.add('active');
             }
             
-            input.value = formatted;
-        }
-        
-        // Submit withdrawal request
-        async function submitWithdraw(event) {
-            event.preventDefault();
+            if (pageId === 'homePage') {
+                tg.BackButton.hide();
+            } else {
+                tg.BackButton.show();
+                tg.BackButton.onClick(() => navigateTo('homePage'));
+            }
             
-            const accountNumber = document.getElementById('accountNumber').value.trim();
+            currentPage = pageId;
+            
+            if (pageId === 'walletPage') {
+                loadTransactionHistory();
+            }
+        }
+
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(modal => modal.classList.remove('active'));
+        }
+
+        function openWithdrawModal() {
+            if (!userData || userData.balance < 1000) {
+                showNotification(getTranslation('insufficient_balance'), true);
+                return;
+            }
+            
+            const formHtml = `
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;" data-i18n="select_method">Select Method</label>
+                    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                        <button class="theme-btn active" onclick="selectWithdrawMethod('bkash')" id="bkashBtn" style="flex: 1;">
+                            <i class="fas fa-mobile-alt"></i>
+                            <div style="margin-top: 8px;">bKash</div>
+                        </button>
+                        <button class="theme-btn" onclick="selectWithdrawMethod('nagad')" id="nagadBtn" style="flex: 1;">
+                            <i class="fas fa-wallet"></i>
+                            <div style="margin-top: 8px;">Nagad</div>
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;" data-i18n="account_number">Account Number</label>
+                    <input type="tel" id="withdrawAccount" class="form-input" placeholder="01XXXXXXXXX" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary);">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;" data-i18n="amount_coins">Amount (Coins)</label>
+                    <input type="number" id="withdrawAmount" class="form-input" min="1000" max="50000" step="100" value="1000" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary);">
+                    <div style="font-size: 0.875rem; margin-top: 4px; color: var(--text-secondary);">
+                        <span data-i18n="you_will_receive">You will receive:</span> <span id="withdrawBdt">100</span> BDT
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="submitWithdraw()" style="width: 100%; padding: 12px;">
+                    <span data-i18n="submit_request">Submit Request</span>
+                </button>
+            `;
+            
+            document.getElementById('withdrawForm').innerHTML = formHtml;
+            document.getElementById('withdrawModal').classList.add('active');
+            applyLanguage();
+            
+            document.getElementById('withdrawAmount').addEventListener('input', updateWithdrawBDT);
+        }
+
+        function selectWithdrawMethod(method) {
+            document.getElementById('bkashBtn').classList.toggle('active', method === 'bkash');
+            document.getElementById('nagadBtn').classList.toggle('active', method === 'nagad');
+        }
+
+        function updateWithdrawBDT() {
+            const amount = parseInt(document.getElementById('withdrawAmount').value) || 0;
+            const bdt = Math.floor(amount / 10);
+            document.getElementById('withdrawBdt').textContent = bdt;
+        }
+
+        async function submitWithdraw() {
+            const account = document.getElementById('withdrawAccount').value.trim();
             const amount = parseInt(document.getElementById('withdrawAmount').value);
             
-            // Validation
-            if (!/^(?:\+88)?01[3-9]\d{8}$/.test(accountNumber)) {
-                showNotification('Invalid phone number', true);
+            if (!/^(?:\+88)?01[3-9]\d{8}$/.test(account)) {
+                showNotification(getTranslation('invalid_phone'), true);
                 return;
             }
             
             if (amount < 1000 || amount > 50000) {
-                showNotification('Amount must be 1000-50000 coins', true);
+                showNotification(getTranslation('amount_range'), true);
                 return;
             }
             
             if (amount > userData.balance) {
-                showNotification('Insufficient balance', true);
+                showNotification(getTranslation('insufficient_balance'), true);
                 return;
             }
             
             try {
                 const initData = tg.initData;
-                const withdrawBtn = document.getElementById('withdrawBtn');
-                const originalText = withdrawBtn.innerHTML;
-                withdrawBtn.innerHTML = '<div class="loading"></div>';
-                withdrawBtn.disabled = true;
-                
                 const response = await fetch('https://microearn.abusaifeshovon.workers.dev/api/withdraw/request', {
                     method: 'POST',
                     headers: {
@@ -1041,186 +1974,107 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        method: selectedMethod,
-                        account_number: accountNumber,
+                        method: document.querySelector('.theme-btn.active').textContent.trim().toLowerCase(),
+                        account_number: account,
                         amount: amount
                     })
                 });
                 
                 const data = await response.json();
-                
                 if (data.success) {
-                    showNotification('Withdrawal request submitted!');
-                    document.getElementById('withdrawForm').reset();
-                    updateBDAmount();
-                    await fetchUserData(); // Refresh data
+                    showNotification(getTranslation('withdrawal_requested'));
+                    closeModal();
+                    await loadUserData();
                 } else {
-                    showNotification(data.error, true);
+                    showNotification(data.error || getTranslation('error'), true);
                 }
             } catch (error) {
-                showNotification('Failed to submit request', true);
-            } finally {
-                withdrawBtn.innerHTML = originalText;
-                withdrawBtn.disabled = false;
+                showNotification(getTranslation('error'), true);
             }
         }
-        
-        // Show notification
+
+        // ============================================
+        // NOTIFICATION SYSTEM
+        // ============================================
         function showNotification(message, isError = false) {
             const notification = document.getElementById('notification');
-            notification.textContent = message;
+            const text = document.getElementById('notificationText');
+            
+            text.textContent = message;
             notification.className = 'notification';
             
             if (isError) {
                 notification.classList.add('error');
+                notification.querySelector('i').className = 'fas fa-exclamation-circle';
+            } else {
+                notification.querySelector('i').className = 'fas fa-check-circle';
             }
             
             notification.classList.add('show');
             
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
+            setTimeout(() => notification.classList.remove('show'), 3000);
         }
-        
-        // Show/hide tabs
-        function showTab(tabId) {
-            // Update footer buttons
-            document.querySelectorAll('.footer-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.getElementById(tabId).classList.add('active');
-            
-            // Load data for specific tabs
-            if (tabId === 'historyTab') {
-                loadEarningsHistory();
-            }
-            
-            currentTab = tabId;
-        }
-        
-        // Show history type
-        function showHistory(type) {
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            document.querySelectorAll('#historyTab .tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            if (type === 'earnings') {
-                document.getElementById('earningsHistory').classList.add('active');
-                loadEarningsHistory();
-            } else {
-                document.getElementById('withdrawalsHistory').classList.add('active');
-                loadWithdrawalsHistory();
-            }
-        }
-        
-        // Load earnings history
-        async function loadEarningsHistory() {
-            // For now, we'll use mock data since we don't have an endpoint
-            // In production, you would fetch from /api/user/history
-            const earningsList = document.getElementById('earningsList');
-            earningsList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Loading...</p>';
-            
-            // Simulate API call
-            setTimeout(() => {
-                // Mock data
-                const mockEarnings = [
-                    { type: 'Daily Bonus', amount: 50, date: 'Today' },
-                    { type: 'Video Ad', amount: 10, date: 'Today' },
-                    { type: 'Referral', amount: 50, date: 'Yesterday' },
-                    { type: 'Survey', amount: 150, date: '2 days ago' }
-                ];
-                
-                earningsList.innerHTML = '';
-                mockEarnings.forEach(earning => {
-                    const item = document.createElement('div');
-                    item.className = 'history-item';
-                    item.innerHTML = `
-                        <div>
-                            <div>${earning.type}</div>
-                            <div style="font-size: 12px; color: var(--text-secondary);">${earning.date}</div>
-                        </div>
-                        <div class="history-amount">+${earning.amount} coins</div>
-                    `;
-                    earningsList.appendChild(item);
-                });
-            }, 500);
-        }
-        
-        // Load withdrawals history
-        async function loadWithdrawalsHistory() {
-            const withdrawalsList = document.getElementById('withdrawalsList');
-            withdrawalsList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Loading...</p>';
-            
-            // Similar implementation as loadEarningsHistory
-            setTimeout(() => {
-                withdrawalsList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No withdrawals yet</p>';
-            }, 500);
-        }
-        
-        // Open surveys modal
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
         function openSurveys() {
-            document.getElementById('surveyModal').classList.add('show');
+            tg.openLink('https://example.com/surveys');
         }
-        
-        // Close modal
-        function closeModal() {
-            document.getElementById('surveyModal').classList.remove('show');
-        }
-        
-        // Open CPX surveys
-        function openCpx() {
-            const userId = userData?.user_id;
-            if (userId) {
-                const url = `https://cpx-research.com/offerwall?uid=${userId}&callback=${encodeURIComponent('https://microearn.abusaifeshovon.workers.dev/api/callback/cpx')}`;
-                tg.openLink(url);
-            } else {
-                showNotification('Please wait for user data to load', true);
-            }
-            closeModal();
-        }
-        
-        // Open BitLabs surveys
-        function openBitlabs() {
-            const userId = userData?.user_id;
-            if (userId) {
-                const url = `https://bitlabs.com/offerwall?user_id=${userId}&callback=${encodeURIComponent('https://microearn.abusaifeshovon.workers.dev/api/callback/bitlabs')}`;
-                tg.openLink(url);
-            } else {
-                showNotification('Please wait for user data to load', true);
-            }
-            closeModal();
-        }
-        
-        // Open referral section
+
         function openReferral() {
-            showTab('referralTab');
+            // Navigate to referral section
+            navigateTo('profilePage');
         }
-        
-        // Copy referral link
-        function copyReferral() {
-            const referralCode = document.getElementById('referralCode').textContent;
-            navigator.clipboard.writeText(referralCode).then(() => {
-                showNotification('Referral link copied!');
+
+        function openAbout() {
+            tg.openLink('https://example.com/about');
+        }
+
+        function openSupport() {
+            tg.openLink('https://t.me/microearn_support');
+        }
+
+        function openAdminPanel() {
+            tg.openLink('https://microearn-miniapp.pages.dev/admin.html');
+        }
+
+        function refreshData() {
+            loadUserData();
+            showNotification('Refreshing...');
+        }
+
+        function loadTransactionHistory() {
+            // Placeholder for transaction history
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load theme and language
+            loadTheme();
+            loadLanguage();
+            
+            // Load Telegram user data
+            loadTelegramUser();
+            
+            // Load user data from API
+            loadUserData();
+            
+            // Initialize navigation
+            navigateTo('homePage');
+            
+            // Setup auto-refresh (60 seconds)
+            setInterval(loadUserData, 60000);
+            
+            // Handle visibility change
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    loadUserData();
+                }
             });
-        }
-        
-        // Auto-refresh data every 30 seconds
-        setInterval(() => {
-            if (currentTab === 'homeTab') {
-                fetchUserData();
-            }
-        }, 30000);
+        });
     </script>
 </body>
 </html>
