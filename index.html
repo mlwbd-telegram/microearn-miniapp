@@ -820,7 +820,12 @@
             }
         };
 
-        let userData = null;
+        let userData = {
+            balance: 0,
+            total_earned: 0,
+            referral_code: '',
+            telegram_id: 0
+        };
         let currentLang = 'en';
         let tg = null;
 
@@ -940,7 +945,11 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    userData.balance = data.new_balance;
+                    // Ensure userData exists
+                    if (userData) {
+                        userData.balance = data.new_balance;
+                        userData.total_earned = (userData.total_earned || 0) + (data.amount || 0);
+                    }
                     updateUI();
                     const remaining = data.claims_remaining || 0;
                     showToast(`🎉 Daily income collected! +৳${data.amount} (${remaining} claims remaining today)`);
@@ -1196,15 +1205,34 @@
             }, 3000);
         }
 
+        // Navigation functions for bottom tabs
         function showHome() {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            // All sections are already on main page, just scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showHistory() {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            // Scroll to history section
+            const historySection = document.querySelector('.history-section');
+            if (historySection) {
+                historySection.scrollIntoView({ behavior: 'smooth' });
+            }
+            // Reload history data
+            loadHistory();
+        }
+
+        function showSettings() {
+            document.getElementById('settingsModal').classList.add('show');
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             event.currentTarget.classList.add('active');
         }
 
-        function showHistory() {
-            loadHistory();
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
         }
 
         window.addEventListener('load', init);
