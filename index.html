@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -307,8 +308,13 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         .modal-content {
@@ -323,8 +329,15 @@
         }
 
         @keyframes slideUp {
-            from { transform: translateY(100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .modal-header {
@@ -364,7 +377,8 @@
             color: var(--text-secondary);
         }
 
-        .form-input, .form-select {
+        .form-input,
+        .form-select {
             width: 100%;
             padding: 12px;
             background: var(--bg-color);
@@ -374,7 +388,8 @@
             font-size: 14px;
         }
 
-        .form-input:focus, .form-select:focus {
+        .form-input:focus,
+        .form-select:focus {
             outline: none;
             border-color: var(--accent-color);
         }
@@ -454,11 +469,11 @@
             border-radius: 50%;
         }
 
-        .toggle input:checked + .toggle-slider {
+        .toggle input:checked+.toggle-slider {
             background: var(--accent-gradient);
         }
 
-        .toggle input:checked + .toggle-slider:before {
+        .toggle input:checked+.toggle-slider:before {
             transform: translateX(20px);
         }
 
@@ -501,7 +516,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .referral-section {
@@ -570,6 +587,7 @@
         }
     </style>
 </head>
+
 <body>
     <div id="loadingScreen" class="loading">
         <div class="spinner"></div>
@@ -700,7 +718,8 @@
             </div>
             <div class="settings-item">
                 <div class="settings-label" id="languageLabel">Language</div>
-                <select class="form-select" style="width: auto;" onchange="changeLanguage(this.value)" id="languageSelect">
+                <select class="form-select" style="width: auto;" onchange="changeLanguage(this.value)"
+                    id="languageSelect">
                     <option value="en">English</option>
                     <option value="bn">বাংলা</option>
                 </select>
@@ -715,7 +734,8 @@
             </div>
             <div class="settings-item">
                 <div class="settings-label" id="supportLabel">Support</div>
-                <a href="https://t.me/microearnsupport" target="_blank" style="color: var(--accent-color); text-decoration: none;">Contact</a>
+                <a href="https://t.me/microearnsupport" target="_blank"
+                    style="color: var(--accent-color); text-decoration: none;">Contact</a>
             </div>
             <div class="settings-item">
                 <div class="settings-label" id="versionLabel">Version</div>
@@ -727,7 +747,7 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        const BACKEND_URL = 'YOUR_WORKER_URL';
+        const BACKEND_URL = 'https://microearn-worker.abusaifeshovon.workers.dev';
         const translations = {
             en: {
                 balanceLabel: 'Current Balance',
@@ -808,7 +828,7 @@
         function init() {
             try {
                 tg = window.Telegram.WebApp;
-                
+
                 if (!tg.initDataUnsafe || !tg.initDataUnsafe.user) {
                     throw new Error('Not running in Telegram');
                 }
@@ -818,10 +838,10 @@
 
                 const savedTheme = localStorage.getItem('theme') || 'dark';
                 const savedLang = localStorage.getItem('language') || 'en';
-                
+
                 applyTheme(savedTheme);
                 applyLanguage(savedLang);
-                
+
                 setGreeting();
                 loadUserData();
 
@@ -840,11 +860,11 @@
         function setGreeting() {
             const hour = new Date().getHours();
             let greetingKey = 'morningGreeting';
-            
+
             if (hour >= 12 && hour < 17) greetingKey = 'afternoonGreeting';
             else if (hour >= 17 && hour < 21) greetingKey = 'eveningGreeting';
             else if (hour >= 21 || hour < 5) greetingKey = 'nightGreeting';
-            
+
             document.getElementById('greeting').textContent = translations[currentLang][greetingKey];
         }
 
@@ -852,18 +872,18 @@
             try {
                 const initData = tg.initData;
                 const user = tg.initDataUnsafe.user;
-                
+
                 const response = await fetch(`${BACKEND_URL}/api/user/init`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
+                    body: JSON.stringify({
                         initData,
-                        startParam: tg.initDataUnsafe.start_param 
+                        startParam: tg.initDataUnsafe.start_param
                     })
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     userData = data.user;
                     updateUI();
@@ -885,19 +905,19 @@
             const user = tg.initDataUnsafe.user;
             const firstName = user.first_name || 'User';
             const initial = firstName.charAt(0).toUpperCase();
-            
+
             document.getElementById('userName').textContent = firstName;
             document.getElementById('userAvatar').textContent = initial;
-            
+
             if (user.photo_url) {
                 document.getElementById('userAvatar').style.backgroundImage = `url(${user.photo_url})`;
                 document.getElementById('userAvatar').style.backgroundSize = 'cover';
                 document.getElementById('userAvatar').textContent = '';
             }
-            
+
             document.getElementById('balance').textContent = userData.balance.toFixed(2);
             document.getElementById('totalEarned').textContent = userData.total_earned.toFixed(2);
-            
+
             if (userData.referral_code) {
                 document.getElementById('referralCode').textContent = userData.referral_code;
             }
@@ -912,7 +932,7 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     userData.balance = data.new_balance;
                     updateUI();
@@ -937,7 +957,7 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success && data.offer_url) {
                     tg.openLink(data.offer_url);
                 } else {
@@ -959,7 +979,7 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success && data.survey_url) {
                     tg.openLink(data.survey_url);
                 } else {
@@ -992,7 +1012,7 @@
 
         async function submitWithdraw(event) {
             event.preventDefault();
-            
+
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
             const method = document.getElementById('withdrawMethod').value;
             const account = document.getElementById('withdrawAccount').value;
@@ -1006,16 +1026,16 @@
                 const response = await fetch(`${BACKEND_URL}/api/withdraw/request`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
+                    body: JSON.stringify({
                         initData: tg.initData,
                         amount,
                         method,
-                        account 
+                        account
                     })
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     showToast('✅ Withdrawal request submitted!');
                     closeModal('withdrawModal');
@@ -1040,7 +1060,7 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     renderHistory(data.history);
                 }
@@ -1052,7 +1072,7 @@
 
         function renderHistory(history) {
             const container = document.getElementById('historyList');
-            
+
             if (!history || history.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
@@ -1077,9 +1097,9 @@
         }
 
         function copyReferralLink() {
-            const botUsername = 'YOUR_BOT_USERNAME';
+            const botUsername = 'microearn_beta_bot';
             const link = `https://t.me/${botUsername}?start=${userData.referral_code}`;
-            
+
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(link);
                 showToast('✅ Link copied!');
@@ -1097,22 +1117,22 @@
         function applyLanguage(lang) {
             currentLang = lang;
             const t = translations[lang];
-            
+
             Object.keys(t).forEach(key => {
                 const element = document.getElementById(key);
                 if (element) {
                     if (key.includes('Text')) {
                         const match = t[key].match(/^(.+):(.+)$/);
                         if (match) {
-                            element.innerHTML = match[1] + ': ৳<span id="totalEarned">' + 
-                                              (userData ? userData.total_earned.toFixed(2) : '0.00') + '</span>';
+                            element.innerHTML = match[1] + ': ৳<span id="totalEarned">' +
+                                (userData ? userData.total_earned.toFixed(2) : '0.00') + '</span>';
                         }
                     } else {
                         element.textContent = t[key];
                     }
                 }
             });
-            
+
             setGreeting();
             document.getElementById('languageSelect').value = lang;
         }
@@ -1127,13 +1147,13 @@
                 const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                 theme = isDark ? 'dark' : 'light';
             }
-            
+
             if (theme === 'light') {
                 document.body.classList.add('light');
             } else {
                 document.body.classList.remove('light');
             }
-            
+
             document.getElementById('themeSelect').value = localStorage.getItem('theme') || 'dark';
         }
 
@@ -1141,7 +1161,7 @@
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.classList.add('show');
-            
+
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000);
@@ -1159,7 +1179,7 @@
         }
 
         window.addEventListener('load', init);
-        
+
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'auto') {
@@ -1168,4 +1188,5 @@
         });
     </script>
 </body>
+
 </html>
