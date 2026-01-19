@@ -1,1083 +1,888 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MicroEarn Admin</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>MicroEarn - Admin Panel</title>
     <style>
-        :root {
-            --bg-primary: #f8f9fa;
-            --bg-card: #ffffff;
-            --text-primary: #212529;
-            --text-secondary: #6c757d;
-            --border-color: #dee2e6;
-            --primary-color: #0088cc;
-            --success-color: #28a745;
-            --warning-color: #ffc107;
-            --danger-color: #dc3545;
-            --info-color: #17a2b8;
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #151515;
+            --bg-card: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #00d4ff;
+            --accent-hover: #00b8e6;
+            --success: #00ff88;
+            --error: #ff4444;
+            --warning: #ffaa00;
+            --border: #2a2a2a;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.6;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .header {
-            background: var(--bg-card);
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .header h1 {
-            font-size: 24px;
-            color: var(--primary-color);
-        }
-        
-        .user-info {
+
+        .login-container {
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-        
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: var(--bg-card);
+            justify-content: center;
+            min-height: 100vh;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            border-left: 4px solid var(--primary-color);
         }
-        
-        .stat-card.success { border-left-color: var(--success-color); }
-        .stat-card.warning { border-left-color: var(--warning-color); }
-        .stat-card.danger { border-left-color: var(--danger-color); }
-        .stat-card.info { border-left-color: var(--info-color); }
-        
-        .stat-value {
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .section {
+
+        .login-card {
             background: var(--bg-card);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-        
-        .section-title {
-            font-size: 20px;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-        
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.2s;
-        }
-        
-        .tab.active {
-            border-bottom-color: var(--primary-color);
-            font-weight: 600;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .table-container {
-            overflow-x: auto;
-        }
-        
-        table {
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 400px;
             width: 100%;
-            border-collapse: collapse;
+            box-shadow: var(--shadow);
         }
-        
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
+
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
         }
-        
-        th {
-            background: var(--bg-primary);
-            font-weight: 600;
+
+        .logo-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #0066ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
             color: var(--text-secondary);
             font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-bottom: 32px;
         }
-        
-        tr:hover {
-            background: var(--bg-primary);
+
+        .form-group {
+            margin-bottom: 24px;
         }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-completed { background: #d4edda; color: #155724; }
-        .status-rejected { background: #f8d7da; color: #721c24; }
-        
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+
+        .form-label {
+            display: block;
             font-size: 14px;
             font-weight: 500;
-            transition: all 0.2s;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
         }
-        
-        .btn-sm {
-            padding: 4px 8px;
-            font-size: 12px;
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: border-color 0.3s;
         }
-        
-        .btn-primary { background: var(--primary-color); color: white; }
-        .btn-success { background: var(--success-color); color: white; }
-        .btn-danger { background: var(--danger-color); color: white; }
-        .btn-warning { background: var(--warning-color); color: white; }
-        
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent), #0066ff);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.3s;
+        }
+
         .btn:hover {
             opacity: 0.9;
         }
-        
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-        
-        .action-buttons {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
+
+        .dashboard {
             display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
+            min-height: 100vh;
         }
-        
-        .modal.show {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 10px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .modal-title {
-            font-size: 20px;
-            margin-bottom: 20px;
-            color: var(--text-primary);
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-label {
+
+        .dashboard.show {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
         }
-        
-        .form-input, .form-textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 14px;
+
+        .header {
+            background: var(--bg-card);
+            padding: 20px 32px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        
-        .form-textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
+
+        .header-title {
             font-size: 24px;
+            font-weight: 700;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: var(--error);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .logout-btn:hover {
+            opacity: 0.9;
+        }
+
+        .main {
+            padding: 32px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .search-box {
+            padding: 10px 16px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 14px;
+            min-width: 250px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow-x: auto;
+        }
+
+        .table th {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid var(--border);
+            font-size: 14px;
+            font-weight: 600;
             color: var(--text-secondary);
         }
-        
-        .loading {
+
+        .table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .badge {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--border-color);
-            border-top-color: var(--primary-color);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-pending {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--warning);
+        }
+
+        .badge-approved {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+        }
+
+        .badge-rejected {
+            background: rgba(255, 68, 68, 0.2);
+            color: var(--error);
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 8px;
+            transition: opacity 0.3s;
+        }
+
+        .action-btn:hover {
+            opacity: 0.8;
+        }
+
+        .approve-btn {
+            background: var(--success);
+            color: var(--bg-primary);
+        }
+
+        .reject-btn {
+            background: var(--error);
+            color: white;
+        }
+
+        .reset-btn {
+            background: var(--warning);
+            color: var(--bg-primary);
+        }
+
+        .view-btn {
+            background: var(--accent);
+            color: white;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top-color: var(--accent);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .page-btn {
-            padding: 5px 10px;
-            border: 1px solid var(--border-color);
-            background: white;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        
-        .page-btn.active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-        
-        .page-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .alert {
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        
-        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
+            to {
+                transform: rotate(360deg);
             }
-            
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            border: none;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+        }
+
+        .alert-error {
+            background: rgba(255, 68, 68, 0.2);
+            color: var(--error);
+        }
+
+        @media (max-width: 768px) {
+            .main {
+                padding: 16px;
+            }
+
+            .header {
+                padding: 16px;
+            }
+
             .stats-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
+
+            .table {
+                display: block;
+                overflow-x: auto;
             }
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <!-- Header -->
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <div class="logo">
+                <div class="logo-icon">🔐</div>
+                <div class="logo-text">MicroEarn Admin</div>
+            </div>
+            <div class="subtitle">Admin Access Only</div>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="passwordInput" required
+                        autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn" id="loginBtn">Login</button>
+            </form>
+            <div id="loginError" style="color: var(--error); text-align: center; margin-top: 16px; font-size: 14px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard">
         <div class="header">
-            <h1><i class="fas fa-crown"></i> MicroEarn Admin Panel</h1>
-            <div class="user-info">
-                <img id="adminAvatar" src="" alt="Avatar" class="avatar">
-                <div>
-                    <div id="adminName">Loading...</div>
-                    <div id="adminRole" style="font-size: 12px; color: var(--text-secondary);">Administrator</div>
+            <div class="header-title">MicroEarn Admin Panel</div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="main">
+            <div id="alertContainer"></div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value" id="totalUsers">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-label">Total Earnings</div>
+                    <div class="stat-value">৳<span id="totalEarnings">0</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💳</div>
+                    <div class="stat-label">Total Balance</div>
+                    <div class="stat-value">৳<span id="totalBalance">0</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-label">Pending Withdrawals</div>
+                    <div class="stat-value" id="pendingWithdrawals">0</div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Stats Grid -->
-        <div class="stats-grid" id="statsGrid">
-            <!-- Stats will be loaded here -->
-        </div>
-        
-        <!-- Tabs -->
-        <div class="tabs">
-            <div class="tab active" onclick="showTab('withdrawals')">Pending Withdrawals</div>
-            <div class="tab" onclick="showTab('users')">Users</div>
-            <div class="tab" onclick="showTab('allWithdrawals')">All Withdrawals</div>
-        </div>
-        
-        <!-- Withdrawals Tab -->
-        <div id="withdrawalsTab" class="tab-content active">
-            <div class="section">
-                <div class="section-title">
-                    <span>Pending Withdrawal Requests</span>
-                    <span id="pendingCount">0 requests</span>
-                </div>
-                
-                <div class="table-container">
-                    <table id="withdrawalsTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>User</th>
-                                <th>Method</th>
-                                <th>Account</th>
-                                <th>Amount</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Data will be loaded here -->
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="pagination" id="withdrawalsPagination">
-                    <!-- Pagination will be loaded here -->
-                </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('withdrawals')">Withdrawals</button>
+                <button class="tab" onclick="switchTab('users')">Users</button>
             </div>
-        </div>
-        
-        <!-- Users Tab -->
-        <div id="usersTab" class="tab-content">
-            <div class="section">
-                <div class="section-title">
-                    <span>User Management</span>
-                    <div>
-                        <input type="text" id="userSearch" placeholder="Search users..." style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 200px;">
+
+            <!-- Withdrawals Tab -->
+            <div id="withdrawalsTab" class="section">
+                <div class="section-header">
+                    <div class="section-title">Withdrawal Requests</div>
+                    <input type="text" class="search-box" id="withdrawalSearch" placeholder="Search by Telegram ID..."
+                        oninput="filterWithdrawals()">
+                </div>
+                <div id="withdrawalsContent">
+                    <div class="loading">
+                        <div class="spinner"></div>
                     </div>
                 </div>
-                
-                <div class="table-container">
-                    <table id="usersTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Username</th>
-                                <th>Balance</th>
-                                <th>Total Earned</th>
-                                <th>Referrals</th>
-                                <th>Joined</th>
-                                <th>Admin</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Data will be loaded here -->
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="pagination" id="usersPagination">
-                    <!-- Pagination will be loaded here -->
-                </div>
             </div>
-        </div>
-        
-        <!-- All Withdrawals Tab -->
-        <div id="allWithdrawalsTab" class="tab-content">
-            <div class="section">
-                <div class="section-title">
-                    <span>All Withdrawals</span>
-                    <div>
-                        <select id="statusFilter" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                            <option value="pending">Pending</option>
-                            <option value="completed">Completed</option>
-                            <option value="rejected">Rejected</option>
-                            <option value="all">All</option>
-                        </select>
+
+            <!-- Users Tab -->
+            <div id="usersTab" class="section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-title">All Users</div>
+                    <input type="text" class="search-box" id="userSearch"
+                        placeholder="Search by Telegram ID or username..." oninput="filterUsers()">
+                </div>
+                <div id="usersContent">
+                    <div class="loading">
+                        <div class="spinner"></div>
                     </div>
-                </div>
-                
-                <div class="table-container">
-                    <table id="allWithdrawalsTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>User</th>
-                                <th>Method</th>
-                                <th>Account</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                                <th>Processed</th>
-                                <th>Note</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Data will be loaded here -->
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="pagination" id="allWithdrawalsPagination">
-                    <!-- Pagination will be loaded here -->
-                </div>
-            </div>
-        </div>
-        
-        <!-- Alert -->
-        <div id="alert" class="alert" style="display: none;"></div>
-        
-        <!-- Process Modal -->
-        <div class="modal" id="processModal">
-            <div class="modal-content">
-                <button class="close-modal" onclick="closeModal()">&times;</button>
-                <h3 class="modal-title">Process Withdrawal</h3>
-                
-                <div class="form-group">
-                    <div style="margin-bottom: 15px;">
-                        <strong>User ID:</strong> <span id="modalUserId"></span><br>
-                        <strong>Amount:</strong> <span id="modalAmount"></span> coins (<span id="modalBdt"></span> BDT)<br>
-                        <strong>Method:</strong> <span id="modalMethod"></span><br>
-                        <strong>Account:</strong> <span id="modalAccount"></span>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Admin Note</label>
-                    <textarea class="form-textarea" id="adminNote" placeholder="Optional note for user..."></textarea>
-                </div>
-                
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button class="btn btn-success" style="flex: 1;" onclick="processWithdrawal('approve')">
-                        <i class="fas fa-check"></i> Approve
-                    </button>
-                    <button class="btn btn-danger" style="flex: 1;" onclick="processWithdrawal('reject')">
-                        <i class="fas fa-times"></i> Reject
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- User Details Modal -->
-        <div class="modal" id="userModal">
-            <div class="modal-content">
-                <button class="close-modal" onclick="closeModal()">&times;</button>
-                <h3 class="modal-title">User Details</h3>
-                
-                <div id="userDetails">
-                    <!-- User details will be loaded here -->
                 </div>
             </div>
         </div>
     </div>
-    
+
     <script>
-        // Telegram WebApp initialization
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        
-        // State
-        let currentUser = null;
-        let currentTab = 'withdrawals';
-        let currentWithdrawalPage = 1;
-        let currentUsersPage = 1;
-        let currentAllWithdrawalsPage = 1;
-        let processingWithdrawalId = null;
-        
-        // Initialize
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Load admin profile
-            loadAdminProfile();
-            
-            // Check admin access
-            const hasAccess = await checkAdminAccess();
-            if (!hasAccess) {
-                document.body.innerHTML = '<div style="padding: 40px; text-align: center;"><h2>Access Denied</h2><p>You must be an administrator to access this panel.</p></div>';
-                return;
-            }
-            
-            // Load dashboard stats
-            await loadDashboardStats();
-            
-            // Load initial data
-            await loadPendingWithdrawals();
-            
-            // Setup event listeners
-            document.getElementById('userSearch').addEventListener('input', debounce(searchUsers, 500));
-            document.getElementById('statusFilter').addEventListener('change', loadAllWithdrawals);
-            
-            // Auto-refresh every 30 seconds
-            setInterval(async () => {
-                if (currentTab === 'withdrawals') {
-                    await loadPendingWithdrawals();
-                }
-                await loadDashboardStats();
-            }, 30000);
-        });
-        
-        // Load admin profile
-        function loadAdminProfile() {
-            const user = tg.initDataUnsafe.user;
-            if (user) {
-                document.getElementById('adminName').textContent = 
-                    [user.first_name, user.last_name].filter(Boolean).join(' ');
-                
-                if (user.photo_url) {
-                    document.getElementById('adminAvatar').src = user.photo_url;
-                }
-            }
-        }
-        
-        // Check admin access
-        async function checkAdminAccess() {
+        const BACKEND_URL = 'YOUR_WORKER_URL';
+        let authToken = null;
+        let allWithdrawals = [];
+        let allUsers = [];
+
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const password = document.getElementById('passwordInput').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('loginError');
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+            errorDiv.textContent = '';
+
             try {
-                const initData = tg.initData;
-                const response = await fetch('https://microearn.abusaifeshovon.workers.dev/api/admin/dashboard', {
-                    headers: {
-                        'Authorization': `Bearer ${initData}`
-                    }
-                });
-                
-                return response.ok;
-            } catch (error) {
-                return false;
-            }
-        }
-        
-        // Load dashboard stats
-        async function loadDashboardStats() {
-            try {
-                const initData = tg.initData;
-                const response = await fetch('https://microearn.abusaifeshovon.workers.dev/api/admin/dashboard', {
-                    headers: {
-                        'Authorization': `Bearer ${initData}`
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    updateStatsGrid(data.data);
-                }
-            } catch (error) {
-                console.error('Failed to load stats:', error);
-            }
-        }
-        
-        // Update stats grid
-        function updateStatsGrid(stats) {
-            const statsGrid = document.getElementById('statsGrid');
-            
-            const statCards = [
-                {
-                    title: 'Total Users',
-                    value: stats.total_users,
-                    icon: 'users',
-                    class: 'info'
-                },
-                {
-                    title: 'New Users Today',
-                    value: stats.new_users_today,
-                    icon: 'user-plus',
-                    class: 'success'
-                },
-                {
-                    title: 'Online Users',
-                    value: stats.online_users,
-                    icon: 'user-check',
-                    class: 'warning'
-                },
-                {
-                    title: 'Coins Issued',
-                    value: stats.total_coins_issued.toLocaleString(),
-                    icon: 'coins',
-                    class: ''
-                },
-                {
-                    title: 'Coins Withdrawn',
-                    value: stats.total_coins_withdrawn.toLocaleString(),
-                    icon: 'money-bill-wave',
-                    class: 'danger'
-                },
-                {
-                    title: 'Pending Withdrawals',
-                    value: stats.pending_withdrawals,
-                    icon: 'clock',
-                    class: 'warning'
-                }
-            ];
-            
-            statsGrid.innerHTML = statCards.map(card => `
-                <div class="stat-card ${card.class}">
-                    <div class="stat-value">${card.value}</div>
-                    <div class="stat-label">
-                        <i class="fas fa-${card.icon}"></i> ${card.title}
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        // Show tab
-        function showTab(tabName) {
-            currentTab = tabName;
-            
-            // Update tab UI
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(tabName + 'Tab').classList.add('active');
-            
-            // Load data for tab
-            switch (tabName) {
-                case 'withdrawals':
-                    loadPendingWithdrawals();
-                    break;
-                case 'users':
-                    loadUsers();
-                    break;
-                case 'allWithdrawals':
-                    loadAllWithdrawals();
-                    break;
-            }
-        }
-        
-        // Load pending withdrawals
-        async function loadPendingWithdrawals(page = 1) {
-            try {
-                const initData = tg.initData;
-                const response = await fetch(`https://microearn.abusaifeshovon.workers.dev/api/admin/withdrawals?status=pending&page=${page}`, {
-                    headers: {
-                        'Authorization': `Bearer ${initData}`
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    updateWithdrawalsTable(data.data, data.pagination);
-                }
-            } catch (error) {
-                console.error('Failed to load withdrawals:', error);
-                showAlert('Failed to load withdrawals', 'error');
-            }
-        }
-        
-        // Update withdrawals table
-        function updateWithdrawalsTable(withdrawals, pagination) {
-            const tbody = document.querySelector('#withdrawalsTable tbody');
-            const pendingCount = document.getElementById('pendingCount');
-            
-            pendingCount.textContent = `${pagination.total} pending requests`;
-            
-            tbody.innerHTML = withdrawals.map(w => `
-                <tr>
-                    <td>${w.id}</td>
-                    <td>
-                        <div>${w.name || 'No name'}</div>
-                        <div style="font-size: 12px; color: #666;">@${w.username || 'no_username'}</div>
-                    </td>
-                    <td>${w.method.toUpperCase()}</td>
-                    <td>${w.account_number}</td>
-                    <td>
-                        <strong>${w.amount}</strong> coins<br>
-                        <span style="font-size: 12px; color: #666;">${Math.floor(w.amount/10)} BDT</span>
-                    </td>
-                    <td>${formatDate(w.created_at)}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn btn-sm btn-success" onclick="openProcessModal(${w.id}, '${w.name}', ${w.amount}, '${w.method}', '${w.account_number}')">
-                                <i class="fas fa-cog"></i> Process
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-            
-            updatePagination('withdrawalsPagination', pagination, loadPendingWithdrawals);
-        }
-        
-        // Load users
-        async function loadUsers(page = 1, search = '') {
-            try {
-                const initData = tg.initData;
-                let url = `https://microearn.abusaifeshovon.workers.dev/api/admin/users?page=${page}`;
-                if (search) {
-                    url += `&search=${encodeURIComponent(search)}`;
-                }
-                
-                const response = await fetch(url, {
-                    headers: {
-                        'Authorization': `Bearer ${initData}`
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    updateUsersTable(data.data, data.pagination);
-                }
-            } catch (error) {
-                console.error('Failed to load users:', error);
-                showAlert('Failed to load users', 'error');
-            }
-        }
-        
-        // Update users table
-        function updateUsersTable(users, pagination) {
-            const tbody = document.querySelector('#usersTable tbody');
-            
-            tbody.innerHTML = users.map(u => `
-                <tr>
-                    <td>${u.user_id}</td>
-                    <td>
-                        <div>${u.name || 'No name'}</div>
-                        <div style="font-size: 12px; color: #666;">ID: ${u.user_id}</div>
-                    </td>
-                    <td>${u.username ? '@' + u.username : '-'}</td>
-                    <td>
-                        <strong>${u.balance}</strong> coins<br>
-                        <span style="font-size: 12px; color: #666;">${Math.floor(u.balance/10)} BDT</span>
-                    </td>
-                    <td>${u.total_earned.toLocaleString()}</td>
-                    <td>${u.referral_count || 0}</td>
-                    <td>${formatDate(u.created_at)}</td>
-                    <td>
-                        ${u.is_admin ? 
-                            '<span class="status-badge status-completed">Admin</span>' : 
-                            '<span class="status-badge status-pending">User</span>'}
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn btn-sm btn-primary" onclick="viewUserDetails(${u.user_id})">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-warning" onclick="toggleAdmin(${u.user_id}, ${u.is_admin})" 
-                                    ${currentUser && currentUser.id.toString() === u.user_id.toString() ? 'disabled' : ''}>
-                                ${u.is_admin ? '<i class="fas fa-user-times"></i>' : '<i class="fas fa-user-plus"></i>'}
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-            
-            updatePagination('usersPagination', pagination, loadUsers);
-        }
-        
-        // Load all withdrawals
-        async function loadAllWithdrawals(page = 1) {
-            try {
-                const initData = tg.initData;
-                const status = document.getElementById('statusFilter').value;
-                let url = `https://microearn.abusaifeshovon.workers.dev/api/admin/withdrawals?page=${page}`;
-                if (status !== 'all') {
-                    url += `&status=${status}`;
-                }
-                
-                const response = await fetch(url, {
-                    headers: {
-                        'Authorization': `Bearer ${initData}`
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    updateAllWithdrawalsTable(data.data, data.pagination);
-                }
-            } catch (error) {
-                console.error('Failed to load withdrawals:', error);
-                showAlert('Failed to load withdrawals', 'error');
-            }
-        }
-        
-        // Update all withdrawals table
-        function updateAllWithdrawalsTable(withdrawals, pagination) {
-            const tbody = document.querySelector('#allWithdrawalsTable tbody');
-            
-            tbody.innerHTML = withdrawals.map(w => `
-                <tr>
-                    <td>${w.id}</td>
-                    <td>
-                        <div>${w.name || 'No name'}</div>
-                        <div style="font-size: 12px; color: #666;">@${w.username || 'no_username'}</div>
-                    </td>
-                    <td>${w.method.toUpperCase()}</td>
-                    <td>${w.account_number}</td>
-                    <td>
-                        <strong>${w.amount}</strong> coins<br>
-                        <span style="font-size: 12px; color: #666;">${Math.floor(w.amount/10)} BDT</span>
-                    </td>
-                    <td>
-                        <span class="status-badge status-${w.status}">${w.status}</span>
-                    </td>
-                    <td>${formatDate(w.created_at)}</td>
-                    <td>${w.processed_at ? formatDate(w.processed_at) : '-'}</td>
-                    <td style="max-width: 200px; font-size: 12px;">${w.admin_note || '-'}</td>
-                </tr>
-            `).join('');
-            
-            updatePagination('allWithdrawalsPagination', pagination, loadAllWithdrawals);
-        }
-        
-        // Open process modal
-        function openProcessModal(id, name, amount, method, account) {
-            processingWithdrawalId = id;
-            
-            document.getElementById('modalUserId').textContent = id;
-            document.getElementById('modalAmount').textContent = amount;
-            document.getElementById('modalBdt').textContent = Math.floor(amount/10);
-            document.getElementById('modalMethod').textContent = method.toUpperCase();
-            document.getElementById('modalAccount').textContent = account;
-            
-            document.getElementById('processModal').classList.add('show');
-        }
-        
-        // Process withdrawal
-        async function processWithdrawal(action) {
-            if (!processingWithdrawalId) return;
-            
-            const note = document.getElementById('adminNote').value;
-            
-            try {
-                const initData = tg.initData;
-                const response = await fetch(`https://microearn.abusaifeshovon.workers.dev/api/admin/withdrawals/${processingWithdrawalId}/process`, {
+                const response = await fetch(`${BACKEND_URL}/api/admin/login`, {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${initData}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: action,
-                        note: note
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
-                    showAlert(`Withdrawal ${action}d successfully`, 'success');
-                    closeModal();
-                    await loadPendingWithdrawals();
-                    await loadDashboardStats();
+                    authToken = data.token;
+                    localStorage.setItem('adminToken', authToken);
+                    showDashboard();
                 } else {
-                    showAlert(data.error, 'error');
+                    errorDiv.textContent = data.error || 'Invalid password';
                 }
+
             } catch (error) {
-                showAlert('Failed to process withdrawal', 'error');
+                console.error('Login error:', error);
+                errorDiv.textContent = 'Login failed. Please try again.';
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
             }
         }
-        
-        // View user details
-        async function viewUserDetails(userId) {
+
+        function showDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboard').classList.add('show');
+            loadStats();
+            loadWithdrawals();
+            loadUsers();
+        }
+
+        function logout() {
+            authToken = null;
+            localStorage.removeItem('adminToken');
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('dashboard').classList.remove('show');
+            document.getElementById('passwordInput').value = '';
+        }
+
+        async function loadStats() {
             try {
-                const initData = tg.initData;
-                const response = await fetch(`https://microearn.abusaifeshovon.workers.dev/api/admin/users/${userId}/details`, {
-                    headers: {
-                        'Authorization': `Bearer ${initData}`
-                    }
+                const response = await fetch(`${BACKEND_URL}/api/admin/stats`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
                 });
-                
-                // Note: This endpoint doesn't exist in our API, so we'll simulate it
-                // In production, you would implement this endpoint
-                const userDetails = `
-                    <div style="margin-bottom: 20px;">
-                        <strong>User ID:</strong> ${userId}<br>
-                        <strong>Balance:</strong> Loading...<br>
-                        <strong>Total Earned:</strong> Loading...<br>
-                        <strong>Joined:</strong> Loading...
-                    </div>
-                    <div>
-                        <button class="btn btn-primary" onclick="viewUserWithdrawals(${userId})">View Withdrawals</button>
-                        <button class="btn btn-warning" onclick="viewUserEarnings(${userId})">View Earnings</button>
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('totalUsers').textContent = data.stats.total_users;
+                    document.getElementById('totalEarnings').textContent = data.stats.total_earnings.toFixed(2);
+                    document.getElementById('totalBalance').textContent = data.stats.total_balance.toFixed(2);
+                    document.getElementById('pendingWithdrawals').textContent = data.stats.pending_withdrawals;
+                } else if (data.error === 'Unauthorized') {
+                    logout();
+                }
+
+            } catch (error) {
+                console.error('Stats error:', error);
+            }
+        }
+
+        async function loadWithdrawals() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/admin/withdrawals`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    allWithdrawals = data.withdrawals;
+                    renderWithdrawals(allWithdrawals);
+                } else if (data.error === 'Unauthorized') {
+                    logout();
+                }
+
+            } catch (error) {
+                console.error('Withdrawals error:', error);
+            }
+        }
+
+        function renderWithdrawals(withdrawals) {
+            const container = document.getElementById('withdrawalsContent');
+
+            if (!withdrawals || withdrawals.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <div>No withdrawal requests</div>
                     </div>
                 `;
-                
-                document.getElementById('userDetails').innerHTML = userDetails;
-                document.getElementById('userModal').classList.add('show');
-            } catch (error) {
-                console.error('Failed to load user details:', error);
-            }
-        }
-        
-        // Toggle admin status
-        async function toggleAdmin(userId, isCurrentlyAdmin) {
-            if (!confirm(`Are you sure you want to ${isCurrentlyAdmin ? 'remove admin privileges from' : 'make admin'} this user?`)) {
                 return;
             }
-            
+
+            container.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Telegram ID</th>
+                            <th>Username</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Account</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${withdrawals.map(w => `
+                            <tr>
+                                <td>${w.id}</td>
+                                <td>${w.telegram_id}</td>
+                                <td>${w.username || 'N/A'}</td>
+                                <td>৳${w.amount.toFixed(2)}</td>
+                                <td>${w.method}</td>
+                                <td>${w.account}</td>
+                                <td><span class="badge badge-${w.status.toLowerCase()}">${w.status}</span></td>
+                                <td>${new Date(w.created_at).toLocaleDateString()}</td>
+                                <td>
+                                    ${w.status === 'PENDING' ? `
+                                        <button class="action-btn approve-btn" onclick="approveWithdrawal(${w.id})">Approve</button>
+                                        <button class="action-btn reject-btn" onclick="rejectWithdrawal(${w.id})">Reject</button>
+                                    ` : '-'}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        async function approveWithdrawal(id) {
+            if (!confirm('Approve this withdrawal request? User balance will be deducted.')) {
+                return;
+            }
+
             try {
-                const initData = tg.initData;
-                const response = await fetch(`https://microearn.abusaifeshovon.workers.dev/api/admin/users/${userId}/toggle-admin`, {
+                const response = await fetch(`${BACKEND_URL}/api/admin/withdraw/approve`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${initData}`,
-                        'Content-Type': 'application/json'
-                    }
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ withdrawal_id: id })
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
-                    showAlert(data.message, 'success');
-                    await loadUsers();
+                    showAlert('Withdrawal approved successfully', 'success');
+                    loadStats();
+                    loadWithdrawals();
                 } else {
-                    showAlert(data.error, 'error');
+                    showAlert(data.error || 'Failed to approve withdrawal', 'error');
                 }
+
             } catch (error) {
-                showAlert('Failed to toggle admin status', 'error');
+                console.error('Approve error:', error);
+                showAlert('Failed to approve withdrawal', 'error');
             }
         }
-        
-        // Close modal
-        function closeModal() {
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.classList.remove('show');
-            });
-            processingWithdrawalId = null;
-        }
-        
-        // Update pagination
-        function updatePagination(elementId, pagination, loadFunction) {
-            const paginationDiv = document.getElementById(elementId);
-            
-            if (pagination.total_pages <= 1) {
-                paginationDiv.innerHTML = '';
+
+        async function rejectWithdrawal(id) {
+            if (!confirm('Reject this withdrawal request?')) {
                 return;
             }
-            
-            let html = '';
-            
-            // Previous button
-            html += `<button class="page-btn" ${pagination.page <= 1 ? 'disabled' : ''} 
-                     onclick="${loadFunction.name}(${pagination.page - 1})">Previous</button>`;
-            
-            // Page numbers
-            for (let i = 1; i <= pagination.total_pages; i++) {
-                if (i === 1 || i === pagination.total_pages || (i >= pagination.page - 2 && i <= pagination.page + 2)) {
-                    html += `<button class="page-btn ${i === pagination.page ? 'active' : ''}" 
-                             onclick="${loadFunction.name}(${i})">${i}</button>`;
-                } else if (i === pagination.page - 3 || i === pagination.page + 3) {
-                    html += `<span style="padding: 5px 10px;">...</span>`;
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/admin/withdraw/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ withdrawal_id: id })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('Withdrawal rejected', 'success');
+                    loadWithdrawals();
+                } else {
+                    showAlert(data.error || 'Failed to reject withdrawal', 'error');
                 }
+
+            } catch (error) {
+                console.error('Reject error:', error);
+                showAlert('Failed to reject withdrawal', 'error');
             }
-            
-            // Next button
-            html += `<button class="page-btn" ${pagination.page >= pagination.total_pages ? 'disabled' : ''} 
-                     onclick="${loadFunction.name}(${pagination.page + 1})">Next</button>`;
-            
-            paginationDiv.innerHTML = html;
         }
-        
-        // Show alert
+
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/admin/users`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    allUsers = data.users;
+                    renderUsers(allUsers);
+                } else if (data.error === 'Unauthorized') {
+                    logout();
+                }
+
+            } catch (error) {
+                console.error('Users error:', error);
+            }
+        }
+
+        function renderUsers(users) {
+            const container = document.getElementById('usersContent');
+
+            if (!users || users.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">👥</div>
+                        <div>No users found</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Telegram ID</th>
+                            <th>Username</th>
+                            <th>Balance</th>
+                            <th>Total Earned</th>
+                            <th>Referrals</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(u => `
+                            <tr>
+                                <td>${u.telegram_id}</td>
+                                <td>${u.username || 'N/A'}</td>
+                                <td>৳${u.balance.toFixed(2)}</td>
+                                <td>৳${u.total_earned.toFixed(2)}</td>
+                                <td>${u.referral_count || 0}</td>
+                                <td>${new Date(u.created_at).toLocaleDateString()}</td>
+                                <td>
+                                    <button class="action-btn reset-btn" onclick="resetBalance(${u.telegram_id})">Reset Balance</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        async function resetBalance(telegramId) {
+            if (!confirm('Reset this user\'s balance to zero? This cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/admin/user/reset-balance`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ telegram_id: telegramId })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('User balance reset successfully', 'success');
+                    loadStats();
+                    loadUsers();
+                } else {
+                    showAlert(data.error || 'Failed to reset balance', 'error');
+                }
+
+            } catch (error) {
+                console.error('Reset error:', error);
+                showAlert('Failed to reset balance', 'error');
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (tab === 'withdrawals') {
+                document.getElementById('withdrawalsTab').style.display = 'block';
+                document.getElementById('usersTab').style.display = 'none';
+            } else if (tab === 'users') {
+                document.getElementById('withdrawalsTab').style.display = 'none';
+                document.getElementById('usersTab').style.display = 'block';
+            }
+        }
+
+        function filterWithdrawals() {
+            const search = document.getElementById('withdrawalSearch').value.toLowerCase();
+            const filtered = allWithdrawals.filter(w =>
+                w.telegram_id.toString().includes(search) ||
+                (w.username && w.username.toLowerCase().includes(search))
+            );
+            renderWithdrawals(filtered);
+        }
+
+        function filterUsers() {
+            const search = document.getElementById('userSearch').value.toLowerCase();
+            const filtered = allUsers.filter(u =>
+                u.telegram_id.toString().includes(search) ||
+                (u.username && u.username.toLowerCase().includes(search))
+            );
+            renderUsers(filtered);
+        }
+
         function showAlert(message, type) {
-            const alertDiv = document.getElementById('alert');
-            alertDiv.textContent = message;
-            alertDiv.className = `alert alert-${type}`;
-            alertDiv.style.display = 'block';
-            
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            container.appendChild(alert);
+
             setTimeout(() => {
-                alertDiv.style.display = 'none';
+                alert.remove();
             }, 5000);
         }
-        
-        // Format date
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        }
-        
-        // Debounce function
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-        
-        // Search users
-        function searchUsers() {
-            const searchTerm = document.getElementById('userSearch').value;
-            loadUsers(1, searchTerm);
-        }
+
+        // Auto-login if token exists
+        window.addEventListener('load', () => {
+            const savedToken = localStorage.getItem('adminToken');
+            if (savedToken) {
+                authToken = savedToken;
+                showDashboard();
+            }
+        });
+
+        // Auto-refresh stats every 30 seconds
+        setInterval(() => {
+            if (authToken) {
+                loadStats();
+            }
+        }, 30000);
     </script>
 </body>
+
 </html>
