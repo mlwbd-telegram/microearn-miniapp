@@ -938,7 +938,13 @@
                 });
 
                 if (!response.ok) {
-                    showToast(`❌ HTTP Error: ${response.status} ${response.statusText}`);
+                    // Try to parse error message from response
+                    try {
+                        const errorData = await response.json();
+                        showToast(`❌ ${errorData.error || `HTTP Error: ${response.status}`}`);
+                    } catch {
+                        showToast(`❌ HTTP Error: ${response.status} ${response.statusText}`);
+                    }
                     return;
                 }
 
