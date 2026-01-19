@@ -951,8 +951,7 @@
                         userData.total_earned = (userData.total_earned || 0) + (data.amount || 0);
                     }
                     updateUI();
-                    const remaining = data.claims_remaining || 0;
-                    showToast(`🎉 Daily income collected! +৳${data.amount} (${remaining} claims remaining today)`);
+                    showToast(`🎉 Daily income collected! +৳${data.amount.toFixed(2)}\nCome back tomorrow!`);
                     loadHistory();
                 } else {
                     showToast(`❌ ${data.error || 'Already collected today'}`);
