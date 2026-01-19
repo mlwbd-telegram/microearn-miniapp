@@ -924,11 +924,18 @@
 
         async function handleDailyIncome() {
             try {
+                showToast('⏳ Requesting daily income...'); // Show loading
+
                 const response = await fetch(`${BACKEND_URL}/api/earn/daily`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ initData: tg.initData })
                 });
+
+                if (!response.ok) {
+                    showToast(`❌ HTTP Error: ${response.status} ${response.statusText}`);
+                    return;
+                }
 
                 const data = await response.json();
 
@@ -939,12 +946,12 @@
                     showToast(`🎉 Daily income collected! +৳${data.amount} (${remaining} claims remaining today)`);
                     loadHistory();
                 } else {
-                    showToast(data.error || 'Already collected today');
+                    showToast(`❌ ${data.error || 'Already collected today'}`);
                 }
 
             } catch (error) {
+                showToast(`❌ Network Error: ${error.message}`);
                 console.error('Daily income error:', error);
-                showToast('Failed to collect daily income');
             }
         }
 
