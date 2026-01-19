@@ -682,7 +682,6 @@
                     <select class="form-select" id="withdrawMethod" required>
                         <option value="bKash">bKash</option>
                         <option value="Nagad">Nagad</option>
-                        <option value="Rocket">Rocket</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -936,7 +935,8 @@
                 if (data.success) {
                     userData.balance = data.new_balance;
                     updateUI();
-                    showToast(`🎉 Daily income collected! +৳${data.amount}`);
+                    const remaining = data.claims_remaining || 0;
+                    showToast(`🎉 Daily income collected! +৳${data.amount} (${remaining} claims remaining today)`);
                     loadHistory();
                 } else {
                     showToast(data.error || 'Already collected today');
@@ -1037,10 +1037,12 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    showToast('✅ Withdrawal request submitted!');
+                    showToast('✅ Withdrawal request submitted successfully! Please wait for admin approval.');
                     closeModal('withdrawModal');
                     event.target.reset();
                     loadHistory();
+                    // Reload user data to update balance if needed
+                    await loadUserData();
                 } else {
                     showToast(data.error || 'Failed to submit request');
                 }
@@ -1060,9 +1062,13 @@
                 });
 
                 const data = await response.json();
+                console.log('History data received:', data); // Debug log
 
                 if (data.success) {
+                    console.log('Rendering history with', data.history?.length, 'items'); // Debug log
                     renderHistory(data.history);
+                } else {
+                    console.error('History error:', data.error);
                 }
 
             } catch (error) {
@@ -1100,11 +1106,27 @@
             const botUsername = 'microearn_beta_bot';
             const link = `https://t.me/${botUsername}?start=${userData.referral_code}`;
 
-            if (navigator.clipboard) {
+            // Try to use Telegram WebApp share if available
+            if (tg && tg.openTelegramLink) {
+                const shareText = `🎉 Join MicroEarn and start earning! Use my referral code to get bonus: ${userData.referral_code}\n\nClick here to join: ${link}`;
+                tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`);
+                showToast('✅ Share link opened!');
+            } else if (navigator.clipboard) {
                 navigator.clipboard.writeText(link);
-                showToast('✅ Link copied!');
+                showToast('✅ Link copied to clipboard!');
             } else {
-                showToast('Failed to copy link');
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = link;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast('✅ Link copied!');
+                } catch (err) {
+                    showToast('❌ Failed to copy link');
+                }
+                document.body.removeChild(textArea);
             }
         }
 
