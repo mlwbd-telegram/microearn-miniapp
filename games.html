@@ -95,18 +95,46 @@
             margin-top: 5px;
         }
 
+        .game-plays.exhausted {
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+
+        .game-card.disabled .game-plays {
+            color: #ff6b6b;
+        }
+
         .back-btn {
             position: fixed;
             top: 20px;
             left: 20px;
-            background: rgba(255, 255, 255, 0.3);
-            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            /* Light semi-transparent */
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
             padding: 10px 15px;
-            border-radius: 10px;
-            font-size: 20px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 500;
             cursor: pointer;
             z-index: 100;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn:active {
+            transform: scale(0.95);
         }
 
         /* Game Modal - Full screen scrollable layout */
@@ -135,7 +163,6 @@
             padding-bottom: 80px;
         }
 
-        /* STICKY GAME HEADER - Always visible */
         .game-header {
             position: sticky;
             top: 0;
@@ -148,6 +175,24 @@
             backdrop-filter: blur(10px);
             z-index: 100;
             margin-bottom: 20px;
+        }
+
+        .game-plays-header {
+            color: #ffd700;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .wheel-status {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            text-align: center;
+            pointer-events: none;
         }
 
         .game-back-btn {
@@ -178,30 +223,120 @@
             overflow-y: auto;
         }
 
-        /* Spin Wheel */
+        /* Spin Wheel Overhaul */
         .wheel-container {
             position: relative;
             margin: 20px auto;
-            width: 250px;
-            height: 250px;
+            width: 280px;
+            height: 280px;
+            /* Container for wheel + pointer + status */
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 35px solid #ff4757;
+            filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.4));
         }
 
         .wheel {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background: conic-gradient(#ff6b6b 0deg 60deg, #feca57 60deg 120deg,
-                    #48dbfb 120deg 180deg, #ff9ff3 180deg 240deg,
-                    #54a0ff 240deg 300deg, #5f27cd 300deg 360deg);
+            border: 8px solid white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
             transition: transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            background: conic-gradient(#FF6B6B 0deg 60deg,
+                    #4ECDC4 60deg 120deg,
+                    #45B7D1 120deg 180deg,
+                    #FFA07A 180deg 240deg,
+                    #98D8C8 240deg 300deg,
+                    #FFD93D 300deg 360deg);
+            position: relative;
+            overflow: hidden;
         }
 
-        .wheel-pointer {
+        /* Wheel Labels */
+        .wheel-label {
             position: absolute;
-            top: -10px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            font-size: 30px;
+            width: 50%;
+            height: 20px;
+            margin-top: -10px;
+            transform-origin: 0% 50%;
+            text-align: right;
+            padding-right: 25px;
+            color: white;
+            font-weight: 800;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            white-space: nowrap;
+        }
+
+        /* Rotation for labels (East based) to match Segments (Top based) */
+        /* Seg 0 (0-60, center 30). East (90) - 60 = 30. */
+        .label-0 {
+            transform: rotate(-60deg);
+        }
+
+        .label-1 {
+            transform: rotate(0deg);
+        }
+
+        .label-2 {
+            transform: rotate(60deg);
+        }
+
+        .label-3 {
+            transform: rotate(120deg);
+        }
+
+        .label-4 {
+            transform: rotate(180deg);
+        }
+
+        .label-5 {
+            transform: rotate(240deg);
+        }
+
+        /* Seg 5 (300-360, center 330). 90+240=330. */
+
+        /* Highlight Overlay - Fixed at Top (Winning Position) */
+        /* Since rotation brings winner to TOP, we just highlight TOP wedge. */
+        .wheel-highlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 15;
+            background: conic-gradient(rgba(255, 255, 255, 0.5) 0deg 30deg,
+                    transparent 30deg 330deg,
+                    rgba(255, 255, 255, 0.5) 330deg 360deg);
+            opacity: 0;
+            transition: opacity 0.5s;
+            border-radius: 50%;
+            mix-blend-mode: overlay;
+        }
+
+        .wheel-highlight.show {
+            opacity: 1;
+        }
+
+        .wheel.dim {
+            filter: brightness(0.6);
         }
 
         .action-btn {
@@ -359,7 +494,7 @@
             font-size: 20px;
         }
 
-        /* Result */
+        /* Result - LARGE, CLEAR, HIGH CONTRAST */
         .result {
             font-size: 20px;
             margin: 15px 0;
@@ -376,6 +511,55 @@
 
         .result.processing {
             color: #667eea;
+        }
+
+        /* GAME RESULT BOX - Large, Clear, Fixed */
+        .game-result-box {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-score {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 8px;
+        }
+
+        .result-requirement {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 15px;
+        }
+
+        .result-reward {
+            font-size: 36px;
+            font-weight: 800;
+            margin: 15px 0;
+        }
+
+        .result-reward.win {
+            color: #2ecc71;
+            text-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+        }
+
+        .result-reward.lose {
+            color: #ff6b6b;
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .result-emoji {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .result-message {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 10px;
         }
 
         /* SPIN RESULT OVERLAY - Clear visibility */
@@ -581,14 +765,64 @@
 
         .ad-close {
             position: absolute;
-            right: 10px;
-            top: 5px;
-            background: none;
+            right: 5px;
+            top: 2px;
+            background: rgba(0, 0, 0, 0.3);
             border: none;
-            font-size: 18px;
-            color: #999;
+            font-size: 10px;
+            color: #fff;
             cursor: pointer;
-            padding: 5px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .ad-close.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* MINI AD INSIDE GAME MODALS */
+        .game-mini-ad {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(90deg, #f8f9fa, #e9ecef);
+            border-top: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        .game-mini-ad .mini-ad-content {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .game-mini-ad .mini-ad-close {
+            position: absolute;
+            right: 3px;
+            top: 3px;
+            background: rgba(0, 0, 0, 0.2);
+            border: none;
+            font-size: 8px;
+            color: #666;
+            cursor: pointer;
+            padding: 1px 4px;
+            border-radius: 2px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .game-mini-ad .mini-ad-close.visible {
+            opacity: 1;
+            pointer-events: auto;
         }
     </style>
 </head>
@@ -625,13 +859,23 @@
         <div class="game-modal-inner">
             <div class="game-header">
                 <button class="game-back-btn" onclick="closeGame('spinModal')">← Back to Games</button>
+                <span class="game-plays-header" id="spinPlaysHeader">2 plays left</span>
             </div>
             <div class="game-content">
                 <h2>🎡 Spin & Win</h2>
                 <p style="margin:10px 0;color:#666;">Spin to win 5-50 coins!</p>
                 <div class="wheel-container">
-                    <div class="wheel-pointer">▼</div>
-                    <div class="wheel" id="spinWheel"></div>
+                    <div class="wheel-pointer"></div>
+                    <div class="wheel-highlight" id="spinHighlight"></div>
+                    <div class="wheel" id="spinWheel">
+                        <div class="wheel-label label-0">5 Coins</div>
+                        <div class="wheel-label label-1">10 Coins</div>
+                        <div class="wheel-label label-2">20 Coins</div>
+                        <div class="wheel-label label-3">5 Coins</div>
+                        <div class="wheel-label label-4">10 Coins</div>
+                        <div class="wheel-label label-5">50 Coins</div>
+                    </div>
+                    <div class="wheel-status" id="wheelStatus"></div>
                 </div>
                 <div id="spinResult" class="result"></div>
                 <button class="action-btn" id="spinBtn" onclick="spinWheel()">SPIN</button>
@@ -643,6 +887,11 @@
                 </div>
             </div>
         </div>
+        <!-- Mini Ad inside game modal -->
+        <div class="game-mini-ad" id="spinMiniAd">
+            <button class="mini-ad-close" id="spinMiniAdClose" onclick="closeMiniAd('spinMiniAd')">✕</button>
+            <div class="mini-ad-content">📱 Ad Space - Revenue Partner</div>
+        </div>
     </div>
 
     <!-- TAP GAME MODAL -->
@@ -650,6 +899,7 @@
         <div class="game-modal-inner">
             <div class="game-header">
                 <button class="game-back-btn" onclick="closeGame('tapModal')">← Back to Games</button>
+                <span class="game-plays-header" id="tapPlaysHeader">3 plays left</span>
             </div>
             <div class="game-content">
                 <h2>👆 Tap Challenge</h2>
@@ -667,6 +917,10 @@
                 </div>
             </div>
         </div>
+        <div class="game-mini-ad" id="tapMiniAd">
+            <button class="mini-ad-close" id="tapMiniAdClose" onclick="closeMiniAd('tapMiniAd')">✕</button>
+            <div class="mini-ad-content">📱 Ad Space - Revenue Partner</div>
+        </div>
     </div>
 
     <!-- GUESS GAME MODAL -->
@@ -674,6 +928,7 @@
         <div class="game-modal-inner">
             <div class="game-header">
                 <button class="game-back-btn" onclick="closeGame('guessModal')">← Back to Games</button>
+                <span class="game-plays-header" id="guessPlaysHeader">2 plays left</span>
             </div>
             <div class="game-content">
                 <h2>🔢 Guess the Number</h2>
@@ -691,6 +946,10 @@
                 </div>
             </div>
         </div>
+        <div class="game-mini-ad" id="guessMiniAd">
+            <button class="mini-ad-close" id="guessMiniAdClose" onclick="closeMiniAd('guessMiniAd')">✕</button>
+            <div class="mini-ad-content">📱 Ad Space - Revenue Partner</div>
+        </div>
     </div>
 
     <!-- REACTION GAME MODAL -->
@@ -698,6 +957,7 @@
         <div class="game-modal-inner">
             <div class="game-header">
                 <button class="game-back-btn" onclick="closeGame('reactionModal')">← Back to Games</button>
+                <span class="game-plays-header" id="reactionPlaysHeader">2 plays left</span>
             </div>
             <div class="game-content">
                 <h2>⚡ Reaction Game</h2>
@@ -714,6 +974,10 @@
                 </div>
             </div>
         </div>
+        <div class="game-mini-ad" id="reactionMiniAd">
+            <button class="mini-ad-close" id="reactionMiniAdClose" onclick="closeMiniAd('reactionMiniAd')">✕</button>
+            <div class="mini-ad-content">📱 Ad Space - Revenue Partner</div>
+        </div>
     </div>
 
     <!-- QUIZ GAME MODAL -->
@@ -721,6 +985,7 @@
         <div class="game-modal-inner">
             <div class="game-header">
                 <button class="game-back-btn" onclick="closeGame('quizModal')">← Back to Games</button>
+                <span class="game-plays-header" id="quizPlaysHeader">99 plays left</span>
             </div>
             <div class="game-content">
                 <h2>❓ Quiz Game</h2>
@@ -737,6 +1002,10 @@
                 </div>
             </div>
         </div>
+        <div class="game-mini-ad" id="quizMiniAd">
+            <button class="mini-ad-close" id="quizMiniAdClose" onclick="closeMiniAd('quizMiniAd')">✕</button>
+            <div class="mini-ad-content">📱 Ad Space - Revenue Partner</div>
+        </div>
     </div>
 
     <!-- CATCH GAME MODAL -->
@@ -744,6 +1013,7 @@
         <div class="game-modal-inner">
             <div class="game-header">
                 <button class="game-back-btn" onclick="closeGame('catchModal')">← Back to Games</button>
+                <span class="game-plays-header" id="catchPlaysHeader">2 plays left</span>
             </div>
             <div class="game-content">
                 <h2>🎯 Catch the Button</h2>
@@ -762,6 +1032,10 @@
                     <button class="back-to-hub-btn" onclick="closeGame('catchModal')">Back to Play to Win</button>
                 </div>
             </div>
+        </div>
+        <div class="game-mini-ad" id="catchMiniAd">
+            <button class="mini-ad-close" id="catchMiniAdClose" onclick="closeMiniAd('catchMiniAd')">✕</button>
+            <div class="mini-ad-content">📱 Ad Space - Revenue Partner</div>
         </div>
     </div>
 
@@ -785,16 +1059,37 @@
         let gamesData = [];
         let todayEarnings = 0;
         let limitReached = false;
+
+        let spin50Locked = false; // Track weekly 50 coin lock
         let isSubmitting = false; // Anti-abuse: prevent double submissions
+
+        // ========== AD CLOSE BUTTON DELAYED VISIBILITY ==========
+        // Show global ad close button after 3 seconds
+        setTimeout(() => {
+            const adClose = document.querySelector('.ad-close');
+            if (adClose) adClose.classList.add('visible');
+        }, 3000);
 
         // Check if ad was closed in this session
         if (sessionStorage.getItem('adClosed')) {
-            document.getElementById('stickyAd').classList.add('hidden');
+            document.getElementById('stickyAd')?.classList.add('hidden');
         }
 
         function closeAd() {
             document.getElementById('stickyAd').classList.add('hidden');
             sessionStorage.setItem('adClosed', 'true');
+        }
+
+        function closeMiniAd(adId) {
+            document.getElementById(adId)?.classList.add('hidden');
+        }
+
+        function showMiniAdClose(gameId) {
+            // Show mini-ad close button after 5 seconds (delayed)
+            setTimeout(() => {
+                const closeBtn = document.getElementById(gameId + 'MiniAdClose');
+                if (closeBtn) closeBtn.classList.add('visible');
+            }, 5000);
         }
 
         async function loadGamesStatus() {
@@ -809,6 +1104,7 @@
                     gamesData = data.games;
                     todayEarnings = data.today_earnings || 0;
                     limitReached = data.limit_reached || false;
+                    spin50Locked = data.spin_50_locked || false; // Update lock status
                     renderGames();
                 } else {
                     showToast('❌ ' + (data.error || 'Failed to load'));
@@ -835,20 +1131,45 @@
             const grid = document.getElementById('gamesGrid');
             grid.innerHTML = gamesConfig.map(game => {
                 const gameData = gamesData.find(g => g.id === game.id) || { plays: 0 };
-                const disabled = limitReached || gameData.plays >= game.maxPlays;
+                const remainingPlays = game.maxPlays - (gameData.plays || 0);
+                const disabled = limitReached || remainingPlays <= 0;
+                const exhausted = remainingPlays <= 0;
                 return `
                     <div class="game-card ${disabled ? 'disabled' : ''}" onclick="${disabled ? '' : `openGame('${game.id}')`}">
                         <div class="game-icon">${game.icon}</div>
                         <div class="game-title">${game.name}</div>
                         <div class="game-reward">+${game.reward}</div>
-                        <div class="game-plays">${gameData.plays}/${game.maxPlays}</div>
+                        <div class="game-plays ${exhausted ? 'exhausted' : ''}">${exhausted ? 'Come back tomorrow' : remainingPlays + '/' + game.maxPlays + ' plays left'}</div>
                     </div>
                 `;
             }).join('');
         }
 
+        function updatePlaysHeader(gameId) {
+            const gamesConfig = {
+                spin: { maxPlays: 2, header: 'spinPlaysHeader' },
+                tap: { maxPlays: 3, header: 'tapPlaysHeader' },
+                guess: { maxPlays: 2, header: 'guessPlaysHeader' },
+                reaction: { maxPlays: 2, header: 'reactionPlaysHeader' },
+                quiz: { maxPlays: 99, header: 'quizPlaysHeader' },
+                catch: { maxPlays: 2, header: 'catchPlaysHeader' }
+            };
+            const config = gamesConfig[gameId];
+            if (!config) return;
+
+            const gameData = gamesData.find(g => g.id === gameId) || { plays: 0 };
+            const remaining = config.maxPlays - (gameData.plays || 0);
+            const header = document.getElementById(config.header);
+            if (header) {
+                header.textContent = remaining <= 0 ? 'No plays left' : remaining + ' plays left';
+                header.style.color = remaining <= 0 ? '#ff6b6b' : '#ffd700';
+            }
+        }
+
         function openGame(gameId) {
             document.getElementById(gameId + 'Modal').classList.add('show');
+            updatePlaysHeader(gameId);
+            showMiniAdClose(gameId);
             // Reset game state when opening
             if (gameId === 'quiz') startQuiz();
             if (gameId === 'guess') resetGuessGame();
@@ -900,6 +1221,9 @@
                     todayEarnings = data.today_game_earnings || todayEarnings + data.reward;
                     document.getElementById('gameEarnings').textContent = todayEarnings;
 
+                    // CRITICAL: Refresh game data to update play counts
+                    await loadGamesStatus();
+
                     if (btn) {
                         btn.textContent = '✓ Claimed';
                         btn.classList.add('claimed');
@@ -940,10 +1264,25 @@
             spinSessionClaimed = false;
             document.getElementById('spinWheel').style.transform = 'rotate(0deg)';
             document.getElementById('spinResult').textContent = '';
+            document.getElementById('wheelStatus').textContent = '';
             document.getElementById('spinBtn').disabled = false;
             document.getElementById('spinBtn').textContent = 'SPIN';
             document.getElementById('spinBtn').classList.remove('claimed');
             document.getElementById('spinPostGame').classList.remove('show');
+
+            // Reset visuals
+            document.getElementById('spinHighlight').classList.remove('show');
+            document.getElementById('spinWheel').classList.remove('dim');
+
+            // Apply Lock Visuals
+            const label50 = document.querySelector('.label-5');
+            if (spin50Locked) {
+                label50.style.opacity = '0.3';
+                label50.innerHTML = '🔒 50';
+            } else {
+                label50.style.opacity = '1';
+                label50.innerHTML = '50 Coins';
+            }
             document.getElementById('spinResultOverlay').classList.remove('show');
         }
 
@@ -967,35 +1306,71 @@
             btn.textContent = 'Spinning...';
             document.getElementById('spinResult').textContent = '';
 
+            // Show SPINNING text in wheel center
+            document.getElementById('wheelStatus').textContent = '🎰 Spinning...';
+
             const wheel = document.getElementById('spinWheel');
             const resultIndex = Math.floor(Math.random() * 6);
-            const deg = 360 * 5 + (360 - resultIndex * 60 - 30);
+            /* 
+               Rotation Math:
+               5 full spins (1800deg) + alignment.
+               Target: 360 - Center(Index).
+               Center = Index * 60 + 30.
+            */
+            const deg = 360 * 5 + (360 - (resultIndex * 60 + 30));
             wheel.style.transform = `rotate(${deg}deg)`;
 
             setTimeout(async () => {
                 const reward = spinRewards[resultIndex];
 
-                // STEP 1: Show clear result FIRST
-                showSpinResultOverlay(reward, 'Processing reward...', false);
-                document.getElementById('spinResult').textContent = `🎯 You won: ${reward} coins!`;
-                document.getElementById('spinResult').className = 'result win';
+                // Highlight Winner & Dim rest
+                document.getElementById('spinHighlight').classList.add('show');
+                document.getElementById('spinWheel').classList.add('dim');
+                document.getElementById('wheelStatus').textContent = `🎯 ${reward} coins!`;
 
-                // STEP 2: Process reward
+                // Show Processing Result Box
+                const resultDiv = document.getElementById('spinResult');
+                resultDiv.innerHTML = `
+                    <div class="game-result-box">
+                        <div class="result-emoji">🎉</div>
+                        <div class="result-score">Wheel Result</div>
+                        <div class="result-reward processing">Verifying...</div>
+                    </div>
+                `;
+
+                // Process reward
                 const earned = await submitReward('spin', resultIndex, reward, 'spinBtn');
 
-                // STEP 3: Show final result
                 if (earned > 0) {
                     spinSessionClaimed = true;
-                    showSpinResultOverlay(earned, `✓ +${earned} coins added successfully!`, true);
-                    document.getElementById('spinResult').textContent = `✓ +${earned} coins added!`;
-                    document.getElementById('spinResult').className = 'result win';
+                    // Update Text Status
+                    document.getElementById('wheelStatus').textContent = `✓ +${earned} Coins!`;
+
+                    // Update Result Box
+                    resultDiv.innerHTML = `
+                        <div class="game-result-box">
+                            <div class="result-emoji">🎉</div>
+                            <div class="result-score">You Won: ${reward} Coins</div>
+                            <div class="result-reward win">✓ +${earned} Added!</div>
+                        </div>
+                    `;
+
+                    // Show Overlay for extra pop
+                    showSpinResultOverlay(earned, `✓ +${earned} coins added!`, true);
 
                     // Show post-game actions
                     document.getElementById('spinPostGame').classList.add('show');
                     btn.textContent = '✓ Claimed';
                 } else {
-                    showSpinResultOverlay(reward, '❌ Could not claim - see error below', true);
-                    document.getElementById('spinResult').className = 'result lose';
+                    document.getElementById('wheelStatus').textContent = '❌ Failed';
+                    resultDiv.innerHTML = `
+                        <div class="game-result-box">
+                            <div class="result-emoji">❌</div>
+                            <div class="result-score">Reward Failed</div>
+                            <div class="result-reward lose">Could not add coins</div>
+                        </div>
+                    `;
+                    showSpinResultOverlay(reward, '❌ Processing Failed', true);
                     btn.disabled = false;
                     btn.textContent = 'TRY AGAIN';
                 }
@@ -1048,23 +1423,58 @@
         async function endTapGame() {
             tapGameActive = false;
             let reward = 0;
-            if (tapCount >= 81) reward = 20;
-            else if (tapCount >= 51) reward = 15;
-            else if (tapCount >= 30) reward = 10;
+            let requirement = '30+ taps';
+            if (tapCount >= 81) { reward = 20; requirement = '81+ taps (MAX)'; }
+            else if (tapCount >= 51) { reward = 15; requirement = '51+ taps'; }
+            else if (tapCount >= 30) { reward = 10; requirement = '30+ taps'; }
+
+            // Show detailed result with score breakdown
+            const resultEl = document.getElementById('tapResult');
 
             if (reward > 0) {
-                document.getElementById('tapResult').textContent = '⏳ Claiming...';
-                document.getElementById('tapResult').className = 'result processing';
+                resultEl.innerHTML = `
+                    <div class="game-result-box">
+                        <div class="result-emoji">👆</div>
+                        <div class="result-score">Your Score: ${tapCount} taps</div>
+                        <div class="result-requirement">Requirement: ${requirement}</div>
+                        <div class="result-reward win">🎉 +${reward} Coins</div>
+                        <div class="result-message">⏳ Processing reward...</div>
+                    </div>
+                `;
+
                 const earned = await submitReward('tap', tapCount, reward, 'tapStartBtn');
+
                 if (earned > 0) {
-                    document.getElementById('tapResult').textContent = `🎉 ${tapCount} taps = ${earned} coins!`;
-                    document.getElementById('tapResult').className = 'result win';
-                    // Show post-game actions
+                    resultEl.innerHTML = `
+                        <div class="game-result-box">
+                            <div class="result-emoji">🎉</div>
+                            <div class="result-score">Your Score: ${tapCount} taps</div>
+                            <div class="result-requirement">Requirement: ${requirement}</div>
+                            <div class="result-reward win">✓ +${earned} Coins Added!</div>
+                            <div class="result-message">Balance updated successfully</div>
+                        </div>
+                    `;
                     document.getElementById('tapPostGame').classList.add('show');
+                } else {
+                    resultEl.innerHTML = `
+                        <div class="game-result-box">
+                            <div class="result-emoji">❌</div>
+                            <div class="result-score">Your Score: ${tapCount} taps</div>
+                            <div class="result-reward lose">Reward could not be added</div>
+                            <div class="result-message">Please try again</div>
+                        </div>
+                    `;
                 }
             } else {
-                document.getElementById('tapResult').textContent = `${tapCount} taps - need 30+ for coins`;
-                document.getElementById('tapResult').className = 'result lose';
+                resultEl.innerHTML = `
+                    <div class="game-result-box">
+                        <div class="result-emoji">😔</div>
+                        <div class="result-score">Your Score: ${tapCount} taps</div>
+                        <div class="result-requirement">Requirement: 30+ taps needed</div>
+                        <div class="result-reward lose">Reward: 0 Coins</div>
+                        <div class="result-message">Try faster next time!</div>
+                    </div>
+                `;
                 document.getElementById('tapStartBtn').disabled = false;
                 document.getElementById('tapStartBtn').textContent = 'TRY AGAIN';
             }
@@ -1097,21 +1507,50 @@
             const remaining = 3 - guessAttempts;
             document.getElementById('guessAttempts').textContent = remaining + ' attempts left';
 
+            const resultEl = document.getElementById('guessResult');
+
             if (guess === secretNumber) {
-                document.getElementById('guessResult').textContent = '⏳ Claiming...';
-                document.getElementById('guessResult').className = 'result processing';
+                resultEl.innerHTML = `
+                    <div class="game-result-box">
+                        <div class="result-emoji">🤔</div>
+                        <div class="result-score">Thinking...</div>
+                        <div class="result-reward processing">Verifying...</div>
+                    </div>
+                `;
+
                 const earned = await submitReward('guess', guessAttempts, 20, 'guessBtn');
+
                 if (earned > 0) {
-                    document.getElementById('guessResult').textContent = `🎉 Correct! +${earned} coins!`;
-                    document.getElementById('guessResult').className = 'result win';
-                    // Show post-game actions
+                    resultEl.innerHTML = `
+                        <div class="game-result-box">
+                            <div class="result-emoji">🎉</div>
+                            <div class="result-score">Correct Number: ${secretNumber}</div>
+                            <div class="result-reward win">✓ +${earned} Coins Added!</div>
+                            <div class="result-message">Great guess!</div>
+                        </div>
+                    `;
                     document.getElementById('guessPostGame').classList.add('show');
+                } else {
+                    resultEl.innerHTML = `
+                        <div class="game-result-box">
+                            <div class="result-emoji">❌</div>
+                            <div class="result-score">Correct Number: ${secretNumber}</div>
+                            <div class="result-reward lose">Reward Failed</div>
+                            <div class="result-message">Could not add coins</div>
+                        </div>
+                    `;
                 }
             } else {
                 document.getElementById('guessHint').textContent = guess < secretNumber ? '📈 Higher!' : '📉 Lower!';
                 if (remaining <= 0) {
-                    document.getElementById('guessResult').textContent = `❌ It was ${secretNumber}`;
-                    document.getElementById('guessResult').className = 'result lose';
+                    resultEl.innerHTML = `
+                        <div class="game-result-box">
+                            <div class="result-emoji">😔</div>
+                            <div class="result-score">The number was: ${secretNumber}</div>
+                            <div class="result-reward lose">Reward: 0 Coins</div>
+                            <div class="result-message">Out of attempts!</div>
+                        </div>
+                    `;
                     document.getElementById('guessBtn').disabled = true;
                 }
             }
@@ -1174,22 +1613,56 @@
             document.getElementById('reactionTime').textContent = reactionTime + 'ms';
 
             let reward = 0;
-            if (reactionTime < 300) reward = 20;
-            else if (reactionTime < 500) reward = 10;
+            let requirement = 'Need < 500ms';
+            if (reactionTime < 300) { reward = 20; requirement = 'Lightning Fast! (<300ms)'; }
+            else if (reactionTime < 500) { reward = 10; requirement = 'Fast Enough (<500ms)'; }
+
+            const resultEl = document.getElementById('reactionResult');
 
             if (reward > 0) {
-                document.getElementById('reactionResult').textContent = '⏳ Claiming...';
-                document.getElementById('reactionResult').className = 'result processing';
+                resultEl.innerHTML = `
+                    <div class="game-result-box">
+                        <div class="result-emoji">⚡</div>
+                        <div class="result-score">Time: ${reactionTime}ms</div>
+                        <div class="result-requirement">Level: ${requirement}</div>
+                        <div class="result-reward processing">Verifying...</div>
+                    </div>
+                `;
+
                 const earned = await submitReward('reaction', reactionTime, reward, 'reactionBtn');
+
                 if (earned > 0) {
-                    document.getElementById('reactionResult').textContent = `🎉 +${earned} coins!`;
-                    document.getElementById('reactionResult').className = 'result win';
-                    // Show post-game actions
+                    resultEl.innerHTML = `
+                        <div class="game-result-box">
+                            <div class="result-emoji">🎉</div>
+                            <div class="result-score">Time: ${reactionTime}ms</div>
+                            <div class="result-reward win">✓ +${earned} Coins Added!</div>
+                            <div class="result-message">Excellent speed!</div>
+                        </div>
+                    `;
                     document.getElementById('reactionPostGame').classList.add('show');
+                } else {
+                    resultEl.innerHTML = `
+                        <div class="game-result-box">
+                            <div class="result-emoji">❌</div>
+                            <div class="result-score">Time: ${reactionTime}ms</div>
+                            <div class="result-reward lose">Reward Failed</div>
+                            <div class="result-message">Could not add coins</div>
+                        </div>
+                    `;
+                    document.getElementById('reactionBtn').disabled = false;
+                    document.getElementById('reactionBtn').textContent = 'TRY AGAIN';
                 }
             } else {
-                document.getElementById('reactionResult').textContent = `${reactionTime}ms - need <500ms`;
-                document.getElementById('reactionResult').className = 'result lose';
+                resultEl.innerHTML = `
+                    <div class="game-result-box">
+                        <div class="result-emoji">🐢</div>
+                        <div class="result-score">Time: ${reactionTime}ms</div>
+                        <div class="result-requirement">Needed < 500ms</div>
+                        <div class="result-reward lose">Reward: 0 Coins</div>
+                        <div class="result-message">Too slow! Try again.</div>
+                    </div>
+                `;
                 document.getElementById('reactionBtn').disabled = false;
                 document.getElementById('reactionBtn').textContent = 'TRY AGAIN';
             }
@@ -1243,19 +1716,51 @@
         async function endQuiz() {
             document.getElementById('quizQuestion').textContent = 'Quiz Complete!';
             document.getElementById('quizOptions').innerHTML = '';
-            if (quizScore > 0) {
-                document.getElementById('quizResult').textContent = '⏳ Claiming...';
-                document.getElementById('quizResult').className = 'result processing';
-                const earned = await submitReward('quiz', quizScore, quizScore, null);
+
+            const resultEl = document.getElementById('quizResult');
+            let reward = quizScore; // 1:1 conversion
+
+            if (reward > 0) {
+                resultEl.innerHTML = `
+                    <div class="game-result-box">
+                        <div class="result-emoji">🧠</div>
+                        <div class="result-score">Final Score: ${quizScore}/25</div>
+                        <div class="result-reward processing">Verifying...</div>
+                    </div>
+                `;
+
+                const earned = await submitReward('quiz', quizScore, reward, null);
+
                 if (earned > 0) {
-                    document.getElementById('quizResult').textContent = `🎉 +${earned} coins!`;
-                    document.getElementById('quizResult').className = 'result win';
-                    // Show post-game actions
+                    resultEl.innerHTML = `
+                        <div class="game-result-box">
+                            <div class="result-emoji">🎉</div>
+                            <div class="result-score">Score: ${quizScore}/25</div>
+                            <div class="result-reward win">✓ +${earned} Coins Added!</div>
+                            <div class="result-message">Smart move!</div>
+                        </div>
+                    `;
                     document.getElementById('quizPostGame').classList.add('show');
+                } else {
+                    resultEl.innerHTML = `
+                        <div class="game-result-box">
+                            <div class="result-emoji">❌</div>
+                            <div class="result-score">Score: ${quizScore}/25</div>
+                            <div class="result-reward lose">Reward Failed</div>
+                            <div class="result-message">Could not add coins</div>
+                        </div>
+                    `;
                 }
             } else {
-                document.getElementById('quizResult').textContent = 'No correct answers';
-                document.getElementById('quizResult').className = 'result lose';
+                resultEl.innerHTML = `
+                    <div class="game-result-box">
+                        <div class="result-emoji">😔</div>
+                        <div class="result-score">Score: 0/25</div>
+                        <div class="result-reward lose">Reward: 0 Coins</div>
+                        <div class="result-message">Better luck next time!</div>
+                    </div>
+                `;
+                resultEl.innerHTML += `<button onclick="startQuiz()" class="action-btn" style="margin-top:10px;">TRY AGAIN</button>`;
             }
         }
 
@@ -1320,23 +1825,56 @@
         async function endCatch() {
             catchActive = false;
             let reward = 0;
-            if (catchScore >= 10) reward = 20;
-            else if (catchScore >= 5) reward = 15;
-            else if (catchScore >= 3) reward = 10;
+            let requirement = '3+ Caught';
+            if (catchScore >= 10) { reward = 20; requirement = '10+ Caught (MAX)'; }
+            else if (catchScore >= 5) { reward = 15; requirement = '5+ Caught'; }
+            else if (catchScore >= 3) { reward = 10; requirement = '3+ Caught'; }
+
+            const resultEl = document.getElementById('catchResult');
 
             if (reward > 0) {
-                document.getElementById('catchResult').textContent = '⏳ Claiming...';
-                document.getElementById('catchResult').className = 'result processing';
+                resultEl.innerHTML = `
+                    <div class="game-result-box">
+                        <div class="result-emoji">🎣</div>
+                        <div class="result-score">Caught: ${catchScore}</div>
+                        <div class="result-requirement">Requirement: ${requirement}</div>
+                        <div class="result-reward processing">Verifying...</div>
+                    </div>
+                `;
+
                 const earned = await submitReward('catch', catchScore, reward, 'catchBtn');
+
                 if (earned > 0) {
-                    document.getElementById('catchResult').textContent = `🎉 ${catchScore} caught = ${earned} coins!`;
-                    document.getElementById('catchResult').className = 'result win';
-                    // Show post-game actions
+                    resultEl.innerHTML = `
+                        <div class="game-result-box">
+                            <div class="result-emoji">🎉</div>
+                            <div class="result-score">Caught: ${catchScore}</div>
+                            <div class="result-requirement">Requirement: ${requirement}</div>
+                            <div class="result-reward win">✓ +${earned} Coins Added!</div>
+                            <div class="result-message">Great catching!</div>
+                        </div>
+                    `;
                     document.getElementById('catchPostGame').classList.add('show');
+                } else {
+                    resultEl.innerHTML = `
+                        <div class="game-result-box">
+                            <div class="result-emoji">❌</div>
+                            <div class="result-score">Caught: ${catchScore}</div>
+                            <div class="result-reward lose">Reward Failed</div>
+                            <div class="result-message">Could not add coins</div>
+                        </div>
+                    `;
                 }
             } else {
-                document.getElementById('catchResult').textContent = `${catchScore} caught - need 3+ for coins`;
-                document.getElementById('catchResult').className = 'result lose';
+                resultEl.innerHTML = `
+                    <div class="game-result-box">
+                        <div class="result-emoji">😔</div>
+                        <div class="result-score">Caught: ${catchScore}</div>
+                        <div class="result-requirement">Need 3+ to earn</div>
+                        <div class="result-reward lose">Reward: 0 Coins</div>
+                        <div class="result-message">Keep trying!</div>
+                    </div>
+                `;
                 document.getElementById('catchBtn').disabled = false;
                 document.getElementById('catchBtn').textContent = 'TRY AGAIN';
             }
