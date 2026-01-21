@@ -18,6 +18,8 @@
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             min-height: 100vh;
             padding: 20px;
+            padding-bottom: 80px;
+            /* Space for sticky ad */
         }
 
         .container {
@@ -104,6 +106,7 @@
             border-radius: 10px;
             font-size: 20px;
             cursor: pointer;
+            z-index: 100;
         }
 
         /* Game Modal */
@@ -114,14 +117,41 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.95);
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
         }
 
         .game-modal.show {
             display: flex;
+        }
+
+        .game-header {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .game-back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .game-back-btn:active {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .game-content {
@@ -131,25 +161,16 @@
             max-width: 400px;
             width: 90%;
             text-align: center;
-        }
-
-        .game-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 30px;
-            cursor: pointer;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         /* Spin Wheel */
         .wheel-container {
             position: relative;
             margin: 20px auto;
-            width: 280px;
-            height: 280px;
+            width: 250px;
+            height: 250px;
         }
 
         .wheel {
@@ -170,7 +191,7 @@
             font-size: 30px;
         }
 
-        .spin-btn {
+        .action-btn {
             margin-top: 20px;
             padding: 15px 40px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -180,18 +201,23 @@
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
+            min-width: 150px;
         }
 
-        .spin-btn:disabled {
+        .action-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
         }
 
+        .action-btn.claimed {
+            background: #10b981;
+        }
+
         /* Tap Game */
         .tap-area {
-            width: 200px;
-            height: 200px;
-            margin: 20px auto;
+            width: 180px;
+            height: 180px;
+            margin: 15px auto;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 50%;
             display: flex;
@@ -209,7 +235,7 @@
         }
 
         .tap-count {
-            font-size: 60px;
+            font-size: 50px;
             font-weight: bold;
             color: #667eea;
         }
@@ -231,16 +257,6 @@
             margin: 10px 0;
         }
 
-        .guess-btn {
-            padding: 15px 40px;
-            background: #667eea;
-            border: none;
-            color: white;
-            border-radius: 12px;
-            font-size: 18px;
-            cursor: pointer;
-        }
-
         .attempts {
             color: #666;
             margin: 10px 0;
@@ -248,17 +264,16 @@
 
         /* Reaction Game */
         .reaction-box {
-            width: 200px;
-            height: 200px;
-            margin: 20px auto;
+            width: 180px;
+            height: 180px;
+            margin: 15px auto;
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
         }
 
         .reaction-box.waiting {
@@ -272,7 +287,7 @@
         }
 
         .reaction-time {
-            font-size: 40px;
+            font-size: 36px;
             font-weight: bold;
             color: #667eea;
         }
@@ -280,7 +295,7 @@
         /* Quiz Game */
         .quiz-question {
             font-size: 18px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .quiz-options {
@@ -290,17 +305,12 @@
         }
 
         .quiz-option {
-            padding: 15px;
+            padding: 12px;
             background: #f0f0f0;
             border: none;
             border-radius: 10px;
             font-size: 16px;
             cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .quiz-option:hover {
-            background: #e0e0e0;
         }
 
         .quiz-option.correct {
@@ -316,7 +326,7 @@
         /* Catch Button */
         .catch-area {
             width: 100%;
-            height: 300px;
+            height: 250px;
             background: #f0f0f0;
             border-radius: 20px;
             position: relative;
@@ -325,21 +335,22 @@
 
         .catch-target {
             position: absolute;
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 24px;
+            font-size: 20px;
         }
 
         /* Result */
         .result {
-            font-size: 24px;
-            margin: 20px 0;
+            font-size: 20px;
+            margin: 15px 0;
+            min-height: 30px;
         }
 
         .result.win {
@@ -350,27 +361,87 @@
             color: #ff6b6b;
         }
 
+        .result.processing {
+            color: #667eea;
+        }
+
+        /* Toast */
         .toast {
             position: fixed;
-            bottom: 20px;
+            bottom: 80px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             color: white;
             padding: 12px 24px;
             border-radius: 8px;
             display: none;
             z-index: 2000;
+            max-width: 90%;
+            text-align: center;
         }
 
         .toast.show {
             display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                bottom: 60px;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 80px;
+                opacity: 1;
+            }
+        }
+
+        /* Sticky Ad Banner */
+        .sticky-ad {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #f9f9f9;
+            border-top: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 900;
+        }
+
+        .sticky-ad.hidden {
+            display: none;
+        }
+
+        .ad-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .ad-close {
+            position: absolute;
+            right: 10px;
+            top: 5px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #999;
+            cursor: pointer;
+            padding: 5px;
         }
     </style>
 </head>
 
 <body>
-    <button class="back-btn" onclick="goBack()">←</button>
+    <button class="back-btn" onclick="goBack()">← Back</button>
 
     <div class="container" id="hub">
         <div class="header">
@@ -379,16 +450,16 @@
         </div>
         <div class="daily-limit">
             Today's earnings: <span id="gameEarnings">0</span> / 25 coins
-            <span id="limitWarning" style="display:none;color:#ff6b6b;margin-left:10px;">Limit reached!</span>
+            <span id="limitWarning" style="display:none;color:#ffeb3b;margin-left:10px;">✓ Limit reached</span>
         </div>
-        <div class="games-grid" id="gamesGrid">
-            <!-- Games rendered by JS -->
-        </div>
+        <div class="games-grid" id="gamesGrid"></div>
     </div>
 
     <!-- SPIN GAME MODAL -->
     <div class="game-modal" id="spinModal">
-        <button class="game-close" onclick="closeGame('spinModal')">×</button>
+        <div class="game-header">
+            <button class="game-back-btn" onclick="closeGame('spinModal')">← Back to Games</button>
+        </div>
         <div class="game-content">
             <h2>🎡 Spin & Win</h2>
             <p style="margin:10px 0;color:#666;">Spin to win 5-50 coins!</p>
@@ -397,54 +468,62 @@
                 <div class="wheel" id="spinWheel"></div>
             </div>
             <div id="spinResult" class="result"></div>
-            <button class="spin-btn" id="spinBtn" onclick="spinWheel()">SPIN</button>
+            <button class="action-btn" id="spinBtn" onclick="spinWheel()">SPIN</button>
         </div>
     </div>
 
     <!-- TAP GAME MODAL -->
     <div class="game-modal" id="tapModal">
-        <button class="game-close" onclick="closeGame('tapModal')">×</button>
+        <div class="game-header">
+            <button class="game-back-btn" onclick="closeGame('tapModal')">← Back to Games</button>
+        </div>
         <div class="game-content">
             <h2>👆 Tap Challenge</h2>
-            <p style="margin:10px 0;color:#666;">Tap as fast as you can in 10 seconds!</p>
+            <p style="margin:10px 0;color:#666;">Tap as fast as you can!</p>
             <div class="timer" id="tapTimer">10s</div>
             <div class="tap-count" id="tapCount">0</div>
             <div class="tap-area" id="tapArea" onclick="tapGame()">👆</div>
             <div id="tapResult" class="result"></div>
-            <button class="spin-btn" id="tapStartBtn" onclick="startTapGame()">START</button>
+            <button class="action-btn" id="tapStartBtn" onclick="startTapGame()">START</button>
         </div>
     </div>
 
     <!-- GUESS GAME MODAL -->
     <div class="game-modal" id="guessModal">
-        <button class="game-close" onclick="closeGame('guessModal')">×</button>
+        <div class="game-header">
+            <button class="game-back-btn" onclick="closeGame('guessModal')">← Back to Games</button>
+        </div>
         <div class="game-content">
             <h2>🔢 Guess the Number</h2>
-            <p style="margin:10px 0;color:#666;">Guess a number between 1-10</p>
+            <p style="margin:10px 0;color:#666;">Guess 1-10, 3 attempts!</p>
             <div class="attempts" id="guessAttempts">3 attempts left</div>
             <input type="number" class="guess-input" id="guessInput" min="1" max="10" placeholder="1-10">
-            <div id="guessHint" style="margin:10px 0;color:#666;"></div>
+            <div id="guessHint" style="margin:10px 0;color:#666;font-size:18px;"></div>
             <div id="guessResult" class="result"></div>
-            <button class="guess-btn" id="guessBtn" onclick="submitGuess()">GUESS</button>
+            <button class="action-btn" id="guessBtn" onclick="submitGuess()">GUESS</button>
         </div>
     </div>
 
     <!-- REACTION GAME MODAL -->
     <div class="game-modal" id="reactionModal">
-        <button class="game-close" onclick="closeGame('reactionModal')">×</button>
+        <div class="game-header">
+            <button class="game-back-btn" onclick="closeGame('reactionModal')">← Back to Games</button>
+        </div>
         <div class="game-content">
             <h2>⚡ Reaction Game</h2>
-            <p style="margin:10px 0;color:#666;">Wait for green, then tap!</p>
+            <p style="margin:10px 0;color:#666;">Wait for green, tap fast!</p>
             <div class="reaction-box waiting" id="reactionBox" onclick="reactionTap()">WAIT...</div>
             <div class="reaction-time" id="reactionTime"></div>
             <div id="reactionResult" class="result"></div>
-            <button class="spin-btn" id="reactionBtn" onclick="startReaction()">START</button>
+            <button class="action-btn" id="reactionBtn" onclick="startReaction()">START</button>
         </div>
     </div>
 
     <!-- QUIZ GAME MODAL -->
     <div class="game-modal" id="quizModal">
-        <button class="game-close" onclick="closeGame('quizModal')">×</button>
+        <div class="game-header">
+            <button class="game-back-btn" onclick="closeGame('quizModal')">← Back to Games</button>
+        </div>
         <div class="game-content">
             <h2>❓ Quiz Game</h2>
             <p style="margin:10px 0;color:#666;">5 coins per correct answer!</p>
@@ -457,21 +536,32 @@
 
     <!-- CATCH GAME MODAL -->
     <div class="game-modal" id="catchModal">
-        <button class="game-close" onclick="closeGame('catchModal')">×</button>
+        <div class="game-header">
+            <button class="game-back-btn" onclick="closeGame('catchModal')">← Back to Games</button>
+        </div>
         <div class="game-content">
             <h2>🎯 Catch the Button</h2>
-            <p style="margin:10px 0;color:#666;">Catch the moving button!</p>
+            <p style="margin:10px 0;color:#666;">Catch the moving target!</p>
             <div class="timer" id="catchTimer">10s</div>
             <div id="catchScore">Caught: 0</div>
             <div class="catch-area" id="catchArea">
                 <div class="catch-target" id="catchTarget" onclick="catchClick()">🎯</div>
             </div>
             <div id="catchResult" class="result"></div>
-            <button class="spin-btn" id="catchBtn" onclick="startCatch()">START</button>
+            <button class="action-btn" id="catchBtn" onclick="startCatch()">START</button>
         </div>
     </div>
 
     <div class="toast" id="toast"></div>
+
+    <!-- STICKY BOTTOM AD BANNER -->
+    <div class="sticky-ad" id="stickyAd">
+        <button class="ad-close" onclick="closeAd()">✕</button>
+        <div class="ad-content">
+            <!-- Monetag/Adsterra banner code goes here -->
+            <span style="color:#999;">📢 Ad Space - Monetag Banner</span>
+        </div>
+    </div>
 
     <script>
         const tg = window.Telegram.WebApp;
@@ -482,8 +572,18 @@
         let gamesData = [];
         let todayEarnings = 0;
         let limitReached = false;
+        let isSubmitting = false; // Anti-abuse: prevent double submissions
 
-        // Load games status
+        // Check if ad was closed in this session
+        if (sessionStorage.getItem('adClosed')) {
+            document.getElementById('stickyAd').classList.add('hidden');
+        }
+
+        function closeAd() {
+            document.getElementById('stickyAd').classList.add('hidden');
+            sessionStorage.setItem('adClosed', 'true');
+        }
+
         async function loadGamesStatus() {
             try {
                 const response = await fetch(`${BACKEND_URL}/api/games/status`, {
@@ -494,12 +594,15 @@
                 const data = await response.json();
                 if (data.success) {
                     gamesData = data.games;
-                    todayEarnings = data.today_earnings;
-                    limitReached = data.limit_reached;
+                    todayEarnings = data.today_earnings || 0;
+                    limitReached = data.limit_reached || false;
                     renderGames();
+                } else {
+                    showToast('❌ ' + (data.error || 'Failed to load'));
                 }
             } catch (error) {
-                showToast('Failed to load games');
+                console.error('Load error:', error);
+                showToast('❌ Network error');
             }
         }
 
@@ -510,9 +613,9 @@
             const gamesConfig = [
                 { id: 'spin', icon: '🎡', name: 'Spin & Win', reward: '5-50', maxPlays: 2 },
                 { id: 'tap', icon: '👆', name: 'Tap Challenge', reward: '10-20', maxPlays: 3 },
-                { id: 'quiz', icon: '❓', name: 'Quiz Game', reward: '5/answer', maxPlays: 99 },
+                { id: 'quiz', icon: '❓', name: 'Quiz Game', reward: '5/ans', maxPlays: 99 },
                 { id: 'guess', icon: '🔢', name: 'Guess Number', reward: '20', maxPlays: 2 },
-                { id: 'reaction', icon: '⚡', name: 'Reaction Game', reward: '10-20', maxPlays: 2 },
+                { id: 'reaction', icon: '⚡', name: 'Reaction', reward: '10-20', maxPlays: 2 },
                 { id: 'catch', icon: '🎯', name: 'Catch Button', reward: '10-20', maxPlays: 2 }
             ];
 
@@ -524,8 +627,8 @@
                     <div class="game-card ${disabled ? 'disabled' : ''}" onclick="${disabled ? '' : `openGame('${game.id}')`}">
                         <div class="game-icon">${game.icon}</div>
                         <div class="game-title">${game.name}</div>
-                        <div class="game-reward">+${game.reward} coins</div>
-                        <div class="game-plays">${gameData.plays}/${game.maxPlays} plays</div>
+                        <div class="game-reward">+${game.reward}</div>
+                        <div class="game-plays">${gameData.plays}/${game.maxPlays}</div>
                     </div>
                 `;
             }).join('');
@@ -533,16 +636,38 @@
 
         function openGame(gameId) {
             document.getElementById(gameId + 'Modal').classList.add('show');
+            // Reset game state when opening
             if (gameId === 'quiz') startQuiz();
+            if (gameId === 'guess') resetGuessGame();
+            if (gameId === 'spin') resetSpinGame();
+            if (gameId === 'tap') resetTapGame();
+            if (gameId === 'reaction') resetReactionGame();
+            if (gameId === 'catch') resetCatchGame();
         }
 
         function closeGame(modalId) {
             document.getElementById(modalId).classList.remove('show');
-            loadGamesStatus();
+            loadGamesStatus(); // Refresh status when closing
         }
 
-        async function submitReward(gameType, score, reward) {
+        // Improved reward submission with anti-abuse
+        async function submitReward(gameType, score, reward, btnId) {
+            if (isSubmitting) {
+                showToast('⏳ Processing...');
+                return 0;
+            }
+
+            isSubmitting = true;
+            const btn = btnId ? document.getElementById(btnId) : null;
+
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = '⏳ Processing...';
+            }
+
             try {
+                console.log('Submitting reward:', { gameType, score, reward });
+
                 const response = await fetch(`${BACKEND_URL}/api/games/reward`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -553,18 +678,42 @@
                         reward: reward
                     })
                 });
+
                 const data = await response.json();
+                console.log('Reward response:', data);
+
                 if (data.success) {
-                    showToast(`✅ +${data.reward} coins earned!`);
-                    todayEarnings = data.today_game_earnings;
+                    showToast(`✅ +${data.reward} coins added!`);
+                    todayEarnings = data.today_game_earnings || todayEarnings + data.reward;
+                    document.getElementById('gameEarnings').textContent = todayEarnings;
+
+                    if (btn) {
+                        btn.textContent = '✓ Claimed';
+                        btn.classList.add('claimed');
+                    }
                     return data.reward;
                 } else {
-                    showToast(`❌ ${data.error}`);
+                    // Show specific error
+                    const errorMsg = data.error || 'Failed to claim reward';
+                    showToast(`❌ ${errorMsg}`);
+
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.textContent = 'TRY AGAIN';
+                    }
                     return 0;
                 }
             } catch (error) {
-                showToast('Failed to submit reward');
+                console.error('Reward error:', error);
+                showToast('❌ Network error - check connection');
+
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'TRY AGAIN';
+                }
                 return 0;
+            } finally {
+                isSubmitting = false;
             }
         }
 
@@ -572,10 +721,21 @@
         let spinning = false;
         const spinRewards = [5, 10, 20, 5, 10, 50];
 
+        function resetSpinGame() {
+            spinning = false;
+            document.getElementById('spinWheel').style.transform = 'rotate(0deg)';
+            document.getElementById('spinResult').textContent = '';
+            document.getElementById('spinBtn').disabled = false;
+            document.getElementById('spinBtn').textContent = 'SPIN';
+            document.getElementById('spinBtn').classList.remove('claimed');
+        }
+
         async function spinWheel() {
             if (spinning) return;
             spinning = true;
-            document.getElementById('spinBtn').disabled = true;
+            const btn = document.getElementById('spinBtn');
+            btn.disabled = true;
+            btn.textContent = 'Spinning...';
             document.getElementById('spinResult').textContent = '';
 
             const wheel = document.getElementById('spinWheel');
@@ -585,18 +745,36 @@
 
             setTimeout(async () => {
                 const reward = spinRewards[resultIndex];
-                const earned = await submitReward('spin', 0, reward);
-                document.getElementById('spinResult').textContent = `🎉 You won ${earned} coins!`;
-                document.getElementById('spinResult').className = 'result win';
+                document.getElementById('spinResult').textContent = '⏳ Claiming reward...';
+                document.getElementById('spinResult').className = 'result processing';
+
+                const earned = await submitReward('spin', resultIndex, reward, 'spinBtn');
+
+                if (earned > 0) {
+                    document.getElementById('spinResult').textContent = `🎉 You won ${earned} coins!`;
+                    document.getElementById('spinResult').className = 'result win';
+                } else {
+                    document.getElementById('spinResult').textContent = '❌ Could not claim reward';
+                    document.getElementById('spinResult').className = 'result lose';
+                }
                 spinning = false;
-                document.getElementById('spinBtn').disabled = true;
             }, 5500);
         }
 
         // === TAP GAME ===
-        let tapCount = 0;
-        let tapGameActive = false;
-        let tapInterval;
+        let tapCount = 0, tapGameActive = false, tapInterval;
+
+        function resetTapGame() {
+            tapCount = 0;
+            tapGameActive = false;
+            clearInterval(tapInterval);
+            document.getElementById('tapCount').textContent = '0';
+            document.getElementById('tapTimer').textContent = '10s';
+            document.getElementById('tapResult').textContent = '';
+            document.getElementById('tapStartBtn').disabled = false;
+            document.getElementById('tapStartBtn').textContent = 'START';
+            document.getElementById('tapStartBtn').classList.remove('claimed');
+        }
 
         function startTapGame() {
             tapCount = 0;
@@ -604,6 +782,7 @@
             document.getElementById('tapCount').textContent = '0';
             document.getElementById('tapResult').textContent = '';
             document.getElementById('tapStartBtn').disabled = true;
+            document.getElementById('tapStartBtn').textContent = 'Tapping...';
             let timeLeft = 10;
             document.getElementById('tapTimer').textContent = timeLeft + 's';
 
@@ -631,18 +810,23 @@
             else if (tapCount >= 30) reward = 10;
 
             if (reward > 0) {
-                await submitReward('tap', tapCount, reward);
-                document.getElementById('tapResult').textContent = `🎉 ${tapCount} taps = ${reward} coins!`;
-                document.getElementById('tapResult').className = 'result win';
+                document.getElementById('tapResult').textContent = '⏳ Claiming...';
+                document.getElementById('tapResult').className = 'result processing';
+                const earned = await submitReward('tap', tapCount, reward, 'tapStartBtn');
+                if (earned > 0) {
+                    document.getElementById('tapResult').textContent = `🎉 ${tapCount} taps = ${earned} coins!`;
+                    document.getElementById('tapResult').className = 'result win';
+                }
             } else {
-                document.getElementById('tapResult').textContent = `${tapCount} taps - need 30+ for reward`;
+                document.getElementById('tapResult').textContent = `${tapCount} taps - need 30+ for coins`;
                 document.getElementById('tapResult').className = 'result lose';
+                document.getElementById('tapStartBtn').disabled = false;
+                document.getElementById('tapStartBtn').textContent = 'TRY AGAIN';
             }
         }
 
         // === GUESS GAME ===
-        let secretNumber = 0;
-        let guessAttempts = 0;
+        let secretNumber = 0, guessAttempts = 0;
 
         function resetGuessGame() {
             secretNumber = Math.floor(Math.random() * 10) + 1;
@@ -652,6 +836,8 @@
             document.getElementById('guessResult').textContent = '';
             document.getElementById('guessInput').value = '';
             document.getElementById('guessBtn').disabled = false;
+            document.getElementById('guessBtn').textContent = 'GUESS';
+            document.getElementById('guessBtn').classList.remove('claimed');
         }
 
         async function submitGuess() {
@@ -666,10 +852,13 @@
             document.getElementById('guessAttempts').textContent = remaining + ' attempts left';
 
             if (guess === secretNumber) {
-                await submitReward('guess', guessAttempts, 20);
-                document.getElementById('guessResult').textContent = `🎉 Correct! +20 coins!`;
-                document.getElementById('guessResult').className = 'result win';
-                document.getElementById('guessBtn').disabled = true;
+                document.getElementById('guessResult').textContent = '⏳ Claiming...';
+                document.getElementById('guessResult').className = 'result processing';
+                const earned = await submitReward('guess', guessAttempts, 20, 'guessBtn');
+                if (earned > 0) {
+                    document.getElementById('guessResult').textContent = `🎉 Correct! +${earned} coins!`;
+                    document.getElementById('guessResult').className = 'result win';
+                }
             } else {
                 document.getElementById('guessHint').textContent = guess < secretNumber ? '📈 Higher!' : '📉 Lower!';
                 if (remaining <= 0) {
@@ -682,12 +871,25 @@
         }
 
         // === REACTION GAME ===
-        let reactionStartTime = 0;
-        let reactionWaiting = false;
-        let reactionTimeout;
+        let reactionStartTime = 0, reactionWaiting = false, reactionTimeout;
+
+        function resetReactionGame() {
+            reactionStartTime = 0;
+            reactionWaiting = false;
+            clearTimeout(reactionTimeout);
+            const box = document.getElementById('reactionBox');
+            box.className = 'reaction-box waiting';
+            box.textContent = 'WAIT...';
+            document.getElementById('reactionTime').textContent = '';
+            document.getElementById('reactionResult').textContent = '';
+            document.getElementById('reactionBtn').disabled = false;
+            document.getElementById('reactionBtn').textContent = 'START';
+            document.getElementById('reactionBtn').classList.remove('claimed');
+        }
 
         function startReaction() {
             document.getElementById('reactionBtn').disabled = true;
+            document.getElementById('reactionBtn').textContent = 'Wait...';
             document.getElementById('reactionTime').textContent = '';
             document.getElementById('reactionResult').textContent = '';
             const box = document.getElementById('reactionBox');
@@ -695,13 +897,12 @@
             box.textContent = 'WAIT...';
             reactionWaiting = true;
 
-            const delay = 2000 + Math.random() * 3000;
             reactionTimeout = setTimeout(() => {
                 box.className = 'reaction-box ready';
                 box.textContent = 'TAP NOW!';
                 reactionStartTime = Date.now();
                 reactionWaiting = false;
-            }, delay);
+            }, 2000 + Math.random() * 3000);
         }
 
         async function reactionTap() {
@@ -710,9 +911,10 @@
                 document.getElementById('reactionResult').textContent = '❌ Too early!';
                 document.getElementById('reactionResult').className = 'result lose';
                 document.getElementById('reactionBtn').disabled = false;
+                document.getElementById('reactionBtn').textContent = 'TRY AGAIN';
                 const box = document.getElementById('reactionBox');
                 box.className = 'reaction-box waiting';
-                box.textContent = 'Try again';
+                box.textContent = 'Too early';
                 return;
             }
 
@@ -727,12 +929,18 @@
             else if (reactionTime < 500) reward = 10;
 
             if (reward > 0) {
-                await submitReward('reaction', reactionTime, reward);
-                document.getElementById('reactionResult').textContent = `🎉 +${reward} coins!`;
-                document.getElementById('reactionResult').className = 'result win';
+                document.getElementById('reactionResult').textContent = '⏳ Claiming...';
+                document.getElementById('reactionResult').className = 'result processing';
+                const earned = await submitReward('reaction', reactionTime, reward, 'reactionBtn');
+                if (earned > 0) {
+                    document.getElementById('reactionResult').textContent = `🎉 +${earned} coins!`;
+                    document.getElementById('reactionResult').className = 'result win';
+                }
             } else {
-                document.getElementById('reactionResult').textContent = 'Need <500ms for reward';
+                document.getElementById('reactionResult').textContent = `${reactionTime}ms - need <500ms`;
                 document.getElementById('reactionResult').className = 'result lose';
+                document.getElementById('reactionBtn').disabled = false;
+                document.getElementById('reactionBtn').textContent = 'TRY AGAIN';
             }
         }
 
@@ -744,8 +952,7 @@
             { q: 'H2O is?', options: ['Salt', 'Sugar', 'Water', 'Oil'], correct: 2 },
             { q: 'Days in a week?', options: ['5', '6', '7', '8'], correct: 2 }
         ];
-        let quizScore = 0;
-        let quizIndex = 0;
+        let quizScore = 0, quizIndex = 0;
 
         function startQuiz() {
             quizScore = 0;
@@ -761,7 +968,7 @@
                 return;
             }
             const q = quizQuestions[quizIndex];
-            document.getElementById('quizQuestion').textContent = q.q;
+            document.getElementById('quizQuestion').textContent = `Q${quizIndex + 1}: ${q.q}`;
             document.getElementById('quizOptions').innerHTML = q.options.map((opt, i) =>
                 `<button class="quiz-option" onclick="answerQuiz(${i})">${opt}</button>`
             ).join('');
@@ -779,19 +986,20 @@
             if (index === q.correct) quizScore += 5;
             document.getElementById('quizScore').textContent = 'Score: ' + quizScore;
 
-            setTimeout(() => {
-                quizIndex++;
-                showQuestion();
-            }, 1000);
+            setTimeout(() => { quizIndex++; showQuestion(); }, 1000);
         }
 
         async function endQuiz() {
             document.getElementById('quizQuestion').textContent = 'Quiz Complete!';
             document.getElementById('quizOptions').innerHTML = '';
             if (quizScore > 0) {
-                await submitReward('quiz', quizScore, quizScore);
-                document.getElementById('quizResult').textContent = `🎉 +${quizScore} coins!`;
-                document.getElementById('quizResult').className = 'result win';
+                document.getElementById('quizResult').textContent = '⏳ Claiming...';
+                document.getElementById('quizResult').className = 'result processing';
+                const earned = await submitReward('quiz', quizScore, quizScore, null);
+                if (earned > 0) {
+                    document.getElementById('quizResult').textContent = `🎉 +${earned} coins!`;
+                    document.getElementById('quizResult').className = 'result win';
+                }
             } else {
                 document.getElementById('quizResult').textContent = 'No correct answers';
                 document.getElementById('quizResult').className = 'result lose';
@@ -799,9 +1007,20 @@
         }
 
         // === CATCH GAME ===
-        let catchScore = 0;
-        let catchActive = false;
-        let catchInterval;
+        let catchScore = 0, catchActive = false, catchInterval, catchMoveInterval;
+
+        function resetCatchGame() {
+            catchScore = 0;
+            catchActive = false;
+            clearInterval(catchInterval);
+            clearInterval(catchMoveInterval);
+            document.getElementById('catchScore').textContent = 'Caught: 0';
+            document.getElementById('catchTimer').textContent = '10s';
+            document.getElementById('catchResult').textContent = '';
+            document.getElementById('catchBtn').disabled = false;
+            document.getElementById('catchBtn').textContent = 'START';
+            document.getElementById('catchBtn').classList.remove('claimed');
+        }
 
         function startCatch() {
             catchScore = 0;
@@ -809,7 +1028,10 @@
             document.getElementById('catchScore').textContent = 'Caught: 0';
             document.getElementById('catchResult').textContent = '';
             document.getElementById('catchBtn').disabled = true;
+            document.getElementById('catchBtn').textContent = 'Catching...';
             moveTarget();
+
+            catchMoveInterval = setInterval(moveTarget, 800);
 
             let timeLeft = 10;
             document.getElementById('catchTimer').textContent = timeLeft + 's';
@@ -818,6 +1040,7 @@
                 document.getElementById('catchTimer').textContent = timeLeft + 's';
                 if (timeLeft <= 0) {
                     clearInterval(catchInterval);
+                    clearInterval(catchMoveInterval);
                     endCatch();
                 }
             }, 1000);
@@ -827,8 +1050,8 @@
             if (!catchActive) return;
             const area = document.getElementById('catchArea');
             const target = document.getElementById('catchTarget');
-            const maxX = area.offsetWidth - 60;
-            const maxY = area.offsetHeight - 60;
+            const maxX = area.offsetWidth - 50;
+            const maxY = area.offsetHeight - 50;
             target.style.left = Math.random() * maxX + 'px';
             target.style.top = Math.random() * maxY + 'px';
         }
@@ -848,12 +1071,18 @@
             else if (catchScore >= 3) reward = 10;
 
             if (reward > 0) {
-                await submitReward('catch', catchScore, reward);
-                document.getElementById('catchResult').textContent = `🎉 ${catchScore} caught = ${reward} coins!`;
-                document.getElementById('catchResult').className = 'result win';
+                document.getElementById('catchResult').textContent = '⏳ Claiming...';
+                document.getElementById('catchResult').className = 'result processing';
+                const earned = await submitReward('catch', catchScore, reward, 'catchBtn');
+                if (earned > 0) {
+                    document.getElementById('catchResult').textContent = `🎉 ${catchScore} caught = ${earned} coins!`;
+                    document.getElementById('catchResult').className = 'result win';
+                }
             } else {
-                document.getElementById('catchResult').textContent = 'Need 3+ catches';
+                document.getElementById('catchResult').textContent = `${catchScore} caught - need 3+ for coins`;
                 document.getElementById('catchResult').className = 'result lose';
+                document.getElementById('catchBtn').disabled = false;
+                document.getElementById('catchBtn').textContent = 'TRY AGAIN';
             }
         }
 
@@ -868,9 +1097,7 @@
             window.location.href = 'index.html';
         }
 
-        // Init
-        resetGuessGame();
-        setInterval(moveTarget, 800);
+        // Initialize
         loadGamesStatus();
     </script>
 </body>
