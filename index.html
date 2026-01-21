@@ -624,15 +624,15 @@
                         <div class="earn-title" id="dailyTitle">Daily Income</div>
                         <div class="earn-subtitle" id="dailySubtitle">Collect now</div>
                     </div>
-                    <div class="earn-card" onclick="handleAds()">
+                    <div class="earn-card" onclick="openWatchAdsPage()">
                         <div class="earn-icon">📺</div>
                         <div class="earn-title" id="adsTitle">Watch Ads</div>
-                        <div class="earn-subtitle" id="adsSubtitle">Earn more</div>
+                        <div class="earn-subtitle" id="adsSubtitle">+7 coins each</div>
                     </div>
-                    <div class="earn-card" onclick="handleSurveys()">
-                        <div class="earn-icon">📝</div>
-                        <div class="earn-title" id="surveysTitle">Surveys</div>
-                        <div class="earn-subtitle" id="surveysSubtitle">Quick tasks</div>
+                    <div class="earn-card" onclick="openGamesHub()">
+                        <div class="earn-icon">🎮</div>
+                        <div class="earn-title" id="gamesTitle">Play to Win</div>
+                        <div class="earn-subtitle" id="gamesSubtitle">Fun games!</div>
                     </div>
                     <div class="earn-card" onclick="showReferralModal()">
                         <div class="earn-icon">👥</div>
@@ -1270,6 +1270,14 @@
 
         function showModal(modalId) {
             document.getElementById(modalId).classList.add('show');
+        }
+
+        function openWatchAdsPage() {
+            window.location.href = 'ads.html';
+        }
+
+        function openGamesHub() {
+            window.location.href = 'games.html';
         }
 
         window.addEventListener('load', init);
