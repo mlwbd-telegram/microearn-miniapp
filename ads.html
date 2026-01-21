@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch Ads - MicroEarn</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .daily-limit {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .ad-slots {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .ad-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .ad-info {
+            flex: 1;
+        }
+
+        .ad-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .ad-reward {
+            color: #10b981;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .watch-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .watch-btn:active {
+            transform: scale(0.95);
+        }
+
+        .watch-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .watch-btn.collected {
+            background: #10b981;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 20px;
+                opacity: 1;
+            }
+        }
+
+        .all-done {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 16px;
+            color: #667eea;
+        }
+
+        .all-done h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <button class="back-btn" onclick="goBack()">←</button>
+
+    <div class="container">
+        <div class="header">
+            <h1>📺 Watch Ads</h1>
+            <p>Complete ads to earn coins!</p>
+        </div>
+        <div class="daily-limit" id="dailyLimit">Loading...</div>
+        <div class="ad-slots" id="adSlots">
+            <div class="ad-card">
+                <div class="ad-info">
+                    <div class="ad-title">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        const BACKEND_URL = 'https://microearn-worker.abusaifeshovon.workers.dev';
+        let adsData = [];
+
+        async function loadAdsStatus() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/ads/status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ initData: tg.initData })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    adsData = data.ads;
+                    renderAds(data.completed, data.total);
+                } else {
+                    showToast('Failed to load: ' + data.error);
+                }
+            } catch (error) {
+                showToast('Failed to load ads status');
+            }
+        }
+
+        function renderAds(completed, total) {
+            document.getElementById('dailyLimit').textContent = `Today's Progress: ${completed} / ${total} ads completed`;
+            const slotsEl = document.getElementById('adSlots');
+
+            if (completed >= 5) {
+                slotsEl.innerHTML = `
+                    <div class="all-done">
+                        <h2>🎉 All Done!</h2>
+                        <p>All ads completed for today</p>
+                        <p style="margin-top:10px;font-size:14px;color:#666;">+35 coins earned! Come back tomorrow.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            slotsEl.innerHTML = adsData.map((ad, index) => `
+                <div class="ad-card">
+                    <div class="ad-info">
+                        <div class="ad-title">Ad ${ad.number}</div>
+                        <div class="ad-reward">+7 coins</div>
+                    </div>
+                    <button 
+                        class="watch-btn ${ad.completed ? 'collected' : ''}" 
+                        id="btn${ad.number}"
+                        onclick="watchAd(${ad.number})"
+                        ${ad.completed ? 'disabled' : ''}
+                    >
+                        ${ad.completed ? '✓ Collected' : 'Watch'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function watchAd(adNumber) {
+            const btn = document.getElementById(`btn${adNumber}`);
+            btn.disabled = true;
+            btn.textContent = 'Loading...';
+
+            // TODO: Integrate actual Monetag/Adsterra ad SDK here
+            // For testing, simulate ad completion after 2 seconds
+            showToast('⏳ Watching ad...');
+
+            setTimeout(async () => {
+                try {
+                    const response = await fetch(`${BACKEND_URL}/api/earn/watch-ad`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            initData: tg.initData,
+                            ad_number: adNumber,
+                            completed: true
+                        })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        showToast(`✅ +7 coins earned! (${data.ads_remaining} ads left)`);
+                        loadAdsStatus();
+                    } else {
+                        showToast(`❌ ${data.error}`);
+                        btn.disabled = false;
+                        btn.textContent = 'Watch';
+                    }
+                } catch (error) {
+                    showToast('Failed to submit');
+                    btn.disabled = false;
+                    btn.textContent = 'Watch';
+                }
+            }, 2000);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        loadAdsStatus();
+    </script>
+</body>
+
+</html>
