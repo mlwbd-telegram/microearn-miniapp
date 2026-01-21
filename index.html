@@ -675,7 +675,8 @@
             <form onsubmit="submitWithdraw(event)">
                 <div class="form-group">
                     <label class="form-label" id="amountLabel">Amount (৳)</label>
-                    <input type="number" class="form-input" id="withdrawAmount" min="10" required>
+                    <!-- TODO: Change min back to 2000 before public launch (CURRENTLY 5 FOR TESTING) -->
+                    <input type="number" class="form-input" id="withdrawAmount" min="5" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label" id="methodLabel">Payment Method</label>
