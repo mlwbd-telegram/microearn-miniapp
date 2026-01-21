@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play to Win - MicroEarn</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .daily-limit {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-card:active {
+            transform: scale(0.95);
+        }
+
+        .game-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .game-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .game-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .game-reward {
+            color: #10b981;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .game-plays {
+            color: #666;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* Game Modal */
+        .game-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-modal.show {
+            display: flex;
+        }
+
+        .game-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .game-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        /* Spin Wheel */
+        .wheel-container {
+            position: relative;
+            margin: 20px auto;
+            width: 280px;
+            height: 280px;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(#ff6b6b 0deg 60deg, #feca57 60deg 120deg,
+                    #48dbfb 120deg 180deg, #ff9ff3 180deg 240deg,
+                    #54a0ff 240deg 300deg, #5f27cd 300deg 360deg);
+            transition: transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 30px;
+        }
+
+        .spin-btn {
+            margin-top: 20px;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .spin-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Tap Game */
+        .tap-area {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s;
+        }
+
+        .tap-area:active {
+            transform: scale(0.9);
+        }
+
+        .tap-count {
+            font-size: 60px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .timer {
+            font-size: 24px;
+            color: #666;
+            margin: 10px 0;
+        }
+
+        /* Guess Game */
+        .guess-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 24px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            margin: 10px 0;
+        }
+
+        .guess-btn {
+            padding: 15px 40px;
+            background: #667eea;
+            border: none;
+            color: white;
+            border-radius: 12px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .attempts {
+            color: #666;
+            margin: 10px 0;
+        }
+
+        /* Reaction Game */
+        .reaction-box {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .reaction-box.waiting {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .reaction-box.ready {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .reaction-time {
+            font-size: 40px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        /* Quiz Game */
+        .quiz-question {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quiz-option {
+            padding: 15px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .quiz-option:hover {
+            background: #e0e0e0;
+        }
+
+        .quiz-option.correct {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .quiz-option.wrong {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        /* Catch Button */
+        .catch-area {
+            width: 100%;
+            height: 300px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .catch-target {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        /* Result */
+        .result {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+
+        .result.win {
+            color: #2ecc71;
+        }
+
+        .result.lose {
+            color: #ff6b6b;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            display: none;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <button class="back-btn" onclick="goBack()">←</button>
+
+    <div class="container" id="hub">
+        <div class="header">
+            <h1>🎮 Play to Win</h1>
+            <p>Fun games, real coins!</p>
+        </div>
+        <div class="daily-limit">
+            Today's earnings: <span id="gameEarnings">0</span> / 25 coins
+            <span id="limitWarning" style="display:none;color:#ff6b6b;margin-left:10px;">Limit reached!</span>
+        </div>
+        <div class="games-grid" id="gamesGrid">
+            <!-- Games rendered by JS -->
+        </div>
+    </div>
+
+    <!-- SPIN GAME MODAL -->
+    <div class="game-modal" id="spinModal">
+        <button class="game-close" onclick="closeGame('spinModal')">×</button>
+        <div class="game-content">
+            <h2>🎡 Spin & Win</h2>
+            <p style="margin:10px 0;color:#666;">Spin to win 5-50 coins!</p>
+            <div class="wheel-container">
+                <div class="wheel-pointer">▼</div>
+                <div class="wheel" id="spinWheel"></div>
+            </div>
+            <div id="spinResult" class="result"></div>
+            <button class="spin-btn" id="spinBtn" onclick="spinWheel()">SPIN</button>
+        </div>
+    </div>
+
+    <!-- TAP GAME MODAL -->
+    <div class="game-modal" id="tapModal">
+        <button class="game-close" onclick="closeGame('tapModal')">×</button>
+        <div class="game-content">
+            <h2>👆 Tap Challenge</h2>
+            <p style="margin:10px 0;color:#666;">Tap as fast as you can in 10 seconds!</p>
+            <div class="timer" id="tapTimer">10s</div>
+            <div class="tap-count" id="tapCount">0</div>
+            <div class="tap-area" id="tapArea" onclick="tapGame()">👆</div>
+            <div id="tapResult" class="result"></div>
+            <button class="spin-btn" id="tapStartBtn" onclick="startTapGame()">START</button>
+        </div>
+    </div>
+
+    <!-- GUESS GAME MODAL -->
+    <div class="game-modal" id="guessModal">
+        <button class="game-close" onclick="closeGame('guessModal')">×</button>
+        <div class="game-content">
+            <h2>🔢 Guess the Number</h2>
+            <p style="margin:10px 0;color:#666;">Guess a number between 1-10</p>
+            <div class="attempts" id="guessAttempts">3 attempts left</div>
+            <input type="number" class="guess-input" id="guessInput" min="1" max="10" placeholder="1-10">
+            <div id="guessHint" style="margin:10px 0;color:#666;"></div>
+            <div id="guessResult" class="result"></div>
+            <button class="guess-btn" id="guessBtn" onclick="submitGuess()">GUESS</button>
+        </div>
+    </div>
+
+    <!-- REACTION GAME MODAL -->
+    <div class="game-modal" id="reactionModal">
+        <button class="game-close" onclick="closeGame('reactionModal')">×</button>
+        <div class="game-content">
+            <h2>⚡ Reaction Game</h2>
+            <p style="margin:10px 0;color:#666;">Wait for green, then tap!</p>
+            <div class="reaction-box waiting" id="reactionBox" onclick="reactionTap()">WAIT...</div>
+            <div class="reaction-time" id="reactionTime"></div>
+            <div id="reactionResult" class="result"></div>
+            <button class="spin-btn" id="reactionBtn" onclick="startReaction()">START</button>
+        </div>
+    </div>
+
+    <!-- QUIZ GAME MODAL -->
+    <div class="game-modal" id="quizModal">
+        <button class="game-close" onclick="closeGame('quizModal')">×</button>
+        <div class="game-content">
+            <h2>❓ Quiz Game</h2>
+            <p style="margin:10px 0;color:#666;">5 coins per correct answer!</p>
+            <div id="quizScore" style="font-size:20px;margin:10px 0;">Score: 0</div>
+            <div class="quiz-question" id="quizQuestion">Loading...</div>
+            <div class="quiz-options" id="quizOptions"></div>
+            <div id="quizResult" class="result"></div>
+        </div>
+    </div>
+
+    <!-- CATCH GAME MODAL -->
+    <div class="game-modal" id="catchModal">
+        <button class="game-close" onclick="closeGame('catchModal')">×</button>
+        <div class="game-content">
+            <h2>🎯 Catch the Button</h2>
+            <p style="margin:10px 0;color:#666;">Catch the moving button!</p>
+            <div class="timer" id="catchTimer">10s</div>
+            <div id="catchScore">Caught: 0</div>
+            <div class="catch-area" id="catchArea">
+                <div class="catch-target" id="catchTarget" onclick="catchClick()">🎯</div>
+            </div>
+            <div id="catchResult" class="result"></div>
+            <button class="spin-btn" id="catchBtn" onclick="startCatch()">START</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        const BACKEND_URL = 'https://microearn-worker.abusaifeshovon.workers.dev';
+        let gamesData = [];
+        let todayEarnings = 0;
+        let limitReached = false;
+
+        // Load games status
+        async function loadGamesStatus() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/games/status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ initData: tg.initData })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    gamesData = data.games;
+                    todayEarnings = data.today_earnings;
+                    limitReached = data.limit_reached;
+                    renderGames();
+                }
+            } catch (error) {
+                showToast('Failed to load games');
+            }
+        }
+
+        function renderGames() {
+            document.getElementById('gameEarnings').textContent = todayEarnings;
+            document.getElementById('limitWarning').style.display = limitReached ? 'inline' : 'none';
+
+            const gamesConfig = [
+                { id: 'spin', icon: '🎡', name: 'Spin & Win', reward: '5-50', maxPlays: 2 },
+                { id: 'tap', icon: '👆', name: 'Tap Challenge', reward: '10-20', maxPlays: 3 },
+                { id: 'quiz', icon: '❓', name: 'Quiz Game', reward: '5/answer', maxPlays: 99 },
+                { id: 'guess', icon: '🔢', name: 'Guess Number', reward: '20', maxPlays: 2 },
+                { id: 'reaction', icon: '⚡', name: 'Reaction Game', reward: '10-20', maxPlays: 2 },
+                { id: 'catch', icon: '🎯', name: 'Catch Button', reward: '10-20', maxPlays: 2 }
+            ];
+
+            const grid = document.getElementById('gamesGrid');
+            grid.innerHTML = gamesConfig.map(game => {
+                const gameData = gamesData.find(g => g.id === game.id) || { plays: 0 };
+                const disabled = limitReached || gameData.plays >= game.maxPlays;
+                return `
+                    <div class="game-card ${disabled ? 'disabled' : ''}" onclick="${disabled ? '' : `openGame('${game.id}')`}">
+                        <div class="game-icon">${game.icon}</div>
+                        <div class="game-title">${game.name}</div>
+                        <div class="game-reward">+${game.reward} coins</div>
+                        <div class="game-plays">${gameData.plays}/${game.maxPlays} plays</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openGame(gameId) {
+            document.getElementById(gameId + 'Modal').classList.add('show');
+            if (gameId === 'quiz') startQuiz();
+        }
+
+        function closeGame(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+            loadGamesStatus();
+        }
+
+        async function submitReward(gameType, score, reward) {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/games/reward`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        initData: tg.initData,
+                        game_type: gameType,
+                        score: score,
+                        reward: reward
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showToast(`✅ +${data.reward} coins earned!`);
+                    todayEarnings = data.today_game_earnings;
+                    return data.reward;
+                } else {
+                    showToast(`❌ ${data.error}`);
+                    return 0;
+                }
+            } catch (error) {
+                showToast('Failed to submit reward');
+                return 0;
+            }
+        }
+
+        // === SPIN GAME ===
+        let spinning = false;
+        const spinRewards = [5, 10, 20, 5, 10, 50];
+
+        async function spinWheel() {
+            if (spinning) return;
+            spinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('spinResult').textContent = '';
+
+            const wheel = document.getElementById('spinWheel');
+            const resultIndex = Math.floor(Math.random() * 6);
+            const deg = 360 * 5 + (360 - resultIndex * 60 - 30);
+            wheel.style.transform = `rotate(${deg}deg)`;
+
+            setTimeout(async () => {
+                const reward = spinRewards[resultIndex];
+                const earned = await submitReward('spin', 0, reward);
+                document.getElementById('spinResult').textContent = `🎉 You won ${earned} coins!`;
+                document.getElementById('spinResult').className = 'result win';
+                spinning = false;
+                document.getElementById('spinBtn').disabled = true;
+            }, 5500);
+        }
+
+        // === TAP GAME ===
+        let tapCount = 0;
+        let tapGameActive = false;
+        let tapInterval;
+
+        function startTapGame() {
+            tapCount = 0;
+            tapGameActive = true;
+            document.getElementById('tapCount').textContent = '0';
+            document.getElementById('tapResult').textContent = '';
+            document.getElementById('tapStartBtn').disabled = true;
+            let timeLeft = 10;
+            document.getElementById('tapTimer').textContent = timeLeft + 's';
+
+            tapInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('tapTimer').textContent = timeLeft + 's';
+                if (timeLeft <= 0) {
+                    clearInterval(tapInterval);
+                    endTapGame();
+                }
+            }, 1000);
+        }
+
+        function tapGame() {
+            if (!tapGameActive) return;
+            tapCount++;
+            document.getElementById('tapCount').textContent = tapCount;
+        }
+
+        async function endTapGame() {
+            tapGameActive = false;
+            let reward = 0;
+            if (tapCount >= 81) reward = 20;
+            else if (tapCount >= 51) reward = 15;
+            else if (tapCount >= 30) reward = 10;
+
+            if (reward > 0) {
+                await submitReward('tap', tapCount, reward);
+                document.getElementById('tapResult').textContent = `🎉 ${tapCount} taps = ${reward} coins!`;
+                document.getElementById('tapResult').className = 'result win';
+            } else {
+                document.getElementById('tapResult').textContent = `${tapCount} taps - need 30+ for reward`;
+                document.getElementById('tapResult').className = 'result lose';
+            }
+        }
+
+        // === GUESS GAME ===
+        let secretNumber = 0;
+        let guessAttempts = 0;
+
+        function resetGuessGame() {
+            secretNumber = Math.floor(Math.random() * 10) + 1;
+            guessAttempts = 0;
+            document.getElementById('guessAttempts').textContent = '3 attempts left';
+            document.getElementById('guessHint').textContent = '';
+            document.getElementById('guessResult').textContent = '';
+            document.getElementById('guessInput').value = '';
+            document.getElementById('guessBtn').disabled = false;
+        }
+
+        async function submitGuess() {
+            const guess = parseInt(document.getElementById('guessInput').value);
+            if (isNaN(guess) || guess < 1 || guess > 10) {
+                showToast('Enter a number 1-10');
+                return;
+            }
+
+            guessAttempts++;
+            const remaining = 3 - guessAttempts;
+            document.getElementById('guessAttempts').textContent = remaining + ' attempts left';
+
+            if (guess === secretNumber) {
+                await submitReward('guess', guessAttempts, 20);
+                document.getElementById('guessResult').textContent = `🎉 Correct! +20 coins!`;
+                document.getElementById('guessResult').className = 'result win';
+                document.getElementById('guessBtn').disabled = true;
+            } else {
+                document.getElementById('guessHint').textContent = guess < secretNumber ? '📈 Higher!' : '📉 Lower!';
+                if (remaining <= 0) {
+                    document.getElementById('guessResult').textContent = `❌ It was ${secretNumber}`;
+                    document.getElementById('guessResult').className = 'result lose';
+                    document.getElementById('guessBtn').disabled = true;
+                }
+            }
+            document.getElementById('guessInput').value = '';
+        }
+
+        // === REACTION GAME ===
+        let reactionStartTime = 0;
+        let reactionWaiting = false;
+        let reactionTimeout;
+
+        function startReaction() {
+            document.getElementById('reactionBtn').disabled = true;
+            document.getElementById('reactionTime').textContent = '';
+            document.getElementById('reactionResult').textContent = '';
+            const box = document.getElementById('reactionBox');
+            box.className = 'reaction-box waiting';
+            box.textContent = 'WAIT...';
+            reactionWaiting = true;
+
+            const delay = 2000 + Math.random() * 3000;
+            reactionTimeout = setTimeout(() => {
+                box.className = 'reaction-box ready';
+                box.textContent = 'TAP NOW!';
+                reactionStartTime = Date.now();
+                reactionWaiting = false;
+            }, delay);
+        }
+
+        async function reactionTap() {
+            if (reactionWaiting) {
+                clearTimeout(reactionTimeout);
+                document.getElementById('reactionResult').textContent = '❌ Too early!';
+                document.getElementById('reactionResult').className = 'result lose';
+                document.getElementById('reactionBtn').disabled = false;
+                const box = document.getElementById('reactionBox');
+                box.className = 'reaction-box waiting';
+                box.textContent = 'Try again';
+                return;
+            }
+
+            if (reactionStartTime === 0) return;
+
+            const reactionTime = Date.now() - reactionStartTime;
+            reactionStartTime = 0;
+            document.getElementById('reactionTime').textContent = reactionTime + 'ms';
+
+            let reward = 0;
+            if (reactionTime < 300) reward = 20;
+            else if (reactionTime < 500) reward = 10;
+
+            if (reward > 0) {
+                await submitReward('reaction', reactionTime, reward);
+                document.getElementById('reactionResult').textContent = `🎉 +${reward} coins!`;
+                document.getElementById('reactionResult').className = 'result win';
+            } else {
+                document.getElementById('reactionResult').textContent = 'Need <500ms for reward';
+                document.getElementById('reactionResult').className = 'result lose';
+            }
+        }
+
+        // === QUIZ GAME ===
+        const quizQuestions = [
+            { q: 'What is 5 + 7?', options: ['10', '12', '13', '11'], correct: 1 },
+            { q: 'Capital of France?', options: ['London', 'Berlin', 'Paris', 'Rome'], correct: 2 },
+            { q: 'Largest planet?', options: ['Earth', 'Mars', 'Jupiter', 'Saturn'], correct: 2 },
+            { q: 'H2O is?', options: ['Salt', 'Sugar', 'Water', 'Oil'], correct: 2 },
+            { q: 'Days in a week?', options: ['5', '6', '7', '8'], correct: 2 }
+        ];
+        let quizScore = 0;
+        let quizIndex = 0;
+
+        function startQuiz() {
+            quizScore = 0;
+            quizIndex = 0;
+            document.getElementById('quizScore').textContent = 'Score: 0';
+            document.getElementById('quizResult').textContent = '';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (quizIndex >= quizQuestions.length) {
+                endQuiz();
+                return;
+            }
+            const q = quizQuestions[quizIndex];
+            document.getElementById('quizQuestion').textContent = q.q;
+            document.getElementById('quizOptions').innerHTML = q.options.map((opt, i) =>
+                `<button class="quiz-option" onclick="answerQuiz(${i})">${opt}</button>`
+            ).join('');
+        }
+
+        function answerQuiz(index) {
+            const q = quizQuestions[quizIndex];
+            const buttons = document.querySelectorAll('.quiz-option');
+            buttons.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) btn.classList.add('correct');
+                else if (i === index) btn.classList.add('wrong');
+            });
+
+            if (index === q.correct) quizScore += 5;
+            document.getElementById('quizScore').textContent = 'Score: ' + quizScore;
+
+            setTimeout(() => {
+                quizIndex++;
+                showQuestion();
+            }, 1000);
+        }
+
+        async function endQuiz() {
+            document.getElementById('quizQuestion').textContent = 'Quiz Complete!';
+            document.getElementById('quizOptions').innerHTML = '';
+            if (quizScore > 0) {
+                await submitReward('quiz', quizScore, quizScore);
+                document.getElementById('quizResult').textContent = `🎉 +${quizScore} coins!`;
+                document.getElementById('quizResult').className = 'result win';
+            } else {
+                document.getElementById('quizResult').textContent = 'No correct answers';
+                document.getElementById('quizResult').className = 'result lose';
+            }
+        }
+
+        // === CATCH GAME ===
+        let catchScore = 0;
+        let catchActive = false;
+        let catchInterval;
+
+        function startCatch() {
+            catchScore = 0;
+            catchActive = true;
+            document.getElementById('catchScore').textContent = 'Caught: 0';
+            document.getElementById('catchResult').textContent = '';
+            document.getElementById('catchBtn').disabled = true;
+            moveTarget();
+
+            let timeLeft = 10;
+            document.getElementById('catchTimer').textContent = timeLeft + 's';
+            catchInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('catchTimer').textContent = timeLeft + 's';
+                if (timeLeft <= 0) {
+                    clearInterval(catchInterval);
+                    endCatch();
+                }
+            }, 1000);
+        }
+
+        function moveTarget() {
+            if (!catchActive) return;
+            const area = document.getElementById('catchArea');
+            const target = document.getElementById('catchTarget');
+            const maxX = area.offsetWidth - 60;
+            const maxY = area.offsetHeight - 60;
+            target.style.left = Math.random() * maxX + 'px';
+            target.style.top = Math.random() * maxY + 'px';
+        }
+
+        function catchClick() {
+            if (!catchActive) return;
+            catchScore++;
+            document.getElementById('catchScore').textContent = 'Caught: ' + catchScore;
+            moveTarget();
+        }
+
+        async function endCatch() {
+            catchActive = false;
+            let reward = 0;
+            if (catchScore >= 10) reward = 20;
+            else if (catchScore >= 5) reward = 15;
+            else if (catchScore >= 3) reward = 10;
+
+            if (reward > 0) {
+                await submitReward('catch', catchScore, reward);
+                document.getElementById('catchResult').textContent = `🎉 ${catchScore} caught = ${reward} coins!`;
+                document.getElementById('catchResult').className = 'result win';
+            } else {
+                document.getElementById('catchResult').textContent = 'Need 3+ catches';
+                document.getElementById('catchResult').className = 'result lose';
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        // Init
+        resetGuessGame();
+        setInterval(moveTarget, 800);
+        loadGamesStatus();
+    </script>
+</body>
+
+</html>
