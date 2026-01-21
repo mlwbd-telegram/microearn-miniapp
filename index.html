@@ -611,8 +611,9 @@
 
             <div class="balance-card">
                 <div class="balance-label" id="balanceLabel">Current Balance</div>
-                <div class="balance-amount">৳<span id="balance">0.00</span></div>
-                <div class="total-earned" id="totalEarnedText">Total Earned: ৳<span id="totalEarned">0.00</span></div>
+                <div class="balance-amount"><span id="balance">0</span> Coins</div>
+                <div class="estimated-value">≈ ৳<span id="estimatedBDT">0.00</span> estimated value</div>
+                <div class="total-earned" id="totalEarnedText">Total Earned: <span id="totalEarned">0</span> coins</div>
             </div>
 
             <div class="earn-section">
@@ -920,12 +921,42 @@
                 document.getElementById('userAvatar').textContent = '';
             }
 
-            document.getElementById('balance').textContent = userData.balance.toFixed(2);
-            document.getElementById('totalEarned').textContent = userData.total_earned.toFixed(2);
+            // Display coins (no decimals) and calculate estimated BDT
+            const coins = Math.floor(userData.balance || 0);
+            const estimatedBDT = (coins * 0.05).toFixed(2); // 100 coins = ৳5
+            const totalCoins = Math.floor(userData.total_earned || 0);
+
+            document.getElementById('balance').textContent = coins;
+            document.getElementById('estimatedBDT').textContent = estimatedBDT;
+            document.getElementById('totalEarned').textContent = totalCoins;
+
+            // Update greeting with time-based emoji
+            setGreeting();
 
             if (userData.referral_code) {
                 document.getElementById('referralCode').textContent = userData.referral_code;
             }
+        }
+
+        function setGreeting() {
+            const hour = new Date().getHours();
+            let emoji, text;
+
+            if (hour >= 5 && hour < 12) {
+                emoji = '☀️';
+                text = currentLang === 'bn' ? 'সুপ্রভাত' : 'Good Morning';
+            } else if (hour >= 12 && hour < 17) {
+                emoji = '🌤️';
+                text = currentLang === 'bn' ? 'শুভ বিকেল' : 'Good Afternoon';
+            } else if (hour >= 17 && hour < 21) {
+                emoji = '🌆';
+                text = currentLang === 'bn' ? 'শুভ সন্ধ্যা' : 'Good Evening';
+            } else {
+                emoji = '🌙';
+                text = currentLang === 'bn' ? 'শুভ রাত্রি' : 'Good Night';
+            }
+
+            document.getElementById('greeting').textContent = `${emoji} ${text}`;
         }
 
         async function handleDailyIncome() {
@@ -958,7 +989,7 @@
                         userData.total_earned = (userData.total_earned || 0) + (data.amount || 0);
                     }
                     updateUI();
-                    showToast(`🎉 Daily income collected! +৳${data.amount.toFixed(2)}\nCome back tomorrow!`);
+                    showToast(`🎉 Daily income collected! +20 coins\nCome back tomorrow!`);
                     loadHistory();
                 } else {
                     showToast(`❌ ${data.error || 'Already collected today'}`);
