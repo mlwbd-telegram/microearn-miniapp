@@ -585,6 +585,104 @@
             font-size: 48px;
             margin-bottom: 12px;
         }
+
+        /* FULLSCREEN VIDEO AD OVERLAY - Non-skippable */
+        .fullscreen-ad-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .fullscreen-ad-overlay.show {
+            display: flex;
+        }
+
+        .ad-video-container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .ad-video-placeholder {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .ad-video-icon {
+            font-size: 80px;
+            margin-bottom: 15px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        .ad-video-text {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .ad-progress-container {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .ad-progress-bar {
+            height: 8px;
+            background: linear-gradient(90deg, #00d4ff, #0066ff);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .ad-timer-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .ad-warning-text {
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .ad-status-text {
+            color: #00ff88;
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
     </style>
 </head>
 
@@ -597,6 +695,22 @@
         <div class="error-icon">⚠️</div>
         <div class="error-title" id="errorTitle">Access Denied</div>
         <div class="error-message" id="errorMessage">This app can only be opened inside Telegram.</div>
+    </div>
+
+    <!-- FULLSCREEN VIDEO AD OVERLAY - Non-skippable for Daily Income -->
+    <div class="fullscreen-ad-overlay" id="fullscreenAdOverlay">
+        <div class="ad-video-container">
+            <div class="ad-video-placeholder" id="adVideoArea">
+                <div class="ad-video-icon">📺</div>
+                <div class="ad-video-text">Watch this ad to claim Daily Income</div>
+            </div>
+            <div class="ad-progress-container">
+                <div class="ad-progress-bar" id="adProgressBar"></div>
+            </div>
+            <div class="ad-timer-text" id="adTimerText">Please watch: 10 seconds remaining</div>
+            <div class="ad-warning-text">⚠️ Do not close! You must watch the full ad to receive your reward.</div>
+            <div class="ad-status-text" id="adStatusText" style="display:none;"></div>
+        </div>
     </div>
 
     <div id="app" style="display: none;">
@@ -959,45 +1073,128 @@
             document.getElementById('greeting').textContent = `${emoji} ${text}`;
         }
 
-        async function handleDailyIncome() {
-            try {
-                showToast('⏳ Requesting daily income...'); // Show loading
+        // ========== DAILY INCOME WITH FORCED FULLSCREEN AD ==========
+        let dailyAdWatching = false;
+        let dailyAdCompleted = false;
+        let adTimer = null;
 
+        async function handleDailyIncome() {
+            if (dailyAdWatching) {
+                showToast('⏳ Ad already in progress...');
+                return;
+            }
+
+            // Show fullscreen ad immediately
+            dailyAdWatching = true;
+            dailyAdCompleted = false;
+            showFullscreenAd();
+        }
+
+        function showFullscreenAd() {
+            const overlay = document.getElementById('fullscreenAdOverlay');
+            const progressBar = document.getElementById('adProgressBar');
+            const timerText = document.getElementById('adTimerText');
+            const statusText = document.getElementById('adStatusText');
+
+            overlay.classList.add('show');
+            progressBar.style.width = '0%';
+            statusText.style.display = 'none';
+
+            // Force 10 second ad watch
+            const adDuration = 10; // seconds
+            let elapsed = 0;
+
+            // Block back navigation during ad
+            window.history.pushState(null, null, window.location.href);
+            window.addEventListener('popstate', preventNavigation);
+
+            adTimer = setInterval(() => {
+                elapsed++;
+                const progress = (elapsed / adDuration) * 100;
+                progressBar.style.width = progress + '%';
+                timerText.textContent = `Please watch: ${adDuration - elapsed} seconds remaining`;
+
+                if (elapsed >= adDuration) {
+                    clearInterval(adTimer);
+                    dailyAdCompleted = true;
+                    completeAdAndCreditDailyIncome();
+                }
+            }, 1000);
+        }
+
+        function preventNavigation(e) {
+            if (dailyAdWatching && !dailyAdCompleted) {
+                window.history.pushState(null, null, window.location.href);
+            }
+        }
+
+        async function completeAdAndCreditDailyIncome() {
+            const statusText = document.getElementById('adStatusText');
+            const timerText = document.getElementById('adTimerText');
+
+            timerText.textContent = 'Ad complete!';
+            statusText.textContent = '⏳ Processing reward...';
+            statusText.style.display = 'block';
+
+            // Remove navigation block
+            window.removeEventListener('popstate', preventNavigation);
+
+            try {
                 const response = await fetch(`${BACKEND_URL}/api/earn/daily`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ initData: tg.initData })
+                    body: JSON.stringify({
+                        initData: tg.initData,
+                        ad_watched: true // Backend can verify this flag
+                    })
                 });
-
-                if (!response.ok) {
-                    // Try to parse error message from response
-                    try {
-                        const errorData = await response.json();
-                        showToast(`❌ ${errorData.error || `HTTP Error: ${response.status}`}`);
-                    } catch {
-                        showToast(`❌ HTTP Error: ${response.status} ${response.statusText}`);
-                    }
-                    return;
-                }
 
                 const data = await response.json();
 
                 if (data.success) {
-                    // Ensure userData exists
+                    statusText.textContent = `✓ +${data.amount} coins added successfully!`;
+                    statusText.style.color = '#00ff88';
+
+                    // Update balance
                     if (userData) {
                         userData.balance = data.new_balance;
                         userData.total_earned = (userData.total_earned || 0) + (data.amount || 0);
                     }
                     updateUI();
-                    showToast(`🎉 Daily income collected! +20 coins\nCome back tomorrow!`);
-                    loadHistory();
-                } else {
-                    showToast(`❌ ${data.error || 'Already collected today'}`);
-                }
 
+                    // Close overlay after 2 seconds
+                    setTimeout(() => {
+                        closeFullscreenAd();
+                        showToast(`🎉 Daily income collected! +${data.amount} coins`);
+                        loadHistory();
+                    }, 2000);
+                } else {
+                    statusText.textContent = `❌ ${data.error || 'Already collected today'}`;
+                    statusText.style.color = '#ff6b6b';
+
+                    setTimeout(() => {
+                        closeFullscreenAd();
+                        showToast(`❌ ${data.error || 'Already collected today'}`);
+                    }, 2000);
+                }
             } catch (error) {
-                showToast(`❌ Network Error: ${error.message}`);
                 console.error('Daily income error:', error);
+                statusText.textContent = `❌ Network error: ${error.message}`;
+                statusText.style.color = '#ff6b6b';
+
+                setTimeout(() => {
+                    closeFullscreenAd();
+                    showToast(`❌ Network error`);
+                }, 2000);
+            }
+        }
+
+        function closeFullscreenAd() {
+            document.getElementById('fullscreenAdOverlay').classList.remove('show');
+            dailyAdWatching = false;
+            if (adTimer) {
+                clearInterval(adTimer);
+                adTimer = null;
             }
         }
 
