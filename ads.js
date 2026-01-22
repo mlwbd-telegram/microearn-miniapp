@@ -1,5 +1,5 @@
 
-// MicroEarn Ad Integration - OPTIMIZED VERSION
+// MicroEarn Ad Integration - FAST LOADING VERSION
 // Centralized logic for Monetag Rewarded Ads and Adsterra Sticky Banners
 
 // ==========================================
@@ -25,27 +25,25 @@ function checkMontagSDK() {
     return false;
 }
 
-// PERFORMANCE FIX: Delayed SDK check (lazy loading)
+// FAST LOADING: Check SDK immediately on load
 document.addEventListener('DOMContentLoaded', () => {
-    // Wait 1.5 seconds before checking SDK (let UI load first)
-    setTimeout(() => {
-        if (!checkMontagSDK()) {
-            // If not ready, check every 500ms for up to 10 seconds
-            let attempts = 0;
-            sdkCheckInterval = setInterval(() => {
-                attempts++;
-                if (checkMontagSDK() || attempts > 20) {
-                    if (sdkCheckInterval) {
-                        clearInterval(sdkCheckInterval);
-                        sdkCheckInterval = null;
-                    }
-                    if (!monetagSDKReady) {
-                        console.warn("⚠️ Monetag SDK did not load after 10 seconds");
-                    }
+    // Check immediately
+    if (!checkMontagSDK()) {
+        // If not ready, check every 300ms for up to 10 seconds
+        let attempts = 0;
+        sdkCheckInterval = setInterval(() => {
+            attempts++;
+            if (checkMontagSDK() || attempts > 33) {
+                if (sdkCheckInterval) {
+                    clearInterval(sdkCheckInterval);
+                    sdkCheckInterval = null;
                 }
-            }, 500);
-        }
-    }, 1500); // Lazy load delay
+                if (!monetagSDKReady) {
+                    console.warn("⚠️ Monetag SDK did not load after 10 seconds");
+                }
+            }
+        }, 300);
+    }
 });
 
 // ==========================================
@@ -58,14 +56,14 @@ let rewardedAdInProgress = false;
 // Safe wrapper for Monetag's show_10496645() function
 window.showRewardedAdSafe = function () {
     return new Promise((resolve, reject) => {
-        // PERFORMANCE FIX: Check SDK readiness BEFORE attempting
+        // Check SDK readiness
         if (!monetagSDKReady || typeof window.show_10496645 !== 'function') {
             console.error("Monetag SDK not ready");
             reject("AD_SDK_NOT_READY");
             return;
         }
 
-        // PERFORMANCE FIX: Only one ad at a time
+        // Only one ad at a time
         if (rewardedAdInProgress) {
             console.warn("Rewarded ad already in progress");
             reject("AD_IN_PROGRESS");
@@ -102,12 +100,12 @@ function injectStickyAd(options = {}) {
 
     console.log(`Injecting Adsterra sticky banner (Home: ${isHomePage})...`);
 
-    // Create container - HOME SCREEN: hidden by default with no reserved space
+    // Create container
     const container = document.createElement('div');
     container.id = 'adsterra-sticky-container';
 
     if (isHomePage) {
-        // HOME SCREEN: Start completely hidden, no space reserved
+        // HOME SCREEN: Start hidden, will show when ad loads
         container.style.cssText = `
             position: fixed;
             bottom: 0;
@@ -162,7 +160,7 @@ function injectStickyAd(options = {}) {
     container.appendChild(scriptInvoke);
     document.body.appendChild(container);
 
-    // PERFORMANCE FIX: Hard timeout at 3 seconds
+    // Check if ad loaded after 3 seconds
     const adLoadTimeout = setTimeout(() => {
         const iframe = container.querySelector('iframe');
         if (iframe && iframe.offsetHeight > 0) {
@@ -178,7 +176,7 @@ function injectStickyAd(options = {}) {
 
                 // Show with proper height
                 container.style.display = 'flex';
-                container.style.height = '50px'; // Ad height
+                container.style.height = '50px';
                 container.style.opacity = '1';
                 document.body.style.paddingBottom = "60px";
 
@@ -225,7 +223,7 @@ function injectStickyAd(options = {}) {
             container.style.height = '0';
             document.body.style.paddingBottom = "0";
         }
-    }, 3000); // Hard timeout
+    }, 3000);
 
     // Handle script load errors
     scriptInvoke.addEventListener('error', () => {
@@ -236,17 +234,17 @@ function injectStickyAd(options = {}) {
     });
 }
 
-// Initialize sticky ad after DOM loads with LAZY LOADING
+// FAST LOADING: Initialize sticky ad immediately after DOM loads
 document.addEventListener('DOMContentLoaded', () => {
-    // PERFORMANCE FIX: Wait 2 seconds before loading ad (UI priority)
-    setTimeout(() => {
-        // Detect if this is home page by checking for specific element or URL
-        const isHomePage = window.location.pathname.includes('index.html') ||
-            window.location.pathname === '/' ||
-            document.getElementById('home-indicator'); // You can add this element to index.html
+    // Detect if this is home page
+    const isHomePage = window.location.pathname.includes('index.html') ||
+        window.location.pathname === '/' ||
+        document.getElementById('home-indicator');
 
+    // Load immediately (no delay)
+    setTimeout(() => {
         injectStickyAd({ isHomePage });
-    }, 2000); // Lazy load delay for ads
+    }, 100); // Minimal delay to ensure DOM is ready
 });
 
 // Export for manual calling if needed
