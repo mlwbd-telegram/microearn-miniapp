@@ -10,7 +10,7 @@
 let adInProgress = false;
 
 // Safe wrapper for Monetag's show_10496645() function
-// Prevents multiple concurrent ad calls
+// Prevents multiple concurrent ad calls and handles failures gracefully
 window.showRewardedAdSafe = function () {
     return new Promise((resolve, reject) => {
         if (adInProgress) {
@@ -32,14 +32,14 @@ window.showRewardedAdSafe = function () {
                 console.error("Ad failed, closed, or no fill:", err);
                 console.log("Releasing lock due to error.");
                 adInProgress = false;
-                reject("AD_FAILED_OR_CLOSED");
+                // UX FIX: More specific error message for no ad availability
+                reject("AD_NOT_AVAILABLE");
             });
         } else {
-            console.error("Monetag SDK missing.");
+            console.error("Monetag SDK missing or not loaded.");
             adInProgress = false;
-            // Fail gracefully
-            alert("Ad System not ready. Please wait or reload.");
-            reject("SDK_MISSING");
+            // UX FIX: Better error for SDK not loading
+            reject("AD_SDK_NOT_READY");
         }
     });
 };
@@ -51,11 +51,12 @@ window.showRewardedAd = window.showRewardedAdSafe;
 // ADSTERRA STICKY BANNER
 // ==========================================
 // Injects the 320x50 iframe at the bottom of the screen
+// Automatically hides if ad doesn't load within timeout
 function injectStickyAd() {
     // Avoid duplicate injections
     if (document.getElementById('adsterra-sticky-container')) return;
 
-    // Create container
+    // Create container (initially visible but will hide if no ad loads)
     const container = document.createElement('div');
     container.id = 'adsterra-sticky-container';
     container.style.cssText = `
@@ -70,7 +71,9 @@ function injectStickyAd() {
         display: flex;
         justify-content: center;
         align-items: center;
-        pointer-events: auto; /* Ensure clicks work */
+        pointer-events: auto;
+        opacity: 1;
+        transition: opacity 0.3s ease-out;
     `;
 
     // Adsterra Config Script
@@ -89,7 +92,6 @@ function injectStickyAd() {
     // Adsterra Invoke Script
     const scriptInvoke = document.createElement('script');
     scriptInvoke.type = 'text/javascript';
-    // Standard Adsterra invocation URL for this key type
     scriptInvoke.src = '//www.highperformanceformat.com/0eaadd2739774196781aff34110701c4/invoke.js';
 
     // Append to container
@@ -99,8 +101,43 @@ function injectStickyAd() {
     // Append to body
     document.body.appendChild(container);
 
-    // Adjust body padding to prevent overlap
-    document.body.style.paddingBottom = "60px";
+    // UX FIX: Check if ad loaded within 3 seconds
+    // If no iframe is injected by Adsterra, hide the container
+    let adLoadCheckTimeout = setTimeout(() => {
+        const adIframe = container.querySelector('iframe');
+        if (!adIframe || adIframe.offsetWidth === 0) {
+            console.log("Adsterra banner did not load. Hiding container.");
+            container.style.opacity = '0';
+            setTimeout(() => {
+                container.style.display = 'none';
+                document.body.style.paddingBottom = "0";
+            }, 300); // Wait for fade out
+        } else {
+            console.log("Adsterra banner loaded successfully.");
+            // Ensure body padding is set
+            document.body.style.paddingBottom = "60px";
+        }
+    }, 3000);
+
+    // Also listen for load event on the script to detect early success
+    scriptInvoke.addEventListener('load', () => {
+        // Give a moment for iframe injection
+        setTimeout(() => {
+            const adIframe = container.querySelector('iframe');
+            if (adIframe && adIframe.offsetWidth > 0) {
+                clearTimeout(adLoadCheckTimeout);
+                console.log("Adsterra banner confirmed loaded via script onload.");
+                document.body.style.paddingBottom = "60px";
+            }
+        }, 500);
+    });
+
+    scriptInvoke.addEventListener('error', () => {
+        console.error("Adsterra script failed to load.");
+        clearTimeout(adLoadCheckTimeout);
+        container.style.display = 'none';
+        document.body.style.paddingBottom = "0";
+    });
 }
 
 // Initialize Sticky Ad on load
