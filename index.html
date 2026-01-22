@@ -1503,9 +1503,18 @@
         // Sticky Ad Banner control
         if (sessionStorage.getItem('adClosed')) {
             document.getElementById('stickyAd')?.classList.add('hidden');
+        } else {
+            // Ensure it's ready to slide up by NOT having 'hidden' yet (handled by CSS opacity/transform)
         }
+
         function closeAd() {
-            document.getElementById('stickyAd').classList.add('hidden');
+            const ad = document.getElementById('stickyAd');
+            if (ad) {
+                ad.classList.remove('slide-up'); // Slide down
+                setTimeout(() => {
+                    ad.classList.add('hidden'); // Hide after transition
+                }, 600);
+            }
             sessionStorage.setItem('adClosed', 'true');
         }
     </script>
@@ -1524,6 +1533,14 @@
             align-items: center;
             justify-content: center;
             z-index: 900;
+            transform: translateY(100%);
+            /* Start hidden below screen */
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            /* Smooth slide up */
+        }
+
+        .sticky-ad.slide-up {
+            transform: translateY(0);
         }
 
         .sticky-ad.hidden {
@@ -1541,23 +1558,35 @@
 
         .ad-close {
             position: absolute;
-            right: 5px;
-            top: 2px;
-            background: rgba(0, 0, 0, 0.3);
-            border: none;
+            right: 8px;
+            top: -12px;
+            /* Position partway out or adjust as needed for "small and minimal" */
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             font-size: 10px;
             color: #fff;
             cursor: pointer;
-            padding: 2px 5px;
-            border-radius: 3px;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s, background 0.2s;
+            top: 50%;
+            transform: translateY(-50%);
         }
 
+        /* Ensure it doesn't overlap content too much, keep it to the right */
         .ad-close.visible {
             opacity: 1;
             pointer-events: auto;
+        }
+
+        .ad-close:active {
+            background: rgba(0, 0, 0, 0.8);
         }
 
         body {
@@ -1572,11 +1601,22 @@
         </div>
     </div>
     <script>
-        // Show ad close button after 3 second delay
-        setTimeout(() => {
-            const closeBtn = document.getElementById('adCloseBtn');
-            if (closeBtn) closeBtn.classList.add('visible');
-        }, 3000);
+        // Trigger slide-up animation after page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const ad = document.getElementById('stickyAd');
+                // Only slide up if not previously closed
+                if (ad && !ad.classList.contains('hidden')) {
+                    ad.classList.add('slide-up');
+                }
+            }, 500); // 0.5s delay before sliding up
+
+            // Show ad close button after 3 second delay
+            setTimeout(() => {
+                const closeBtn = document.getElementById('adCloseBtn');
+                if (closeBtn) closeBtn.classList.add('visible');
+            }, 3000);
+        });
     </script>
 </body>
 
