@@ -737,96 +737,6 @@
                 opacity: 1;
             }
         }
-
-        /* Sticky Ad Banner */
-        .sticky-ad {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            background: #f9f9f9;
-            border-top: 1px solid #ddd;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 900;
-        }
-
-        .sticky-ad.hidden {
-            display: none;
-        }
-
-        .ad-content {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .ad-close {
-            position: absolute;
-            right: 5px;
-            top: 2px;
-            background: rgba(0, 0, 0, 0.3);
-            border: none;
-            font-size: 10px;
-            color: #fff;
-            cursor: pointer;
-            padding: 2px 5px;
-            border-radius: 3px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-
-        .ad-close.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        /* MINI AD INSIDE GAME MODALS */
-        .game-mini-ad {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 50px;
-            background: linear-gradient(90deg, #f8f9fa, #e9ecef);
-            border-top: 1px solid #ddd;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1001;
-        }
-
-        .game-mini-ad .mini-ad-content {
-            font-size: 11px;
-            color: #666;
-        }
-
-        .game-mini-ad .mini-ad-close {
-            position: absolute;
-            right: 3px;
-            top: 3px;
-            background: rgba(0, 0, 0, 0.2);
-            border: none;
-            font-size: 8px;
-            color: #666;
-            cursor: pointer;
-            padding: 1px 4px;
-            border-radius: 2px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-
-        .game-mini-ad .mini-ad-close.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
     </style>
 </head>
 
@@ -890,11 +800,6 @@
                 </div>
             </div>
         </div>
-        <!-- Mini Ad inside game modal -->
-        <div class="game-mini-ad" id="spinMiniAd">
-            <button class="mini-ad-close" id="spinMiniAdClose" onclick="closeMiniAd('spinMiniAd')">✕</button>
-            <div class="mini-ad-content">📱 Ad Space - Revenue Partner</div>
-        </div>
     </div>
 
     <!-- TAP GAME MODAL -->
@@ -919,10 +824,6 @@
                     <button class="back-to-hub-btn" onclick="closeGame('tapModal')">Back to Play to Win</button>
                 </div>
             </div>
-        </div>
-        <div class="game-mini-ad" id="tapMiniAd">
-            <button class="mini-ad-close" id="tapMiniAdClose" onclick="closeMiniAd('tapMiniAd')">✕</button>
-            <div class="mini-ad-content">📱 Ad Space - Revenue Partner</div>
         </div>
     </div>
 
@@ -949,10 +850,6 @@
                 </div>
             </div>
         </div>
-        <div class="game-mini-ad" id="guessMiniAd">
-            <button class="mini-ad-close" id="guessMiniAdClose" onclick="closeMiniAd('guessMiniAd')">✕</button>
-            <div class="mini-ad-content">📱 Ad Space - Revenue Partner</div>
-        </div>
     </div>
 
     <!-- REACTION GAME MODAL -->
@@ -976,10 +873,6 @@
                     <button class="back-to-hub-btn" onclick="closeGame('reactionModal')">Back to Play to Win</button>
                 </div>
             </div>
-        </div>
-        <div class="game-mini-ad" id="reactionMiniAd">
-            <button class="mini-ad-close" id="reactionMiniAdClose" onclick="closeMiniAd('reactionMiniAd')">✕</button>
-            <div class="mini-ad-content">📱 Ad Space - Revenue Partner</div>
         </div>
     </div>
 
@@ -1036,22 +929,9 @@
                 </div>
             </div>
         </div>
-        <div class="game-mini-ad" id="catchMiniAd">
-            <button class="mini-ad-close" id="catchMiniAdClose" onclick="closeMiniAd('catchMiniAd')">✕</button>
-            <div class="mini-ad-content">📱 Ad Space - Revenue Partner</div>
-        </div>
     </div>
 
     <div class="toast" id="toast"></div>
-
-    <!-- STICKY BOTTOM AD BANNER -->
-    <div class="sticky-ad" id="stickyAd">
-        <button class="ad-close" onclick="closeAd()">✕</button>
-        <div class="ad-content">
-            <!-- Monetag/Adsterra banner code goes here -->
-            <span style="color:#999;">📢 Ad Space - Monetag Banner</span>
-        </div>
-    </div>
 
     <script>
         // Start games logic
