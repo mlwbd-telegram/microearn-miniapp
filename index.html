@@ -684,6 +684,10 @@
             margin-top: 15px;
         }
     </style>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Monetag SDK -->
+    <script src="//alwingulla.com/88/tag.min.js" data-zone="10496645" async data-cfasync="false"></script>
+    <script src="ads.js?v=1"></script>
 </head>
 
 <body>
@@ -697,21 +701,7 @@
         <div class="error-message" id="errorMessage">This app can only be opened inside Telegram.</div>
     </div>
 
-    <!-- FULLSCREEN VIDEO AD OVERLAY - Non-skippable for Daily Income -->
-    <div class="fullscreen-ad-overlay" id="fullscreenAdOverlay">
-        <div class="ad-video-container">
-            <div class="ad-video-placeholder" id="adVideoArea">
-                <div class="ad-video-icon">📺</div>
-                <div class="ad-video-text">Watch this ad to claim Daily Income</div>
-            </div>
-            <div class="ad-progress-container">
-                <div class="ad-progress-bar" id="adProgressBar"></div>
-            </div>
-            <div class="ad-timer-text" id="adTimerText">Please watch: 10 seconds remaining</div>
-            <div class="ad-warning-text">⚠️ Do not close! You must watch the full ad to receive your reward.</div>
-            <div class="ad-status-text" id="adStatusText" style="display:none;"></div>
-        </div>
-    </div>
+    <!-- Real ads implemented via ads.js -->
 
     <div id="app" style="display: none;">
         <div class="container">
