@@ -1888,6 +1888,20 @@
             // Save to recent history
             saveRecentQuestion(q.id);
 
+            // SHUFFLE OPTIONS to randomize correct answer position
+            const shuffledOptions = q.options.map((opt, idx) => ({ text: opt, originalIndex: idx }));
+            for (let i = shuffledOptions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+            }
+
+            // Find new position of correct answer after shuffle
+            const newCorrectIndex = shuffledOptions.findIndex(opt => opt.originalIndex === q.correct);
+
+            // Store shuffled data for answer checking
+            currentQuizSession[quizIndex].shuffledOptions = shuffledOptions;
+            currentQuizSession[quizIndex].shuffledCorrect = newCorrectIndex;
+
             // Update UI with progress and metadata
             const difficultyColor = q.difficulty === "Easy" ? "#10b981" : q.difficulty === "Medium" ? "#f59e0b" : "#ef4444";
             const categoryEmoji = {
@@ -1911,22 +1925,24 @@
                 <div style="font-size:16px;font-weight:600;color:#333;margin-top:8px;">${q.q}</div>
             `;
 
-            document.getElementById('quizOptions').innerHTML = q.options.map((opt, i) =>
-                `<button class="quiz-option" onclick="answerQuiz(${i})">${opt}</button>`
+            // Display shuffled options
+            document.getElementById('quizOptions').innerHTML = shuffledOptions.map((opt, i) =>
+                `<button class="quiz-option" onclick="answerQuiz(${i})">${opt.text}</button>`
             ).join('');
         }
 
         function answerQuiz(index) {
             const q = currentQuizSession[quizIndex];
+            const correctIndex = q.shuffledCorrect; // Use shuffled position
             const buttons = document.querySelectorAll('.quiz-option');
 
             buttons.forEach((btn, i) => {
                 btn.disabled = true;
-                if (i === q.correct) btn.classList.add('correct');
+                if (i === correctIndex) btn.classList.add('correct');
                 else if (i === index) btn.classList.add('wrong');
             });
 
-            if (index === q.correct) {
+            if (index === correctIndex) {
                 quizScore += q.points;
             }
 
