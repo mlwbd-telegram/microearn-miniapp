@@ -1,62 +1,104 @@
 
-// MicroEarn Ad Integration
+// MicroEarn Ad Integration - FIXED VERSION
 // Centralized logic for Monetag Rewarded Ads and Adsterra Sticky Banners
+
+// ==========================================
+// MONETAG SDK READINESS CHECK
+// ==========================================
+
+let monetagSDKReady = false;
+let sdkCheckInterval = null;
+
+// Check if Monetag SDK is loaded and ready
+function checkMontagSDK() {
+    if (typeof window.show_10496645 === 'function') {
+        monetagSDKReady = true;
+        console.log("✅ Monetag SDK ready");
+        if (sdkCheckInterval) {
+            clearInterval(sdkCheckInterval);
+            sdkCheckInterval = null;
+        }
+        // Notify pages that SDK is ready
+        window.dispatchEvent(new Event('monetag-sdk-ready'));
+        return true;
+    }
+    return false;
+}
+
+// Start checking for SDK on load
+document.addEventListener('DOMContentLoaded', () => {
+    // Check immediately
+    if (!checkMontagSDK()) {
+        // If not ready, check every 500ms for up to 10 seconds
+        let attempts = 0;
+        sdkCheckInterval = setInterval(() => {
+            attempts++;
+            if (checkMontagSDK() || attempts > 20) {
+                if (sdkCheckInterval) {
+                    clearInterval(sdkCheckInterval);
+                    sdkCheckInterval = null;
+                }
+                if (!monetagSDKReady) {
+                    console.warn("⚠️ Monetag SDK did not load after 10 seconds");
+                }
+            }
+        }, 500);
+    }
+});
 
 // ==========================================
 // MONETAG REWARDED ADS
 // ==========================================
 
-// Global Lock Variable
-let adInProgress = false;
+// Separate lock for rewarded ads (used by Watch Ads page)
+let rewardedAdInProgress = false;
 
 // Safe wrapper for Monetag's show_10496645() function
-// Prevents multiple concurrent ad calls and handles failures gracefully
 window.showRewardedAdSafe = function () {
     return new Promise((resolve, reject) => {
-        if (adInProgress) {
-            console.warn("Global Ad Lock: Ad already in progress. Ignoring new request.");
+        // Check if SDK is ready
+        if (!monetagSDKReady || typeof window.show_10496645 !== 'function') {
+            console.error("Monetag SDK not ready");
+            reject("AD_SDK_NOT_READY");
+            return;
+        }
+
+        // Check if another ad is in progress
+        if (rewardedAdInProgress) {
+            console.warn("Rewarded ad already in progress");
             reject("AD_IN_PROGRESS");
             return;
         }
 
-        console.log("Acquiring Ad Lock...");
-        adInProgress = true;
+        console.log("Starting rewarded ad...");
+        rewardedAdInProgress = true;
 
-        if (typeof window.show_10496645 === 'function') {
-            console.log("Calling Monetag show_10496645()...");
-            window.show_10496645().then(() => {
-                console.log("Ad completed successfully. Releasing lock.");
-                adInProgress = false;
-                resolve(true); // Verification successful
-            }).catch((err) => {
-                console.error("Ad failed, closed, or no fill:", err);
-                console.log("Releasing lock due to error.");
-                adInProgress = false;
-                // UX FIX: More specific error message for no ad availability
-                reject("AD_NOT_AVAILABLE");
-            });
-        } else {
-            console.error("Monetag SDK missing or not loaded.");
-            adInProgress = false;
-            // UX FIX: Better error for SDK not loading
-            reject("AD_SDK_NOT_READY");
-        }
+        window.show_10496645().then(() => {
+            console.log("✅ Rewarded ad completed");
+            rewardedAdInProgress = false;
+            resolve(true);
+        }).catch((err) => {
+            console.error("❌ Rewarded ad failed:", err);
+            rewardedAdInProgress = false;
+            reject("AD_NOT_AVAILABLE");
+        });
     });
 };
 
-// Deprecated: Alias for backward compatibility if needed, but safe version should be used.
+// Alias for backward compatibility
 window.showRewardedAd = window.showRewardedAdSafe;
 
 // ==========================================
 // ADSTERRA STICKY BANNER
 // ==========================================
-// Injects the 320x50 iframe at the bottom of the screen
-// Automatically hides if ad doesn't load within timeout
+
 function injectStickyAd() {
     // Avoid duplicate injections
     if (document.getElementById('adsterra-sticky-container')) return;
 
-    // Create container (initially visible but will hide if no ad loads)
+    console.log("Injecting Adsterra sticky banner...");
+
+    // Create container
     const container = document.createElement('div');
     container.id = 'adsterra-sticky-container';
     container.style.cssText = `
@@ -71,77 +113,56 @@ function injectStickyAd() {
         display: flex;
         justify-content: center;
         align-items: center;
-        pointer-events: auto;
-        opacity: 1;
+        opacity: 0;
         transition: opacity 0.3s ease-out;
     `;
 
-    // Adsterra Config Script
+    // Config script
     const scriptConfig = document.createElement('script');
     scriptConfig.type = 'text/javascript';
-    scriptConfig.innerHTML = `
+    scriptConfig.textContent = `
         atOptions = {
-            'key' : '0eaadd2739774196781aff34110701c4',
-            'format' : 'iframe',
-            'height' : 50,
-            'width' : 320,
-            'params' : {}
+            'key': '0eaadd2739774196781aff34110701c4',
+            'format': 'iframe',
+            'height': 50,
+            'width': 320,
+            'params': {}
         };
     `;
 
-    // Adsterra Invoke Script
+    // Invoke script
     const scriptInvoke = document.createElement('script');
     scriptInvoke.type = 'text/javascript';
-    scriptInvoke.src = '//www.highperformanceformat.com/0eaadd2739774196781aff34110701c4/invoke.js';
+    scriptInvoke.src = 'https://www.highperformanceformat.com/0eaadd2739774196781aff34110701c4/invoke.js';
 
-    // Append to container
     container.appendChild(scriptConfig);
     container.appendChild(scriptInvoke);
-
-    // Append to body
     document.body.appendChild(container);
 
-    // UX FIX: Check if ad loaded within 3 seconds
-    // If no iframe is injected by Adsterra, hide the container
-    let adLoadCheckTimeout = setTimeout(() => {
-        const adIframe = container.querySelector('iframe');
-        if (!adIframe || adIframe.offsetWidth === 0) {
-            console.log("Adsterra banner did not load. Hiding container.");
-            container.style.opacity = '0';
-            setTimeout(() => {
-                container.style.display = 'none';
-                document.body.style.paddingBottom = "0";
-            }, 300); // Wait for fade out
-        } else {
-            console.log("Adsterra banner loaded successfully.");
-            // Ensure body padding is set
+    // Check if ad loaded after 3 seconds
+    setTimeout(() => {
+        const iframe = container.querySelector('iframe');
+        if (iframe && iframe.offsetHeight > 0) {
+            // Ad loaded successfully - show it
+            console.log("✅ Sticky banner loaded");
+            container.style.opacity = '1';
             document.body.style.paddingBottom = "60px";
+        } else {
+            // Ad failed to load - hide completely
+            console.log("⚠️ Sticky banner failed to load - hiding");
+            container.style.display = 'none';
+            document.body.style.paddingBottom = "0";
         }
     }, 3000);
 
-    // Also listen for load event on the script to detect early success
-    scriptInvoke.addEventListener('load', () => {
-        // Give a moment for iframe injection
-        setTimeout(() => {
-            const adIframe = container.querySelector('iframe');
-            if (adIframe && adIframe.offsetWidth > 0) {
-                clearTimeout(adLoadCheckTimeout);
-                console.log("Adsterra banner confirmed loaded via script onload.");
-                document.body.style.paddingBottom = "60px";
-            }
-        }, 500);
-    });
-
+    // Handle script load errors
     scriptInvoke.addEventListener('error', () => {
-        console.error("Adsterra script failed to load.");
-        clearTimeout(adLoadCheckTimeout);
+        console.error("Adsterra script failed to load");
         container.style.display = 'none';
-        document.body.style.paddingBottom = "0";
     });
 }
 
-// Initialize Sticky Ad on load
+// Initialize sticky ad after DOM loads
 document.addEventListener('DOMContentLoaded', () => {
-    // Delay slightly to ensure DOM is ready and page layout is settled
-    setTimeout(injectStickyAd, 100);
+    setTimeout(injectStickyAd, 200);
 });
