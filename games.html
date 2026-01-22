@@ -881,7 +881,7 @@
         <div class="game-modal-inner">
             <div class="game-header">
                 <button class="game-back-btn" onclick="closeGame('quizModal')">← Back to Games</button>
-                <span class="game-plays-header" id="quizPlaysHeader">99 plays left</span>
+                <span class="game-plays-header" id="quizPlaysHeader">5 plays left (Today)</span>
             </div>
             <div class="game-content">
                 <h2>❓ Quiz Game</h2>
@@ -1007,7 +1007,7 @@
             const gamesConfig = [
                 { id: 'spin', icon: '🎡', name: 'Spin & Win', reward: '5-50', maxPlays: 2 },
                 { id: 'tap', icon: '👆', name: 'Tap Challenge', reward: '10-20', maxPlays: 3 },
-                { id: 'quiz', icon: '❓', name: 'Quiz Game', reward: '5/ans', maxPlays: 99 },
+                { id: 'quiz', icon: '❓', name: 'Quiz Game', reward: '5/ans', maxPlays: 5 },
                 { id: 'guess', icon: '🔢', name: 'Guess Number', reward: '20', maxPlays: 2 },
                 { id: 'reaction', icon: '⚡', name: 'Reaction', reward: '10-20', maxPlays: 2 },
                 { id: 'catch', icon: '🎯', name: 'Catch Button', reward: '10-20', maxPlays: 2 }
@@ -1553,63 +1553,407 @@
             }
         }
 
-        // === QUIZ GAME ===
-        const quizQuestions = [
-            { q: 'What is 5 + 7?', options: ['10', '12', '13', '11'], correct: 1 },
-            { q: 'Capital of France?', options: ['London', 'Berlin', 'Paris', 'Rome'], correct: 2 },
-            { q: 'Largest planet?', options: ['Earth', 'Mars', 'Jupiter', 'Saturn'], correct: 2 },
-            { q: 'H2O is?', options: ['Salt', 'Sugar', 'Water', 'Oil'], correct: 2 },
-            { q: 'Days in a week?', options: ['5', '6', '7', '8'], correct: 2 }
+
+        // === ADVANCED QUIZ GAME SYSTEM ===
+        // 200+ Questions with Categories, Difficulties, and True Randomization
+
+        const QUIZ_QUESTION_POOL = [
+            // MATHEMATICS - Easy (20 questions)
+            { id: 1, q: "What is 5 + 7?", options: ["10", "12", "13", "11"], correct: 1, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 2, q: "What is 10 - 3?", options: ["6", "7", "8", "9"], correct: 1, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 3, q: "What is 6 × 2?", options: ["10", "11", "12", "13"], correct: 2, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 4, q: "What is 15 ÷ 3?", options: ["4", "5", "6", "7"], correct: 1, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 5, q: "What is 8 + 8?", options: ["14", "15", "16", "17"], correct: 2, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 6, q: "What is 20 - 5?", options: ["13", "14", "15", "16"], correct: 2, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 7, q: "What is 3 × 4?", options: ["10", "11", "12", "13"], correct: 2, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 8, q: "What is 25 ÷ 5?", options: ["4", "5", "6", "7"], correct: 1, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 9, q: "What is 9 + 6?", options: ["14", "15", "16", "17"], correct: 1, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 10, q: "What is 18 - 9?", options: ["7", "8", "9", "10"], correct: 2, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 11, q: "What is 7 × 3?", options: ["19", "20", "21", "22"], correct: 2, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 12, q: "What is 30 ÷ 6?", options: ["4", "5", "6", "7"], correct: 1, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 13, q: "What is 11 + 9?", options: ["18", "19", "20", "21"], correct: 2, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 14, q: "What is 50 - 25?", options: ["23", "24", "25", "26"], correct: 2, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 15, q: "What is 5 × 5?", options: ["20", "25", "30", "35"], correct: 1, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 16, q: "What is 40 ÷ 8?", options: ["4", "5", "6", "7"], correct: 1, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 17, q: "What is 13 + 7?", options: ["18", "19", "20", "21"], correct: 2, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 18, q: "What is 100 - 50?", options: ["40", "50", "60", "70"], correct: 1, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 19, q: "What is 9 × 2?", options: ["16", "17", "18", "19"], correct: 2, category: "Math", difficulty: "Easy", points: 5 },
+            { id: 20, q: "What is 36 ÷ 6?", options: ["5", "6", "7", "8"], correct: 1, category: "Math", difficulty: "Easy", points: 5 },
+
+            // MATHEMATICS - Medium (20 questions)
+            { id: 21, q: "What is 15% of 200?", options: ["25", "30", "35", "40"], correct: 1, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 22, q: "What is 12²?", options: ["124", "134", "144", "154"], correct: 2, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 23, q: "What is √64?", options: ["6", "7", "8", "9"], correct: 2, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 24, q: "What is 25 × 25?", options: ["525", "575", "625", "675"], correct: 2, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 25, q: "What is 144 ÷ 12?", options: ["11", "12", "13", "14"], correct: 1, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 26, q: "What is 20% of 500?", options: ["90", "95", "100", "105"], correct: 2, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 27, q: "What is 8³?", options: ["484", "504", "512", "524"], correct: 2, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 28, q: "What is √100?", options: ["8", "9", "10", "11"], correct: 2, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 29, q: "What is 33 × 3?", options: ["89", "93", "99", "103"], correct: 2, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 30, q: "What is 225 ÷ 15?", options: ["13", "14", "15", "16"], correct: 2, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 31, q: "What is 50% of 88?", options: ["42", "43", "44", "45"], correct: 2, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 32, q: "What is 15²?", options: ["215", "225", "235", "245"], correct: 1, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 33, q: "What is √169?", options: ["11", "12", "13", "14"], correct: 2, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 34, q: "What is 45 × 4?", options: ["170", "175", "180", "185"], correct: 2, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 35, q: "What is 288 ÷ 12?", options: ["22", "23", "24", "25"], correct: 2, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 36, q: "What is 75% of 120?", options: ["85", "90", "95", "100"], correct: 1, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 37, q: "What is 11²?", options: ["111", "121", "131", "141"], correct: 1, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 38, q: "What is √196?", options: ["12", "13", "14", "15"], correct: 2, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 39, q: "What is 17 × 6?", options: ["96", "100", "102", "106"], correct: 2, category: "Math", difficulty: "Medium", points: 7 },
+            { id: 40, q: "What is 420 ÷ 21?", options: ["18", "19", "20", "21"], correct: 2, category: "Math", difficulty: "Medium", points: 7 },
+
+            // GENERAL KNOWLEDGE - Easy (20 questions)
+            { id: 41, q: "Capital of France?", options: ["London", "Berlin", "Paris", "Rome"], correct: 2, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 42, q: "Largest planet?", options: ["Earth", "Mars", "Jupiter", "Saturn"], correct: 2, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 43, q: "H2O is?", options: ["Salt", "Sugar", "Water", "Oil"], correct: 2, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 44, q: "Days in a week?", options: ["5", "6", "7", "8"], correct: 2, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 45, q: "Months in a year?", options: ["10", "11", "12", "13"], correct: 2, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 46, q: "Continents on Earth?", options: ["5", "6", "7", "8"], correct: 2, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 47, q: "Color of sky?", options: ["Green", "Blue", "Red", "Yellow"], correct: 1, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 48, q: "Capital of USA?", options: ["New York", "Washington DC", "LA", "Chicago"], correct: 1, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 49, q: "Seasons in a year?", options: ["2", "3", "4", "5"], correct: 2, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 50, q: "Largest ocean?", options: ["Atlantic", "Indian", "Pacific", "Arctic"], correct: 2, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 51, q: "Sun rises from?", options: ["West", "East", "North", "South"], correct: 1, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 52, q: "Fastest land animal?", options: ["Lion", "Tiger", "Cheetah", "Leopard"], correct: 2, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 53, q: "Hours in a day?", options: ["20", "22", "24", "26"], correct: 2, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 54, q: "Colors in rainbow?", options: ["5", "6", "7", "8"], correct: 2, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 55, q: "Capital of Japan?", options: ["Seoul", "Tokyo", "Beijing", "Bangkok"], correct: 1, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 56, q: "Smallest continent?", options: ["Europe", "Antarctica", "Australia", "Africa"], correct: 2, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 57, q: "Coldest place?", options: ["Alaska", "Siberia", "Antarctica", "Greenland"], correct: 2, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 58, q: "Tallest mountain?", options: ["K2", "Kilimanjaro", "Everest", "Denali"], correct: 2, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 59, q: "Largest desert?", options: ["Sahara", "Gobi", "Arabian", "Kalahari"], correct: 0, category: "GK", difficulty: "Easy", points: 5 },
+            { id: 60, q: "National bird of USA?", options: ["Eagle", "Hawk", "Falcon", "Owl"], correct: 0, category: "GK", difficulty: "Easy", points: 5 },
+
+            // GENERAL KNOWLEDGE - Medium (20 questions)
+            { id: 61, q: "Who painted Mona Lisa?", options: ["Picasso", "Da Vinci", "Van Gogh", "Michelangelo"], correct: 1, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 62, q: "Speed of light (km/s)?", options: ["250,000", "300,000", "350,000", "400,000"], correct: 1, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 63, q: "Chemical symbol for Gold?", options: ["Go", "Gd", "Au", "Ag"], correct: 2, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 64, q: "Year WW2 ended?", options: ["1943", "1944", "1945", "1946"], correct: 2, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 65, q: "Inventor of telephone?", options: ["Edison", "Bell", "Tesla", "Marconi"], correct: 1, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 66, q: "Capital of Australia?", options: ["Sydney", "Melbourne", "Canberra", "Perth"], correct: 2, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 67, q: "Longest river?", options: ["Amazon", "Nile", "Yangtze", "Mississippi"], correct: 1, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 68, q: "Human bones count?", options: ["196", "206", "216", "226"], correct: 1, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 69, q: "Deepest ocean trench?", options: ["Tonga", "Java", "Mariana", "Puerto Rico"], correct: 2, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 70, q: "Smallest country?", options: ["Monaco", "Vatican", "Malta", "Liechtenstein"], correct: 1, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 71, q: "Who wrote Romeo & Juliet?", options: ["Chaucer", "Milton", "Dickens", "Shakespeare"], correct: 3, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 72, q: "Boiling point of water (°C)?", options: ["90", "95", "100", "105"], correct: 2, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 73, q: "Planet closest to Sun?", options: ["Venus", "Earth", "Mercury", "Mars"], correct: 2, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 74, q: "Inventor of bulb?", options: ["Tesla", "Edison", "Bell", "Franklin"], correct: 1, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 75, q: "Capital of Canada?", options: ["Toronto", "Vancouver", "Ottawa", "Montreal"], correct: 2, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 76, q: "Largest mammal?", options: ["Elephant", "Blue Whale", "Giraffe", "Rhino"], correct: 1, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 77, q: "Chemical symbol for Silver?", options: ["Si", "Sv", "Ag", "Sr"], correct: 2, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 78, q: "Year of moon landing?", options: ["1967", "1968", "1969", "1970"], correct: 2, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 79, q: "Hardest natural substance?", options: ["Steel", "Diamond", "Titanium", "Graphite"], correct: 1, category: "GK", difficulty: "Medium", points: 7 },
+            { id: 80, q: "Number of planets?", options: ["7", "8", "9", "10"], correct: 1, category: "GK", difficulty: "Medium", points: 7 },
+
+            // LOGIC & REASONING - Easy (20 questions)
+            { id: 81, q: "If 2+2=4, what is 3+3?", options: ["5", "6", "7", "8"], correct: 1, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 82, q: "Next in series: 2,4,6,8,?", options: ["9", "10", "11", "12"], correct: 1, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 83, q: "Opposite of Hot?", options: ["Warm", "Cool", "Cold", "Freeze"], correct: 2, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 84, q: "Next letter: A,B,C,D,?", options: ["E", "F", "G", "H"], correct: 0, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 85, q: "Who am I? I have keys but no locks", options: ["Door", "Piano", "Lock", "Safe"], correct: 1, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 86, q: "Complete: Day is to Night as Sun is to?", options: ["Star", "Moon", "Sky", "Cloud"], correct: 1, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 87, q: "Next number: 10,20,30,40,?", options: ["45", "50", "55", "60"], correct: 1, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 88, q: "Odd one out: Dog, Cat, Lion, Car", options: ["Dog", "Cat", "Lion", "Car"], correct: 3, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 89, q: "Complete: Fire is to Hot as Ice is to?", options: ["Water", "Snow", "Cold", "Frozen"], correct: 2, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 90, q: "Next: 1,3,5,7,?", options: ["8", "9", "10", "11"], correct: 1, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 91, q: "Opposite of Day?", options: ["Morning", "Evening", "Night", "Noon"], correct: 2, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 92, q: "Series: 5,10,15,20,?", options: ["22", "24", "25", "27"], correct: 2, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 93, q: "Complete: Pen is to Write as Brush is to?", options: ["Draw", "Paint", "Color", "Sketch"], correct: 1, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 94, q: "Odd one out: Apple, Banana, Carrot, Mango", options: ["Apple", "Banana", "Carrot", "Mango"], correct: 2, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 95, q: "Next letter: M,N,O,P,?", options: ["Q", "R", "S", "T"], correct: 0, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 96, q: "Complete: Happy is to Sad as Laugh is to?", options: ["Smile", "Cry", "Grin", "Giggle"], correct: 1, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 97, q: "Series: 3,6,9,12,?", options: ["13", "14", "15", "16"], correct: 2, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 98, q: "Opposite of Big?", options: ["Large", "Small", "Tiny", "Huge"], correct: 1, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 99, q: "Next: 100,90,80,70,?", options: ["50", "55", "60", "65"], correct: 2, category: "Logic", difficulty: "Easy", points: 5 },
+            { id: 100, q: "Complete: Book is to Read as Music is to?", options: ["Hear", "Play", "Listen", "Sing"], correct: 2, category: "Logic", difficulty: "Easy", points: 5 },
+
+            // LOGIC & REASONING - Medium (20 questions)
+            { id: 101, q: "If A=1, B=2, C=3, what is CAB?", options: ["312", "321", "123", "213"], correct: 0, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 102, q: "Pattern: 2,6,12,20,? (n²+n)", options: ["28", "30", "32", "34"], correct: 1, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 103, q: "Analogy: Doctor:Hospital :: Teacher:?", options: ["Student", "Book", "School", "Class"], correct: 2, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 104, q: "Sequence: 1,1,2,3,5,8,? (Fibonacci)", options: ["11", "12", "13", "14"], correct: 2, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 105, q: "If all Flurps are Glurps, and some Glurps are Blurps, are all Flurps Blurps?", options: ["Yes", "No", "Maybe", "Cannot say"], correct: 3, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 106, q: "Pattern: 3,9,27,81,? (×3)", options: ["162", "243", "324", "405"], correct: 1, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 107, q: "Word opposite in meaning: Generous", options: ["Kind", "Selfish", "Giving", "Helpful"], correct: 1, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 108, q: "Next in pattern: AZ, BY, CX, DW, ?", options: ["EV", "EU", "FV", "FU"], correct: 0, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 109, q: "If 5 cats catch 5 rats in 5 min, how many for 100 rats?", options: ["20 cats", "50 cats", "5 cats", "100 cats"], correct: 2, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 110, q: "Missing number: 4,9,16,25,? (squares)", options: ["30", "32", "34", "36"], correct: 3, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 111, q: "Analogy: Hand:Glove :: Foot:?", options: ["Boot", "Sock", "Shoe", "Sandal"], correct: 2, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 112, q: "Series: 2,4,8,16,? (×2)", options: ["24", "28", "32", "36"], correct: 2, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 113, q: "Complete: Lion:Pride :: Bee:?", options: ["Hive", "Swarm", "Colony", "Nest"], correct: 1, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 114, q: "Pattern: 1,4,9,16,25,? (n²)", options: ["30", "36", "42", "49"], correct: 1, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 115, q: "If TRADE=86412, what is READ?", options: ["6214", "8142", "4261", "6124"], correct: 2, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 116, q: "Missing: 100,81,64,49,? (descending squares)", options: ["40", "36", "32", "25"], correct: 1, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 117, q: "Analogy: Painter:Brush :: Writer:?", options: ["Book", "Paper", "Pen", "Ink"], correct: 2, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 118, q: "Series: 7,14,21,28,? (×7)", options: ["32", "33", "34", "35"], correct: 3, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 119, q: "Next letter series: ACE, FHJ, KMO, ?", options: ["NPR", "PRT", "PRV", "NQS"], correct: 1, category: "Logic", difficulty: "Medium", points: 7 },
+            { id: 120, q: "Pattern: 5,25,125,? (×5)", options: ["525", "625", "725", "825"], correct: 1, category: "Logic", difficulty: "Medium", points: 7 },
+
+            // ENGLISH & VOCABULARY - Easy (20 questions)
+            { id: 121, q: "Synonym of Happy?", options: ["Sad", "Joyful", "Angry", "Tired"], correct: 1, category: "English", difficulty: "Easy", points: 5 },
+            { id: 122, q: "Antonym of Good?", options: ["Great", "Nice", "Bad", "Fine"], correct: 2, category: "English", difficulty: "Easy", points: 5 },
+            { id: 123, q: "Plural of Child?", options: ["Childs", "Childes", "Children", "Childrens"], correct: 2, category: "English", difficulty: "Easy", points: 5 },
+            { id: 124, q: "Past tense of Go?", options: ["Goed", "Gone", "Went", "Going"], correct: 2, category: "English", difficulty: "Easy", points: 5 },
+            { id: 125, q: "A person who writes books?", options: ["Reader", "Author", "Publisher", "Editor"], correct: 1, category: "English", difficulty: "Easy", points: 5 },
+            { id: 126, q: "Synonym of Big?", options: ["Small", "Large", "Tiny", "Little"], correct: 1, category: "English", difficulty: "Easy", points: 5 },
+            { id: 127, q: "Antonym of Hot?", options: ["Warm", "Cool", "Cold", "Mild"], correct: 2, category: "English", difficulty: "Easy", points: 5 },
+            { id: 128, q: "Plural of Mouse?", options: ["Mouses", "Mices", "Mice", "Meese"], correct: 2, category: "English", difficulty: "Easy", points: 5 },
+            { id: 129, q: "Past tense of Eat?", options: ["Eated", "Eaten", "Ate", "Eating"], correct: 2, category: "English", difficulty: "Easy", points: 5 },
+            { id: 130, q: "Opposite of Dark?", options: ["Dim", "Bright", "Light", "White"], correct: 2, category: "English", difficulty: "Easy", points: 5 },
+            { id: 131, q: "Synonym of Fast?", options: ["Slow", "Quick", "Lazy", "Calm"], correct: 1, category: "English", difficulty: "Easy", points: 5 },
+            { id: 132, q: "Plural of Foot?", options: ["Foots", "Feets", "Feet", "Footes"], correct: 2, category: "English", difficulty: "Easy", points: 5 },
+            { id: 133, q: "Past tense of Run?", options: ["Runned", "Running", "Ran", "Run"], correct: 2, category: "English", difficulty: "Easy", points: 5 },
+            { id: 134, q: "Antonym of Easy?", options: ["Simple", "Hard", "Soft", "Light"], correct: 1, category: "English", difficulty: "Easy", points: 5 },
+            { id: 135, q: "Synonym of Smart?", options: ["Dumb", "Clever", "Foolish", "Stupid"], correct: 1, category: "English", difficulty: "Easy", points: 5 },
+            { id: 136, q: "Plural of Tooth?", options: ["Tooths", "Teeth", "Toothes", "Teeths"], correct: 1, category: "English", difficulty: "Easy", points: 5 },
+            { id: 137, q: "Past tense of See?", options: ["Seed", "Seen", "Saw", "Seeing"], correct: 2, category: "English", difficulty: "Easy", points: 5 },
+            { id: 138, q: "Opposite of Old?", options: ["Ancient", "Young", "New", "Fresh"], correct: 1, category: "English", difficulty: "Easy", points: 5 },
+            { id: 139, q: "Synonym of Begin?", options: ["End", "Start", "Stop", "Finish"], correct: 1, category: "English", difficulty: "Easy", points: 5 },
+            { id: 140, q: "Plural of Man?", options: ["Mans", "Mens", "Men", "Manes"], correct: 2, category: "English", difficulty: "Easy", points: 5 },
+
+            // TECHNOLOGY & SCIENCE - Easy (20 questions)
+            { id: 141, q: "WWW stands for?", options: ["World Wide Web", "Web World Wide", "Wide World Web", "World Web Wide"], correct: 0, category: "Tech", difficulty: "Easy", points: 5 },
+            { id: 142, q: "CPU stands for?", options: ["Computer Process Unit", "Central Processing Unit", "Central Process Unit", "Computer Processing Unit"], correct: 1, category: "Tech", difficulty: "Easy", points: 5 },
+            { id: 143, q: "RAM stands for?", options: ["Read Access Memory", "Random Access Memory", "Run Access Memory", "Real Access Memory"], correct: 1, category: "Tech", difficulty: "Easy", points: 5 },
+            { id: 144, q: "Planets orbit around?", options: ["Moon", "Earth", "Sun", "Stars"], correct: 2, category: "Science", difficulty: "Easy", points: 5 },
+            { id: 145, q: "Water freezes at?", options: ["0°C", "10°C", "32°C", "100°C"], correct: 0, category: "Science", difficulty: "Easy", points: 5 },
+            { id: 146, q: "Primary colors?", options: ["Red Blue Yellow", "Red Green Blue", "Yellow Green Blue", "Red Orange Yellow"], correct: 0, category: "Science", difficulty: "Easy", points: 5 },
+            { id: 147, q: "Earth's satellite?", options: ["Sun", "Mars", "Moon", "Venus"], correct: 2, category: "Science", difficulty: "Easy", points: 5 },
+            { id: 148, q: "USB stands for?", options: ["Universal Serial Bus", "United Serial Bus", "Universal System Bus", "United System Bus"], correct: 0, category: "Tech", difficulty: "Easy", points: 5 },
+            { id: 149, q: "Lightning is a form of?", options: ["Water", "Electricity", "Fire", "Wind"], correct: 1, category: "Science", difficulty: "Easy", points: 5 },
+            { id: 150, q: "HTML stands for?", options: ["Hypertext Markup Language", "Hyperlink Markup Language", "Hypertext Mark Language", "Hyperlink Mark Language"], correct: 0, category: "Tech", difficulty: "Easy", points: 5 },
+            { id: 151, q: "Oxygen's chemical symbol?", options: ["Ox", "O", "O2", "Og"], correct: 1, category: "Science", difficulty: "Easy", points: 5 },
+            { id: 152, q: "PDF stands for?", options: ["Portable Document Format", "Personal Document Format", "Portable Data Format", "Personal Data Format"], correct: 0, category: "Tech", difficulty: "Easy", points: 5 },
+            { id: 153, q: "Largest organ in human body?", options: ["Brain", "Heart", "Liver", "Skin"], correct: 3, category: "Science", difficulty: "Easy", points: 5 },
+            { id: 154, q: "GPS stands for?", options: ["Global Position System", "Global Positioning System", "General Position System", "General Positioning System"], correct: 1, category: "Tech", difficulty: "Easy", points: 5 },
+            { id: 155, q: "Plants produce oxygen through?", options: ["Respiration", "Digestion", "Photosynthesis", "Transpiration"], correct: 2, category: "Science", difficulty: "Easy", points: 5 },
+            { id: 156, q: "URL stands for?", options: ["Uniform Resource Locator", "Universal Resource Locator", "Uniform Reference Locator", "Universal Reference Locator"], correct: 0, category: "Tech", difficulty: "Easy", points: 5 },
+            { id: 157, q: "Sound travels fastest in?", options: ["Air", "Water", "Solid", "Vacuum"], correct: 2, category: "Science", difficulty: "Easy", points: 5 },
+            { id: 158, q: "WiFi stands for?", options: ["Wireless Fidelity", "Wire Fidelity", "Wireless Field", "Wire Field"], correct: 0, category: "Tech", difficulty: "Easy", points: 5 },
+            { id: 159, q: "Humans have how many senses?", options: ["4", "5", "6", "7"], correct: 1, category: "Science", difficulty: "Easy", points: 5 },
+            { id: 160, q: "AI stands for?", options: ["Artificial Intelligence", "Actual Intelligence", "Artificial Information", "Actual Information"], correct: 0, category: "Tech", difficulty: "Easy", points: 5 },
+
+            // MATHEMATICS - Hard (10 questions)
+            { id: 161, q: "What is 17 × 23?", options: ["381", "391", "401", "411"], correct: 1, category: "Math", difficulty: "Hard", points: 10 },
+            { id: 162, q: "What is 729 ÷ 27?", options: ["25", "26", "27", "28"], correct: 2, category: "Math", difficulty: "Hard", points: 10 },
+            { id: 163, q: "What is 25% of 640?", options: ["150", "155", "160", "165"], correct: 2, category: "Math", difficulty: "Hard", points: 10 },
+            { id: 164, q: "What is 13³?", options: ["2187", "2197", "2207", "2217"], correct: 1, category: "Math", difficulty: "Hard", points: 10 },
+            { id: 165, q: "What is √225?", options: ["13", "14", "15", "16"], correct: 2, category: "Math", difficulty: "Hard", points: 10 },
+            { id: 166, q: "What is 999 + 888 + 777?", options: ["2554", "2664", "2774", "2884"], correct: 1, category: "Math", difficulty: "Hard", points: 10 },
+            { id: 167, q: "What is 48 × 12?", options: ["566", "576", "586", "596"], correct: 1, category: "Math", difficulty: "Hard", points: 10 },
+            { id: 168, q: "What is 1440 ÷ 48?", options: ["28", "29", "30", "31"], correct: 2, category: "Math", difficulty: "Hard", points: 10 },
+            { id: 169, q: "What is 35% of 280?", options: ["88", "92", "98", "102"], correct: 2, category: "Math", difficulty: "Hard", points: 10 },
+            { id: 170, q: "What is √289?", options: ["15", "16", "17", "18"], correct: 2, category: "Math", difficulty: "Hard", points: 10 },
+
+            // GENERAL KNOWLEDGE - Hard (10 questions)
+            { id: 171, q: "Who invented the printing press?", options: ["Da Vinci", "Newton", "Gutenberg", "Edison"], correct: 2, category: "GK", difficulty: "Hard", points: 10 },
+            { id: 172, q: "Which year did Titanic sink?", options: ["1910", "1911", "1912", "1913"], correct: 2, category: "GK", difficulty: "Hard", points: 10 },
+            { id: 173, q: "Noble gas with atomic number 18?", options: ["Neon", "Argon", "Krypton", "Xenon"], correct: 1, category: "GK", difficulty: "Hard", points: 10 },
+            { id: 174, q: "Author of 'War and Peace'?", options: ["Dostoevsky", "Tolstoy", "Chekhov", "Pushkin"], correct: 1, category: "GK", difficulty: "Hard", points: 10 },
+            { id: 175, q: "Longest bone in human body?", options: ["Tibia", "Humerus", "Femur", "Radius"], correct: 2, category: "GK", difficulty: "Hard", points: 10 },
+            { id: 176, q: "pH value of pure water?", options: ["6", "7", "8", "9"], correct: 1, category: "GK", difficulty: "Hard", points: 10 },
+            { id: 177, q: "Currency of Switzerland?", options: ["Euro", "Franc", "Krone", "Mark"], correct: 1, category: "GK", difficulty: "Hard", points: 10 },
+            { id: 178, q: "Highest waterfall in the world?", options: ["Niagara", "Victoria", "Angel", "Iguazu"], correct: 2, category: "GK", difficulty: "Hard", points: 10 },
+            { id: 179, q: "Number of elements in periodic table?", options: ["108", "110", "116", "118"], correct: 3, category: "GK", difficulty: "Hard", points: 10 },
+            { id: 180, q: "Smallest bone in human body?", options: ["Stapes", "Incus", "Malleus", "Hammer"], correct: 0, category: "GK", difficulty: "Hard", points: 10 },
+
+            // LOGIC & REASONING - Hard (10 questions)
+            { id: 181, q: "If 5 workers build 1 house in 10 days, how many workers for 5 houses in 10 days?", options: ["10", "15", "20", "25"], correct: 3, category: "Logic", difficulty: "Hard", points: 10 },
+            { id: 182, q: "Missing: 2,6,12,20,30,? (n²+n)", options: ["40", "42", "44", "46"], correct: 1, category: "Logic", difficulty: "Hard", points: 10 },
+            { id: 183, q: "If DEAR=1324 and FEAR=5324, what is FARE?", options: ["5314", "5341", "5134", "5143"], correct: 0, category: "Logic", difficulty: "Hard", points: 10 },
+            { id: 184, q: "Series: 3,7,15,31,63,? (2n+1)", options: ["125", "126", "127", "128"], correct: 2, category: "Logic", difficulty: "Hard", points: 10 },
+            { id: 185, q: "Which doesn't belong: 16,25,36,48,64?", options: ["16", "25", "48", "64"], correct: 2, category: "Logic", difficulty: "Hard", points: 10 },
+            { id: 186, q: "Next: 1,1,2,6,24,? (factorial pattern)", options: ["100", "110", "120", "130"], correct: 2, category: "Logic", difficulty: "Hard", points: 10 },
+            { id: 187, q: "If all Bloops are Razzies and all Razzies are Lazzies, then all Bloops are definitely?", options: ["Wazzies", "Lazzies", "Fazzies", "Unknown"], correct: 1, category: "Logic", difficulty: "Hard", points: 10 },
+            { id: 188, q: "Pattern: 1,8,27,64,125,? (cubes)", options: ["186", "196", "206", "216"], correct: 3, category: "Logic", difficulty: "Hard", points: 10 },
+            { id: 189, q: "Missing number: 2,3,5,7,11,13,? (primes)", options: ["15", "16", "17", "18"], correct: 2, category: "Logic", difficulty: "Hard", points: 10 },
+            { id: 190, q: "If BAD=214, CAB=312, what is DECADE?", options: ["454214", "413124", "145124", "451214"], correct: 0, category: "Logic", difficulty: "Hard", points: 10 },
+
+            // ENGLISH - Medium (10 questions)
+            { id: 191, q: "Synonym of Generous?", options: ["Selfish", "Liberal", "Greedy", "Mean"], correct: 1, category: "English", difficulty: "Medium", points: 7 },
+            { id: 192, q: "Antonym of Ancient?", options: ["Old", "Modern", "Historic", "Classic"], correct: 1, category: "English", difficulty: "Medium", points: 7 },
+            { id: 193, q: "Which is correctly spelled?", options: ["Occassion", "Occasion", "Ocassion", "Occacion"], correct: 1, category: "English", difficulty: "Medium", points: 7 },
+            { id: 194, q: "Idiom: 'Break the ice' means?", options: ["To freeze", "To initiate", "To break", "To cool"], correct: 1, category: "English", difficulty: "Medium", points: 7 },
+            { id: 195, q: "Collective noun for lions?", options: ["Pack", "Herd", "Pride", "Flock"], correct: 2, category: "English", difficulty: "Medium", points: 7 },
+            { id: 196, q: "Synonym of Absurd?", options: ["Sensible", "Logical", "Ridiculous", "Reasonable"], correct: 2, category: "English", difficulty: "Medium", points: 7 },
+            { id: 197, q: "Antonym of Temporary?", options: ["Brief", "Short", "Permanent", "Quick"], correct: 2, category: "English", difficulty: "Medium", points: 7 },
+            { id: 198, q: "Past participle of 'Drink'?", options: ["Drank", "Drunk", "Drinked", "Drink"], correct: 1, category: "English", difficulty: "Medium", points: 7 },
+            { id: 199, q: "'Piece of cake' means?", options: ["Dessert", "Easy", "Sweet", "Difficult"], correct: 1, category: "English", difficulty: "Medium", points: 7 },
+            { id: 200, q: "Synonym of Evident?", options: ["Hidden", "Obscure", "Obvious", "Vague"], correct: 2, category: "English", difficulty: "Medium", points: 7 },
+
+            // TECHNOLOGY - Medium (10 questions)
+            { id: 201, q: "Binary for decimal 10?", options: ["1000", "1001", "1010", "1011"], correct: 2, category: "Tech", difficulty: "Medium", points: 7 },
+            { id: 202, q: "Creator of Linux?", options: ["Bill Gates", "Steve Jobs", "Linus Torvalds", "Mark Zuckerberg"], correct: 2, category: "Tech", difficulty: "Medium", points: 7 },
+            { id: 203, q: "HTTP stands for?", options: ["Hypertext Transfer Protocol", "Hyperlink Transfer Protocol", "Hypertext Transport Protocol", "Hyperlink Transport Protocol"], correct: 0, category: "Tech", difficulty: "Medium", points: 7 },
+            { id: 204, q: "Which language is Python?", options: ["Low-level", "Assembly", "High-level", "Machine"], correct: 2, category: "Tech", difficulty: "Medium", points: 7 },
+            { id: 205, q: "Founder of Facebook?", options: ["Bill Gates", "Mark Zuckerberg", "Steve Jobs", "Elon Musk"], correct: 1, category: "Tech", difficulty: "Medium", points: 7 },
+            { id: 206, q: "SQL stands for?", options: ["Structured Query Language", "Simple Query Language", "Structured Question Language", "Simple Question Language"], correct: 0, category: "Tech", difficulty: "Medium", points: 7 },
+            { id: 207, q: "Which protocol for sending email?", options: ["FTP", "HTTP", "SMTP", "TCP"], correct: 2, category: "Tech", difficulty: "Medium", points: 7 },
+            { id: 208, q: "First computer programmer?", options: ["Grace Hopper", "Ada Lovelace", "Alan Turing", "Charles Babbage"], correct: 1, category: "Tech", difficulty: "Medium", points: 7 },
+            { id: 209, q: "JSON stands for?", options: ["JavaScript Object Notation", "Java System Object Notation", "JavaScript Online Notation", "Java Standard Object Notation"], correct: 0, category: "Tech", difficulty: "Medium", points: 7 },
+            { id: 210, q: "Year iPhone was released?", options: ["2005", "2006", "2007", "2008"], correct: 2, category: "Tech", difficulty: "Medium", points: 7 }
         ];
-        let quizScore = 0, quizIndex = 0;
+
+        // Quiz state
+        let currentQuizSession = [];
+        let quizIndex = 0;
+        let quizScore = 0;
+        let quizMaxScore = 0;
+
+        // Fisher-Yates Shuffle Algorithm
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Get recently played questions from localStorage
+        function getRecentQuestions() {
+            try {
+                const stored = localStorage.getItem('quiz_recent_questions');
+                return stored ? JSON.parse(stored) : [];
+            } catch {
+                return [];
+            }
+        }
+
+        // Save recently played questions
+        function saveRecentQuestion(questionId) {
+            try {
+                let recent = getRecentQuestions();
+                recent.unshift(questionId);
+                // Keep only last 50 questions
+                if (recent.length > 50) recent = recent.slice(0, 50);
+                localStorage.setItem('quiz_recent_questions', JSON.stringify(recent));
+            } catch (e) {
+                console.error("Failed to save recent question:", e);
+            }
+        }
+
+        // Select random questions with balanced difficulty
+        function selectQuizQuestions(count = 10) {
+            const recentIds = getRecentQuestions();
+
+            // Filter out recently played questions
+            const availableQuestions = QUIZ_QUESTION_POOL.filter(q => !recentIds.includes(q.id));
+
+            // If less than count available, use entire pool
+            const pool = availableQuestions.length >= count ? availableQuestions : QUIZ_QUESTION_POOL;
+
+            // Shuffle the pool
+            const shuffled = shuffleArray(pool);
+
+            // Select balanced mix: 4 Easy, 4 Medium, 2 Hard
+            const easyQuestions = shuffled.filter(q => q.difficulty === "Easy");
+            const mediumQuestions = shuffled.filter(q => q.difficulty === "Medium");
+            const hardQuestions = shuffled.filter(q => q.difficulty === "Hard");
+
+            const selected = [
+                ...easyQuestions.slice(0, 4),
+                ...mediumQuestions.slice(0, 4),
+                ...hardQuestions.slice(0, 2)
+            ];
+
+            // Shuffle the final selection
+            return shuffleArray(selected);
+        }
 
         function startQuiz() {
             quizScore = 0;
             quizIndex = 0;
-            document.getElementById('quizScore').textContent = 'Score: 0';
-            document.getElementById('quizResult').textContent = '';
+
+            // Select random questions for this session
+            currentQuizSession = selectQuizQuestions(10);
+            quizMaxScore = currentQuizSession.reduce((sum, q) => sum + q.points, 0);
+
+            document.getElementById('quizScore').textContent = `Score: 0/${quizMaxScore}`;
+            document.getElementById('quizResult').innerHTML = '';
+            document.getElementById('quizPostGame').classList.remove('show');
+
             showQuestion();
         }
 
         function showQuestion() {
-            if (quizIndex >= quizQuestions.length) {
+            if (quizIndex >= currentQuizSession.length) {
                 endQuiz();
                 return;
             }
-            const q = quizQuestions[quizIndex];
-            document.getElementById('quizQuestion').textContent = `Q${quizIndex + 1}: ${q.q}`;
+
+            const q = currentQuizSession[quizIndex];
+
+            // Save to recent history
+            saveRecentQuestion(q.id);
+
+            // Update UI with progress and metadata
+            const difficultyColor = q.difficulty === "Easy" ? "#10b981" : q.difficulty === "Medium" ? "#f59e0b" : "#ef4444";
+            const categoryEmoji = {
+                "Math": "🔢",
+                "GK": "🌍",
+                "Logic": "🧩",
+                "English": "📚",
+                "Tech": "💻",
+                "Science": "🔬"
+            };
+
+            document.getElementById('quizQuestion').innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+                    <span style="font-size:12px;color:#666;">Question ${quizIndex + 1} of ${currentQuizSession.length}</span>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <span style="font-size:11px;padding:3px 8px;background:${difficultyColor};color:white;border-radius:12px;font-weight:600;">${q.difficulty}</span>
+                        <span style="font-size:11px;padding:3px 8px;background:#6366f1;color:white;border-radius:12px;">${categoryEmoji[q.category] || ""} ${q.category}</span>
+                        <span style="font-size:11px;padding:3px 8px;background:#10b981;color:white;border-radius:12px;">+${q.points} pts</span>
+                    </div>
+                </div>
+                <div style="font-size:16px;font-weight:600;color:#333;margin-top:8px;">${q.q}</div>
+            `;
+
             document.getElementById('quizOptions').innerHTML = q.options.map((opt, i) =>
                 `<button class="quiz-option" onclick="answerQuiz(${i})">${opt}</button>`
             ).join('');
         }
 
         function answerQuiz(index) {
-            const q = quizQuestions[quizIndex];
+            const q = currentQuizSession[quizIndex];
             const buttons = document.querySelectorAll('.quiz-option');
+
             buttons.forEach((btn, i) => {
                 btn.disabled = true;
                 if (i === q.correct) btn.classList.add('correct');
                 else if (i === index) btn.classList.add('wrong');
             });
 
-            if (index === q.correct) quizScore += 5;
-            document.getElementById('quizScore').textContent = 'Score: ' + quizScore;
+            if (index === q.correct) {
+                quizScore += q.points;
+            }
 
-            setTimeout(() => { quizIndex++; showQuestion(); }, 1000);
+            document.getElementById('quizScore').textContent = `Score: ${quizScore}/${quizMaxScore}`;
+
+            setTimeout(() => {
+                quizIndex++;
+                showQuestion();
+            }, 1000);
         }
 
         async function endQuiz() {
-            document.getElementById('quizQuestion').textContent = 'Quiz Complete!';
+            document.getElementById('quizQuestion').innerHTML = `
+                <div style="text-align:center;font-size:20px;font-weight:bold;color:#6366f1;">
+                    🎓 Quiz Complete!
+                </div>
+            `;
             document.getElementById('quizOptions').innerHTML = '';
 
             const resultEl = document.getElementById('quizResult');
-            let reward = quizScore; // 1:1 conversion
+            const reward = quizScore;
 
             if (reward > 0) {
                 resultEl.innerHTML = `
                     <div class="game-result-box">
                         <div class="result-emoji">🧠</div>
-                        <div class="result-score">Final Score: ${quizScore}/25</div>
+                        <div class="result-score">Score: ${quizScore}/${quizMaxScore}</div>
                         <div class="result-reward processing">Verifying...</div>
                     </div>
                 `;
@@ -1617,12 +1961,16 @@
                 const earned = await submitReward('quiz', quizScore, reward, null);
 
                 if (earned > 0) {
+                    const percentage = Math.round((quizScore / quizMaxScore) * 100);
+                    const grade = percentage >= 90 ? "A+" : percentage >= 80 ? "A" : percentage >= 70 ? "B" : percentage >= 60 ? "C" : "D";
+
                     resultEl.innerHTML = `
                         <div class="game-result-box">
                             <div class="result-emoji">🎉</div>
-                            <div class="result-score">Score: ${quizScore}/25</div>
+                            <div class="result-score">Score: ${quizScore}/${quizMaxScore} (${percentage}%)</div>
+                            <div style="font-size:24px;font-weight:bold;color:#6366f1;margin:8px 0;">Grade: ${grade}</div>
                             <div class="result-reward win">✓ +${earned} Coins Added!</div>
-                            <div class="result-message">Smart move!</div>
+                            <div class="result-message">Brilliant work!</div>
                         </div>
                     `;
                     document.getElementById('quizPostGame').classList.add('show');
@@ -1630,7 +1978,7 @@
                     resultEl.innerHTML = `
                         <div class="game-result-box">
                             <div class="result-emoji">❌</div>
-                            <div class="result-score">Score: ${quizScore}/25</div>
+                            <div class="result-score">Score: ${quizScore}/${quizMaxScore}</div>
                             <div class="result-reward lose">Reward Failed</div>
                             <div class="result-message">Could not add coins</div>
                         </div>
@@ -1640,9 +1988,9 @@
                 resultEl.innerHTML = `
                     <div class="game-result-box">
                         <div class="result-emoji">😔</div>
-                        <div class="result-score">Score: 0/25</div>
+                        <div class="result-score">Score: 0/${quizMaxScore}</div>
                         <div class="result-reward lose">Reward: 0 Coins</div>
-                        <div class="result-message">Better luck next time!</div>
+                        <div class="result-message">Study harder next time!</div>
                     </div>
                 `;
                 resultEl.innerHTML += `<button onclick="startQuiz()" class="action-btn" style="margin-top:10px;">TRY AGAIN</button>`;
