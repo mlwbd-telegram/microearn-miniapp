@@ -5,29 +5,47 @@
 // ==========================================
 // MONETAG REWARDED ADS
 // ==========================================
-// Wrapper for Monetag's show_10496645() function
-window.showRewardedAd = function () {
+
+// Global Lock Variable
+let adInProgress = false;
+
+// Safe wrapper for Monetag's show_10496645() function
+// Prevents multiple concurrent ad calls
+window.showRewardedAdSafe = function () {
     return new Promise((resolve, reject) => {
-        console.log("Attempting to show Monetag Rewarded Ad...");
+        if (adInProgress) {
+            console.warn("Global Ad Lock: Ad already in progress. Ignoring new request.");
+            reject("AD_IN_PROGRESS");
+            return;
+        }
+
+        console.log("Acquiring Ad Lock...");
+        adInProgress = true;
 
         if (typeof window.show_10496645 === 'function') {
+            console.log("Calling Monetag show_10496645()...");
             window.show_10496645().then(() => {
-                console.log("Ad completed. Granting reward.");
-                resolve(true);
+                console.log("Ad completed successfully. Releasing lock.");
+                adInProgress = false;
+                resolve(true); // Verification successful
             }).catch((err) => {
-                console.error("Ad failed or closed:", err);
+                console.error("Ad failed, closed, or no fill:", err);
+                console.log("Releasing lock due to error.");
+                adInProgress = false;
                 reject("AD_FAILED_OR_CLOSED");
             });
         } else {
-            console.error("Monetag SDK not loaded or function show_10496645 not found.");
-            // Fallback for testing/debugging? 
-            // STRICT RULE: "Rewards must be given ONLY after ad completion callback."
-            // So we generally fail here.
-            alert("Ad failed to load. Please check your internet connection or try again later.");
+            console.error("Monetag SDK missing.");
+            adInProgress = false;
+            // Fail gracefully
+            alert("Ad System not ready. Please wait or reload.");
             reject("SDK_MISSING");
         }
     });
 };
+
+// Deprecated: Alias for backward compatibility if needed, but safe version should be used.
+window.showRewardedAd = window.showRewardedAdSafe;
 
 // ==========================================
 // ADSTERRA STICKY BANNER
