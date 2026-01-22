@@ -1063,130 +1063,67 @@
             document.getElementById('greeting').textContent = `${emoji} ${text}`;
         }
 
-        // ========== DAILY INCOME WITH FORCED FULLSCREEN AD ==========
-        let dailyAdWatching = false;
-        let dailyAdCompleted = false;
-        let adTimer = null;
-
+        // ========== DAILY INCOME LOGIC ==========
         async function handleDailyIncome() {
-            if (dailyAdWatching) {
-                showToast('⏳ Ad already in progress...');
-                return;
-            }
-
-            // Show fullscreen ad immediately
-            dailyAdWatching = true;
-            dailyAdCompleted = false;
-            showFullscreenAd();
-        }
-
-        function showFullscreenAd() {
-            const overlay = document.getElementById('fullscreenAdOverlay');
-            const progressBar = document.getElementById('adProgressBar');
-            const timerText = document.getElementById('adTimerText');
-            const statusText = document.getElementById('adStatusText');
-
-            overlay.classList.add('show');
-            progressBar.style.width = '0%';
-            statusText.style.display = 'none';
-
-            // Force 10 second ad watch
-            const adDuration = 10; // seconds
-            let elapsed = 0;
-
-            // Block back navigation during ad
-            window.history.pushState(null, null, window.location.href);
-            window.addEventListener('popstate', preventNavigation);
-
-            adTimer = setInterval(() => {
-                elapsed++;
-                const progress = (elapsed / adDuration) * 100;
-                progressBar.style.width = progress + '%';
-                timerText.textContent = `Please watch: ${adDuration - elapsed} seconds remaining`;
-
-                if (elapsed >= adDuration) {
-                    clearInterval(adTimer);
-                    dailyAdCompleted = true;
-                    completeAdAndCreditDailyIncome();
-                }
-            }, 1000);
-        }
-
-        function preventNavigation(e) {
-            if (dailyAdWatching && !dailyAdCompleted) {
-                window.history.pushState(null, null, window.location.href);
-            }
-        }
-
-        async function completeAdAndCreditDailyIncome() {
-            const statusText = document.getElementById('adStatusText');
-            const timerText = document.getElementById('adTimerText');
-
-            timerText.textContent = 'Ad complete!';
-            statusText.textContent = '⏳ Processing reward...';
-            statusText.style.display = 'block';
-
-            // Remove navigation block
-            window.removeEventListener('popstate', preventNavigation);
-
             try {
+                // Check if already claimed
+                const statusResponse = await fetch(`${BACKEND_URL}/api/earn/daily-status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ initData: tg.initData })
+                });
+                const statusData = await statusResponse.json();
+
+                if (statusData.claimed) {
+                    showToast('✅ Already collected today!');
+                    return;
+                }
+
+                showToast('⏳ checking ad...');
+
+                // Show Monetag Rewarded Ad SAFE
+                await window.showRewardedAdSafe();
+
+                // If successful (promise resolved), claim reward
+                showToast('✅ Ad watched! Claiming reward...');
+
                 const response = await fetch(`${BACKEND_URL}/api/earn/daily`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        initData: tg.initData,
-                        ad_watched: true // Backend can verify this flag
-                    })
+                    body: JSON.stringify({ initData: tg.initData })
                 });
-
                 const data = await response.json();
 
                 if (data.success) {
-                    statusText.textContent = `✓ +${data.amount} coins added successfully!`;
-                    statusText.style.color = '#00ff88';
+                    updateBalance(data.newBalance);
+                    showToast(`🎉 +${data.reward} coins collected!`);
 
-                    // Update balance
-                    if (userData) {
-                        userData.balance = data.new_balance;
-                        userData.total_earned = (userData.total_earned || 0) + (data.amount || 0);
+                    // Update UI
+                    document.getElementById('dailySubtitle').textContent = '✅ Checked in';
+                    document.querySelector('.earn-card[onclick="handleDailyIncome()"]').classList.add('disabled');
+
+                    // Check invalid clicks
+                    if (data.invalid_clicks_warning) {
+                        alert(data.invalid_clicks_warning);
                     }
-                    updateUI();
-
-                    // Close overlay after 2 seconds
-                    setTimeout(() => {
-                        closeFullscreenAd();
-                        showToast(`🎉 Daily income collected! +${data.amount} coins`);
-                        loadHistory();
-                    }, 2000);
                 } else {
-                    statusText.textContent = `❌ ${data.error || 'Already collected today'}`;
-                    statusText.style.color = '#ff6b6b';
-
-                    setTimeout(() => {
-                        closeFullscreenAd();
-                        showToast(`❌ ${data.error || 'Already collected today'}`);
-                    }, 2000);
+                    showToast('❌ ' + data.error);
                 }
+
             } catch (error) {
-                console.error('Daily income error:', error);
-                statusText.textContent = `❌ Network error: ${error.message}`;
-                statusText.style.color = '#ff6b6b';
-
-                setTimeout(() => {
-                    closeFullscreenAd();
-                    showToast(`❌ Network error`);
-                }, 2000);
+                console.error(error);
+                if (error === "AD_FAILED_OR_CLOSED") {
+                    showToast('❌ Ad was closed or failed. No reward.');
+                } else if (error === "AD_IN_PROGRESS") {
+                    showToast('⚠️ Ad is already playing...');
+                } else if (error === "SDK_MISSING") {
+                    showToast('⚠️ Ad System Loading... Please wait a moment.');
+                } else {
+                    showToast('❌ Error processing request: ' + error);
+                }
             }
         }
 
-        function closeFullscreenAd() {
-            document.getElementById('fullscreenAdOverlay').classList.remove('show');
-            dailyAdWatching = false;
-            if (adTimer) {
-                clearInterval(adTimer);
-                adTimer = null;
-            }
-        }
 
         async function handleAds() {
             try {
