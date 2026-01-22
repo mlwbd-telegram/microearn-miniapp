@@ -836,8 +836,8 @@
             <p>Fun games, real coins!</p>
         </div>
         <div class="daily-limit">
-            Today's earnings: <span id="gameEarnings">0</span> / 25 coins
-            <span id="limitWarning" style="display:none;color:#ffeb3b;margin-left:10px;">✓ Limit reached</span>
+            Today's earnings: <span id="gameEarnings">0</span> coins
+            <!-- <span id="limitWarning" style="display:none;color:#ffeb3b;margin-left:10px;">✓ Limit reached</span> -->
         </div>
         <div class="games-grid" id="gamesGrid"></div>
     </div>
@@ -1117,7 +1117,8 @@
 
         function renderGames() {
             document.getElementById('gameEarnings').textContent = todayEarnings;
-            document.getElementById('limitWarning').style.display = limitReached ? 'inline' : 'none';
+            document.getElementById('gameEarnings').textContent = todayEarnings;
+            // document.getElementById('limitWarning').style.display = limitReached ? 'inline' : 'none';
 
             const gamesConfig = [
                 { id: 'spin', icon: '🎡', name: 'Spin & Win', reward: '5-50', maxPlays: 2 },
