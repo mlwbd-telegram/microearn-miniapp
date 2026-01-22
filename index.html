@@ -1339,17 +1339,31 @@
                 return;
             }
 
-            container.innerHTML = history.slice(0, 10).map(item => `
+            container.innerHTML = history.slice(0, 10).map(item => {
+                const isWithdrawal = item.type.toUpperCase().includes('WITHDRAWAL');
+                let amountDisplay;
+
+                if (isWithdrawal) {
+                    // Start with +, -, or nothing depending on sign, then T symbol, then 2 decimal amount
+                    const sign = item.amount > 0 ? '+' : (item.amount < 0 ? '-' : '');
+                    amountDisplay = `${sign}৳${Math.abs(item.amount).toFixed(2)}`;
+                } else {
+                    // For games/earnings: show whole number + ' coins'
+                    const sign = item.amount > 0 ? '+' : '';
+                    amountDisplay = `${sign}${Math.floor(item.amount)} coins`;
+                }
+
+                return `
                 <div class="history-item">
                     <div class="history-info">
                         <div class="history-title">${item.type}</div>
                         <div class="history-date">${new Date(item.created_at).toLocaleDateString()}</div>
                     </div>
                     <div class="history-amount ${item.amount > 0 ? 'positive' : 'negative'}">
-                        ${item.amount > 0 ? '+' : ''}৳${Math.abs(item.amount).toFixed(2)}
+                        ${amountDisplay}
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function copyReferralLink() {
@@ -1527,14 +1541,23 @@
 
         .ad-close {
             position: absolute;
-            right: 10px;
-            top: 5px;
-            background: none;
+            right: 5px;
+            top: 2px;
+            background: rgba(0, 0, 0, 0.3);
             border: none;
-            font-size: 18px;
-            color: #999;
+            font-size: 10px;
+            color: #fff;
             cursor: pointer;
-            padding: 5px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .ad-close.visible {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         body {
@@ -1542,12 +1565,19 @@
         }
     </style>
     <div class="sticky-ad" id="stickyAd">
-        <button class="ad-close" onclick="closeAd()">✕</button>
+        <button class="ad-close" id="adCloseBtn" onclick="closeAd()">✕</button>
         <div class="ad-content">
             <!-- Monetag/Adsterra banner code here -->
             <span style="color:#999;">📢 Ad Space</span>
         </div>
     </div>
+    <script>
+        // Show ad close button after 3 second delay
+        setTimeout(() => {
+            const closeBtn = document.getElementById('adCloseBtn');
+            if (closeBtn) closeBtn.classList.add('visible');
+        }, 3000);
+    </script>
 </body>
 
 </html>
