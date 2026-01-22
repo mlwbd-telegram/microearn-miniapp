@@ -114,6 +114,13 @@
             border-radius: 10px;
             font-size: 20px;
             cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        /* Hide back button if ad is playing */
+        .back-btn.locked {
+            opacity: 0.5;
+            pointer-events: none;
         }
 
         .toast {
@@ -159,14 +166,13 @@
             margin-bottom: 10px;
         }
     </style>
-    </style>
     <!-- Monetag SDK -->
     <script src="//alwingulla.com/88/tag.min.js" data-zone="10496645" async data-cfasync="false"></script>
     <script src="ads.js?v=1"></script>
 </head>
 
 <body>
-    <button class="back-btn" onclick="goBack()">←</button>
+    <button class="back-btn" id="backBtn" onclick="goBack()">←</button>
 
     <div class="container">
         <div class="header">
@@ -247,14 +253,18 @@
 
         async function watchAd(adNumber) {
             const btn = document.getElementById(`btn${adNumber}`);
-            btn.disabled = true;
-            btn.textContent = 'Loading...';
 
-            showToast('⏳ Loading ad...');
+            // Visual check
+            if (btn.disabled) return;
+
+            showToast('⏳ checking ad...');
 
             try {
-                // Use centralized ads.js function
-                await window.showRewardedAd();
+                // Use SAFE wrapper
+                await window.showRewardedAdSafe();
+
+                btn.disabled = true;
+                btn.textContent = 'Verifying...';
 
                 // If success:
                 showToast('✅ Ad watched! Claiming reward...');
@@ -281,6 +291,10 @@
                 console.error(error);
                 if (error === "AD_FAILED_OR_CLOSED") {
                     showToast('❌ Ad closed or failed. No reward.');
+                } else if (error === "AD_IN_PROGRESS") {
+                    showToast('⚠️ Ad is playing! Please finish it.');
+                    // Do NOT disable button here, so user can try again
+                    return;
                 } else {
                     showToast('❌ Error: ' + error);
                 }
@@ -297,21 +311,16 @@
         }
 
         function goBack() {
+            // Don't allow back while ad is loading/playing technically, but ad takes over screen so it's fine.
             window.location.href = 'index.html';
         }
 
         loadAdsStatus();
 
-        // Sticky Ad control
-        if (sessionStorage.getItem('adClosed')) {
-            document.getElementById('stickyAd')?.classList.add('hidden');
-        }
-        function closeAd() {
-            document.getElementById('stickyAd').classList.add('hidden');
-            sessionStorage.setItem('adClosed', 'true');
-        }
+        // Sticky Ad control is now handled by ads.js automatically
+        // But if we want to ensure any old logic is gone, we just leave it.
+        // ads.js injects #adsterra-sticky-container
     </script>
-
 </body>
 
 </html>
