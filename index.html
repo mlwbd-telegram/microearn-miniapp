@@ -1112,14 +1112,14 @@
 
             } catch (error) {
                 console.error(error);
-                if (error === "AD_FAILED_OR_CLOSED") {
-                    showToast('❌ Ad was closed or failed. No reward.');
+                if (error === "AD_NOT_AVAILABLE") {
+                    showToast('⚠️ Ad not available right now. Try again later.');
                 } else if (error === "AD_IN_PROGRESS") {
                     showToast('⚠️ Ad is already playing...');
-                } else if (error === "SDK_MISSING") {
-                    showToast('⚠️ Ad System Loading... Please wait a moment.');
+                } else if (error === "AD_SDK_NOT_READY") {
+                    showToast('⚠️ Please wait a moment and try again.');
                 } else {
-                    showToast('❌ Error processing request: ' + error);
+                    showToast('❌ Unable to show ad. Try again later.');
                 }
             }
         }
