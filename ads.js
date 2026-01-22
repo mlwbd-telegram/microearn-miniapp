@@ -1,5 +1,5 @@
 
-// MicroEarn Ad Integration - FINAL VERSION
+// MicroEarn Ad Integration - FIXED ADSTERRA LOADING
 // Ads on ALL pages, Home has close button after 3s, slide-in animation
 
 // ==========================================
@@ -57,26 +57,29 @@ window.showRewardedAdSafe = function () {
 window.showRewardedAd = window.showRewardedAdSafe;
 
 // ==========================================
-// STICKY BANNER - ALL PAGES
+// STICKY BANNER - ALL PAGES with BETTER DETECTION
 // ==========================================
 
 function injectStickyAd() {
     // Avoid duplicates
-    if (document.getElementById('adsterra-sticky-container')) return;
+    if (document.getElementById('adsterra-sticky-container')) {
+        console.log("Ad container already exists, skipping injection");
+        return;
+    }
 
     // Detect home page
     const isHomePage = document.getElementById('home-indicator') ||
         window.location.pathname.includes('index.html') ||
         window.location.pathname === '/';
 
-    console.log(`Injecting sticky banner (Home: ${isHomePage})...`);
+    console.log(`🔄 Injecting sticky banner (Home: ${isHomePage})...`);
 
-    // Container - hidden until ad loads, NO reserved space
+    // Container - hidden until ad loads
     const container = document.createElement('div');
     container.id = 'adsterra-sticky-container';
 
     if (isHomePage) {
-        // HOME: Slide-in animation from bottom
+        // HOME: Slide-in animation
         container.style.cssText = `
             position: fixed;
             bottom: -60px;
@@ -86,12 +89,14 @@ function injectStickyAd() {
             height: 50px;
             z-index: 9999;
             background: transparent;
-            display: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             opacity: 0;
             transition: bottom 0.4s ease-out, opacity 0.3s ease-out;
         `;
     } else {
-        // OTHER PAGES: Standard, hidden until loaded
+        // OTHER PAGES: Standard
         container.style.cssText = `
             position: fixed;
             bottom: 0;
@@ -101,16 +106,17 @@ function injectStickyAd() {
             height: 50px;
             z-index: 9999;
             background: transparent;
-            display: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             opacity: 0;
             transition: opacity 0.3s ease-out;
         `;
     }
 
-    // Ad config - async loading
+    // Ad config
     const scriptConfig = document.createElement('script');
     scriptConfig.type = 'text/javascript';
-    scriptConfig.async = true;
     scriptConfig.textContent = `
         atOptions = {
             'key': '0eaadd2739774196781aff34110701c4',
@@ -121,39 +127,47 @@ function injectStickyAd() {
         };
     `;
 
-    // Ad script - async, non-blocking
+    // Ad script
     const scriptInvoke = document.createElement('script');
     scriptInvoke.type = 'text/javascript';
-    scriptInvoke.async = true;
     scriptInvoke.src = 'https://www.highperformanceformat.com/0eaadd2739774196781aff34110701c4/invoke.js';
 
     container.appendChild(scriptConfig);
     container.appendChild(scriptInvoke);
     document.body.appendChild(container);
 
-    // Check for ad load after 3 seconds
-    const loadTimeout = setTimeout(() => {
+    console.log("📦 Ad container added to DOM");
+
+    // IMPROVED: Check multiple times for ad load
+    let checkCount = 0;
+    const maxChecks = 10; // Check up to 10 times
+
+    const checkAdLoad = setInterval(() => {
+        checkCount++;
         const iframe = container.querySelector('iframe');
 
-        if (iframe && iframe.offsetHeight > 0) {
-            console.log(`✅ Sticky banner loaded (Home: ${isHomePage})`);
+        console.log(`🔍 Check ${checkCount}: iframe exists=${!!iframe}, visible=${iframe ? iframe.offsetWidth > 0 : false}`);
 
-            // Show ad
-            container.style.display = 'flex';
+        if (iframe && iframe.offsetWidth > 0) {
+            clearInterval(checkAdLoad);
+            console.log(`✅ Adsterra banner loaded successfully (Home: ${isHomePage})`);
+
+            // Check if user dismissed on home
+            if (isHomePage && sessionStorage.getItem('home-ad-dismissed')) {
+                console.log("User previously dismissed ad");
+                container.style.display = 'none';
+                return;
+            }
+
+            // Show the ad
             container.style.opacity = '1';
+            document.body.style.paddingBottom = "60px";
 
             if (isHomePage) {
-                // HOME: Check if dismissed
-                if (sessionStorage.getItem('home-ad-dismissed')) {
-                    container.style.display = 'none';
-                    return;
-                }
-
                 // Slide in from bottom
                 container.style.bottom = '0';
-                document.body.style.paddingBottom = "60px";
 
-                // Add close button AFTER 3 seconds
+                // Add close button after 3 seconds
                 setTimeout(() => {
                     const closeBtn = document.createElement('button');
                     closeBtn.innerHTML = '✕';
@@ -188,35 +202,38 @@ function injectStickyAd() {
                         }, 400);
                     };
                     container.appendChild(closeBtn);
-                    console.log("✅ Close button added (Home only)");
-                }, 3000); // Close button appears 3 seconds after ad loads
-
-            } else {
-                // OTHER PAGES: No close button, standard show
-                document.body.style.paddingBottom = "60px";
+                    console.log("✅ Close button added");
+                }, 3000);
             }
-        } else {
-            // Ad failed - hide completely, no placeholder
-            console.log("⚠️ Sticky banner failed to load");
+
+        } else if (checkCount >= maxChecks) {
+            clearInterval(checkAdLoad);
+            console.log("⚠️ Ad failed to load after 10 checks, hiding container");
             container.style.display = 'none';
             document.body.style.paddingBottom = "0";
         }
-    }, 3000); // Check after 3 seconds
+    }, 500); // Check every 500ms
 
     // Handle script errors
-    scriptInvoke.addEventListener('error', () => {
-        console.error("Ad script failed");
-        clearTimeout(loadTimeout);
+    scriptInvoke.addEventListener('error', (err) => {
+        console.error("❌ Adsterra script failed to load:", err);
+        clearInterval(checkAdLoad);
         container.style.display = 'none';
         document.body.style.paddingBottom = "0";
     });
+
+    scriptInvoke.addEventListener('load', () => {
+        console.log("✅ Adsterra script loaded successfully");
+    });
 }
 
-// INSTANT LOADING - Run immediately, non-blocking
+// INSTANT LOADING - Run immediately
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        requestAnimationFrame(injectStickyAd); // Use RAF for smooth UI
+        console.log("DOM loaded, injecting ad...");
+        requestAnimationFrame(injectStickyAd);
     });
 } else {
-    requestAnimationFrame(injectStickyAd); // Already loaded, run now
+    console.log("DOM already loaded, injecting ad...");
+    requestAnimationFrame(injectStickyAd);
 }
