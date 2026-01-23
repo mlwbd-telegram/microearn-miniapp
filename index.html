@@ -1065,6 +1065,15 @@
             document.getElementById('greeting').textContent = `${emoji} ${text}`;
         }
 
+        // Helper function to update balance in UI
+        function updateBalance(newBalance) {
+            userData.balance = newBalance;
+            const coins = Math.floor(newBalance || 0);
+            const estimatedBDT = (coins * 0.05).toFixed(2); // 100 coins = ৳5
+            document.getElementById('balance').textContent = coins;
+            document.getElementById('estimatedBDT').textContent = estimatedBDT;
+        }
+
         // ========== DAILY INCOME LOGIC ==========
         async function handleDailyIncome() {
             try {
@@ -1097,12 +1106,15 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    updateBalance(data.newBalance);
+                    updateBalance(data.new_balance);
                     showToast(`🎉 +${data.reward} coins collected!`);
 
                     // Update UI
                     document.getElementById('dailySubtitle').textContent = '✅ Checked in';
                     document.querySelector('.earn-card[onclick="handleDailyIncome()"]').classList.add('disabled');
+
+                    // Reload history to show new entry
+                    loadHistory();
 
                     // Check invalid clicks
                     if (data.invalid_clicks_warning) {
