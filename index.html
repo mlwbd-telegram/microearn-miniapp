@@ -781,9 +781,11 @@
             </div>
             <form onsubmit="submitWithdraw(event)">
                 <div class="form-group">
-                    <label class="form-label" id="amountLabel">Amount (৳)</label>
-                    <!-- TODO: Change min back to 2000 before public launch (CURRENTLY 5 FOR TESTING) -->
-                    <input type="number" class="form-input" id="withdrawAmount" min="5" required>
+                    <label class="form-label" id="amountLabel">Amount (Coins)</label>
+                    <input type="number" class="form-input" id="withdrawAmount" min="5000" required>
+                    <small
+                        style="color: var(--text-secondary); font-size: 12px; margin-top: 4px; display: block;">Minimum
+                        withdrawal: 5000 coins (৳100)</small>
                 </div>
                 <div class="form-group">
                     <label class="form-label" id="methodLabel">Payment Method</label>
@@ -1029,7 +1031,7 @@
 
             // Display coins (no decimals) and calculate estimated BDT
             const coins = Math.floor(userData.balance || 0);
-            const estimatedBDT = (coins * 0.05).toFixed(2); // 100 coins = ৳5
+            const estimatedBDT = (coins * 0.02).toFixed(2); // 1000 coins = ৳20
             const totalCoins = Math.floor(userData.total_earned || 0);
 
             document.getElementById('balance').textContent = coins;
@@ -1069,7 +1071,7 @@
         function updateBalance(newBalance) {
             userData.balance = newBalance;
             const coins = Math.floor(newBalance || 0);
-            const estimatedBDT = (coins * 0.05).toFixed(2); // 100 coins = ৳5
+            const estimatedBDT = (coins * 0.02).toFixed(2); // 1000 coins = ৳20
             document.getElementById('balance').textContent = coins;
             document.getElementById('estimatedBDT').textContent = estimatedBDT;
         }
