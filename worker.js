@@ -24,9 +24,9 @@ const CONFIG = {
   DAILY_INCOME: 20,  // 20 coins per day
   AD_REWARD: 7,      // 7 coins per rewarded ad
   REFERRAL_BONUS: 50, // 50 coins per successful referral
-  MIN_WITHDRAWAL: 5, // TODO: Change back to 2000 coins before public launch (CURRENTLY 5 FOR TESTING ONLY)
+  MIN_WITHDRAWAL: 5000, // 5000 coins minimum (৳100)
   MAX_ADS_PER_DAY: 5,   // Maximum 5 ads per day
-  COIN_TO_BDT_RATE: 0.05 // 100 coins = ৳5 (for display only)
+  COIN_TO_BDT_RATE: 0.02 // 1000 coins = ৳20 (for display only)
 };
 
 // ============================================
