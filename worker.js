@@ -1,33 +1,32 @@
 /**
  * MicroEarn - Cloudflare Worker Backend
- * Complete production-ready backend for Telegram Mini App earning platform
+ * Complete production-ready backend for Telegram Mini App earning platform (COIN ECONOMY)
  * 
  * ENVIRONMENT VARIABLES REQUIRED:
  * - DB (D1 Database binding)
  * - TELEGRAM_MAIN_BOT_TOKEN
  * - FRONTEND_URL
  * - BACKEND_URL
- * - CPX_APP_ID
- * - BITLABS_TOKEN
  */
 
 // ============================================
 // ADMIN AUTHENTICATION CONSTANTS
 // ============================================
-const ADMIN_PASSWORD_HASH = 'b6f67be010d46e099c8d8692f1a796e0895faffc81ec1ef485150fdebfe9c050';
+// Password: Shovons@77392#
+const ADMIN_PASSWORD_HASH = 'f4e99ac11b508aa9a25198ff84d0a2e5518a84ea2c2450b126426d01fc219461';
 const ADMIN_PASSWORD_SALT = 'MicroEarn#UltraAdmin2026';
 const JWT_SECRET = 'MicroEarn_JWT_Secret_2026_Ultra_Secure'; // Change this in production
 
 // ============================================
-// CONFIGURATION
+// CONFIGURATION - COIN ECONOMY
 // ============================================
 const CONFIG = {
-  DAILY_INCOME_MIN: 5,
-  DAILY_INCOME_MAX: 25,
-  REFERRAL_BONUS: 50,
-  MIN_WITHDRAWAL: 100,
-  CPX_POSTBACK_SECRET: 'your_cpx_secret', // Set your CPX postback secret
-  BITLABS_POSTBACK_SECRET: 'your_bitlabs_secret' // Set your BitLabs postback secret
+  DAILY_INCOME: 20,  // 20 coins per day
+  AD_REWARD: 7,      // 7 coins per rewarded ad
+  REFERRAL_BONUS: 50, // 50 coins per successful referral
+  MIN_WITHDRAWAL: 5, // TODO: Change back to 2000 coins before public launch (CURRENTLY 5 FOR TESTING ONLY)
+  MAX_ADS_PER_DAY: 5,   // Maximum 5 ads per day
+  COIN_TO_BDT_RATE: 0.05 // 100 coins = ৳5 (for display only)
 };
 
 // ============================================
@@ -54,6 +53,19 @@ export default {
     }
 
     try {
+      // Test endpoint for debugging
+      if (path === '/api/test') {
+        return jsonResponse({
+          success: true,
+          message: 'Worker is running!',
+          env_vars: {
+            has_bot_token: !!env.TELEGRAM_MAIN_BOT_TOKEN,
+            has_frontend_url: !!env.FRONTEND_URL,
+            has_db: !!env.DB
+          }
+        });
+      }
+
       // User API Routes
       if (path === '/api/user/init') {
         return await handleUserInit(request, env);
@@ -64,11 +76,19 @@ export default {
       if (path === '/api/earn/daily') {
         return await handleDailyIncome(request, env);
       }
-      if (path === '/api/earn/ad') {
-        return await handleAdRequest(request, env);
+      // Watch Ads endpoints
+      if (path === '/api/ads/status') {
+        return await handleAdsStatus(request, env);
       }
-      if (path === '/api/earn/survey') {
-        return await handleSurveyRequest(request, env);
+      if (path === '/api/earn/watch-ad') {
+        return await handleWatchAd(request, env);
+      }
+      // Games endpoints
+      if (path === '/api/games/status') {
+        return await handleGamesStatus(request, env);
+      }
+      if (path === '/api/games/reward') {
+        return await handleGameReward(request, env);
       }
       if (path === '/api/withdraw/request') {
         return await handleWithdrawRequest(request, env);
@@ -105,19 +125,17 @@ export default {
         return await handleTelegramWebhook(request, env);
       }
 
-      // Offer Postback Handlers
-      if (path === '/postback/cpx') {
-        return await handleCPXPostback(request, env);
-      }
-      if (path === '/postback/bitlabs') {
-        return await handleBitLabsPostback(request, env);
-      }
+      // Offer Postback Handlers - REMOVED (no longer using CPX/BitLabs)
 
       return jsonResponse({ error: 'Not found' }, 404);
 
     } catch (error) {
       console.error('Worker error:', error);
-      return jsonResponse({ error: 'Internal server error' }, 500);
+      return jsonResponse({
+        error: 'Internal server error',
+        debug: error.message,
+        stack: error.stack?.substring(0, 200)
+      }, 500);
     }
   }
 };
@@ -137,41 +155,8 @@ async function handleUserInit(request, env) {
       return jsonResponse({ success: false, error: 'Invalid Telegram data' }, 401);
     }
 
-    // Check if user exists
-    let user = await env.DB.prepare(
-      'SELECT * FROM users WHERE telegram_id = ?'
-    ).bind(telegramUser.id).first();
-
-    if (!user) {
-      // Create new user
-      const referralCode = generateReferralCode();
-
-      await env.DB.prepare(
-        `INSERT INTO users (telegram_id, username, first_name, last_name, referral_code, referred_by)
-         VALUES (?, ?, ?, ?, ?, ?)`
-      ).bind(
-        telegramUser.id,
-        telegramUser.username || null,
-        telegramUser.first_name || null,
-        telegramUser.last_name || null,
-        referralCode,
-        null
-      ).run();
-
-      user = await env.DB.prepare(
-        'SELECT * FROM users WHERE telegram_id = ?'
-      ).bind(telegramUser.id).first();
-
-      // Handle referral if startParam exists
-      if (startParam) {
-        await processReferral(env, telegramUser.id, startParam);
-      }
-    } else {
-      // Update last active
-      await env.DB.prepare(
-        'UPDATE users SET last_active = datetime("now") WHERE telegram_id = ?'
-      ).bind(telegramUser.id).run();
-    }
+    // Ensure user exists
+    const user = await ensureUserExists(env, telegramUser, startParam);
 
     return jsonResponse({
       success: true,
@@ -225,26 +210,47 @@ async function handleUserProfile(request, env) {
 
 async function handleDailyIncome(request, env) {
   try {
-    const body = await request.json();
-    const telegramUser = await validateTelegramInitData(body.initData, env.TELEGRAM_MAIN_BOT_TOKEN);
-    if (!telegramUser) {
-      return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
+    console.log('Daily income request received');
+
+    // Check if DB exists
+    if (!env.DB) {
+      console.error('DB not found in environment');
+      return jsonResponse({ success: false, error: 'Database not configured' }, 500);
     }
 
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const body = await request.json();
+    console.log('Request body parsed');
 
-    // Check if already claimed today
+    // Check bot token
+    if (!env.TELEGRAM_MAIN_BOT_TOKEN) {
+      console.error('Bot token missing');
+      return jsonResponse({ success: false, error: 'Bot token not configured' }, 500);
+    }
+
+    const telegramUser = await validateTelegramInitData(body.initData, env.TELEGRAM_MAIN_BOT_TOKEN);
+    if (!telegramUser) {
+      console.error('Telegram validation failed');
+      return jsonResponse({ success: false, error: 'Invalid Telegram data' }, 401);
+    }
+
+    // Ensure user exists
+    await ensureUserExists(env, telegramUser);
+
+    console.log('User validated:', telegramUser.id);
+
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD (resets at 00:00 UTC)
+
+    // Check if already claimed today (only 1 claim per 24 hours)
     const existingClaim = await env.DB.prepare(
       'SELECT * FROM daily_claims WHERE telegram_id = ? AND claim_date = ?'
     ).bind(telegramUser.id, today).first();
 
     if (existingClaim) {
-      return jsonResponse({ success: false, error: 'Already collected today' }, 400);
+      return jsonResponse({ success: false, error: 'Already collected today. Come back tomorrow!' }, 400);
     }
 
-    // Generate random amount
-    const amount = Math.random() * (CONFIG.DAILY_INCOME_MAX - CONFIG.DAILY_INCOME_MIN) + CONFIG.DAILY_INCOME_MIN;
-    const roundedAmount = Math.round(amount * 100) / 100;
+    // Fixed amount: 20 coins
+    const amount = CONFIG.DAILY_INCOME;
 
     // Get user
     const user = await env.DB.prepare(
@@ -255,9 +261,9 @@ async function handleDailyIncome(request, env) {
       return jsonResponse({ success: false, error: 'User not found' }, 404);
     }
 
-    // Update balance
-    const newBalance = parseFloat(user.balance) + roundedAmount;
-    const newTotalEarned = parseFloat(user.total_earned) + roundedAmount;
+    // Update balance (in coins)
+    const newBalance = parseFloat(user.balance) + amount;
+    const newTotalEarned = parseFloat(user.total_earned) + amount;
 
     await env.DB.prepare(
       'UPDATE users SET balance = ?, total_earned = ? WHERE telegram_id = ?'
@@ -266,26 +272,107 @@ async function handleDailyIncome(request, env) {
     // Record daily claim
     await env.DB.prepare(
       'INSERT INTO daily_claims (user_id, telegram_id, claim_date, amount) VALUES (?, ?, ?, ?)'
-    ).bind(user.id, telegramUser.id, today, roundedAmount).run();
+    ).bind(user.id, telegramUser.id, today, amount).run();
 
     // Record earning
     await env.DB.prepare(
       'INSERT INTO earnings (user_id, telegram_id, type, amount) VALUES (?, ?, ?, ?)'
-    ).bind(user.id, telegramUser.id, 'DAILY', roundedAmount).run();
+    ).bind(user.id, telegramUser.id, 'DAILY', amount).run();
 
     return jsonResponse({
       success: true,
-      amount: roundedAmount,
-      new_balance: newBalance
+      amount,
+      new_balance: newBalance,
+      message: 'Daily income collected! Come back tomorrow for more.'
     });
 
   } catch (error) {
-    console.error('Daily income error:', error);
-    return jsonResponse({ success: false, error: 'Failed to collect daily income' }, 500);
+    console.error('Daily income error details:', {
+      error: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    return jsonResponse({
+      success: false,
+      error: 'Failed to collect daily income',
+      debug: error.message // Remove this in production
+    }, 500);
   }
 }
 
-async function handleAdRequest(request, env) {
+async function handleWatchAd(request, env) {
+  try {
+    const body = await request.json();
+    const { completed } = body; // Frontend sends completed:true when ad finishes
+
+    const telegramUser = await validateTelegramInitData(body.initData, env.TELEGRAM_MAIN_BOT_TOKEN);
+    if (!telegramUser) {
+      return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
+    }
+
+    // Check if ad was completed
+    if (!completed) {
+      return jsonResponse({ success: false, error: 'Ad was not completed' }, 400);
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+
+    // Count ads watched today
+    const adCount = await env.DB.prepare(
+      'SELECT COUNT(*) as count FROM daily_claims WHERE telegram_id = ? AND claim_date = ? AND type = ?'
+    ).bind(telegramUser.id, today, 'AD').first();
+
+    if (adCount.count >= CONFIG.MAX_ADS_PER_DAY) {
+      return jsonResponse({
+        success: false,
+        error: `Daily ad limit reached (${CONFIG.MAX_ADS_PER_DAY}/${CONFIG.MAX_ADS_PER_DAY})`
+      }, 400);
+    }
+
+    // Get or Create user
+    const user = await ensureUserExists(env, telegramUser);
+    if (!user) {
+      return jsonResponse({ success: false, error: 'Database error: Could not create user' }, 500);
+    }
+
+    // Reward: 7 coins
+    const reward = CONFIG.AD_REWARD;
+    const newBalance = parseFloat(user.balance) + reward;
+    const newTotalEarned = parseFloat(user.total_earned) + reward;
+
+    // Update balance
+    await env.DB.prepare(
+      'UPDATE users SET balance = ?, total_earned = ? WHERE telegram_id = ?'
+    ).bind(newBalance, newTotalEarned, telegramUser.id).run();
+
+    // Record ad watch with specific ad number (AD_1, AD_2, etc.)
+    const adType = `AD_${body.ad_number || 1}`;
+    await env.DB.prepare(
+      'INSERT INTO daily_claims (user_id, telegram_id, claim_date, amount, type) VALUES (?, ?, ?, ?, ?)'
+    ).bind(user.id, telegramUser.id, today, reward, adType).run();
+
+    // Record earning
+    await env.DB.prepare(
+      'INSERT INTO earnings (user_id, telegram_id, type, amount) VALUES (?, ?, ?, ?)'
+    ).bind(user.id, telegramUser.id, 'AD', reward).run();
+
+    const adsRemaining = CONFIG.MAX_ADS_PER_DAY - (adCount.count + 1);
+
+    return jsonResponse({
+      success: true,
+      amount: reward,
+      new_balance: newBalance,
+      ads_remaining: adsRemaining
+    });
+
+  } catch (error) {
+    console.error('Watch ad error:', error);
+    return jsonResponse({ success: false, error: 'Failed to process ad reward' }, 500);
+  }
+}
+
+// Get status of all 5 ad slots for today
+async function handleAdsStatus(request, env) {
   try {
     const body = await request.json();
     const telegramUser = await validateTelegramInitData(body.initData, env.TELEGRAM_MAIN_BOT_TOKEN);
@@ -293,21 +380,35 @@ async function handleAdRequest(request, env) {
       return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
     }
 
-    // Generate CPX Research offer URL
-    const offerUrl = `https://offers.cpx-research.com/index.php?app_id=${env.CPX_APP_ID}&ext_user_id=${telegramUser.id}`;
+    const today = new Date().toISOString().split('T')[0];
+
+    // Get all ad completions for today
+    const completedAds = await env.DB.prepare(
+      'SELECT * FROM daily_claims WHERE telegram_id = ? AND claim_date = ? AND type LIKE ?'
+    ).bind(telegramUser.id, today, 'AD_%').all();
+
+    // Build status for 5 ad slots
+    const completedNumbers = completedAds.results.map(ad => parseInt(ad.type.replace('AD_', '')));
+    const ads = [1, 2, 3, 4, 5].map(num => ({
+      number: num,
+      completed: completedNumbers.includes(num)
+    }));
 
     return jsonResponse({
       success: true,
-      offer_url: offerUrl
+      ads,
+      completed: completedNumbers.length,
+      total: 5
     });
 
   } catch (error) {
-    console.error('Ad request error:', error);
-    return jsonResponse({ success: false, error: 'Failed to load ads' }, 500);
+    console.error('Ads status error:', error);
+    return jsonResponse({ success: false, error: 'Failed to get ads status' }, 500);
   }
 }
 
-async function handleSurveyRequest(request, env) {
+// Get games status and daily earnings
+async function handleGamesStatus(request, env) {
   try {
     const body = await request.json();
     const telegramUser = await validateTelegramInitData(body.initData, env.TELEGRAM_MAIN_BOT_TOKEN);
@@ -315,17 +416,231 @@ async function handleSurveyRequest(request, env) {
       return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
     }
 
-    // Generate BitLabs survey URL
-    const surveyUrl = `https://web.bitlabs.ai/?token=${env.BITLABS_TOKEN}&uid=${telegramUser.id}`;
+    // Ensure user exists
+    await ensureUserExists(env, telegramUser);
+
+    const today = new Date().toISOString().split('T')[0];
+
+    // Get today's game earnings
+    const gameEarnings = await env.DB.prepare(
+      'SELECT SUM(amount) as total FROM daily_claims WHERE telegram_id = ? AND claim_date = ? AND type LIKE ?'
+    ).bind(telegramUser.id, today, 'GAME_%').first();
+
+    // Get play counts per game
+    const gamePlays = await env.DB.prepare(
+      'SELECT type, COUNT(*) as plays FROM daily_claims WHERE telegram_id = ? AND claim_date = ? AND type LIKE ? GROUP BY type'
+    ).bind(telegramUser.id, today, 'GAME_%').all();
+
+    const playCountsMap = {};
+    gamePlays.results.forEach(g => {
+      playCountsMap[g.type] = g.plays;
+    });
+
+    const games = [
+      { id: 'spin', name: 'Spin & Win', maxPlays: 2, plays: playCountsMap['GAME_SPIN'] || 0 },
+      { id: 'tap', name: 'Tap Challenge', maxPlays: 3, plays: playCountsMap['GAME_TAP'] || 0 },
+      { id: 'quiz', name: 'Quiz Game', maxPlays: 99, plays: playCountsMap['GAME_QUIZ'] || 0 },
+      { id: 'guess', name: 'Guess Number', maxPlays: 2, plays: playCountsMap['GAME_GUESS'] || 0 },
+      { id: 'reaction', name: 'Reaction Game', maxPlays: 2, plays: playCountsMap['GAME_REACTION'] || 0 },
+      { id: 'catch', name: 'Catch Button', maxPlays: 2, plays: playCountsMap['GAME_CATCH'] || 0 }
+    ];
+
+    // Check Weekly 50 Coin Lock Status
+    const spin50Locked = await checkWeeklySpinBonus(env, telegramUser.id);
 
     return jsonResponse({
       success: true,
-      survey_url: surveyUrl
+      games,
+      today_earnings: gameEarnings.total || 0,
+      // max_daily: 25, // REMOVED
+      limit_reached: false, // Always false now
+      spin_50_locked: spin50Locked // Frontend uses this to grey out 50 verification
     });
 
   } catch (error) {
-    console.error('Survey request error:', error);
-    return jsonResponse({ success: false, error: 'Failed to load surveys' }, 500);
+    console.error('Games status error:', error);
+    return jsonResponse({ success: false, error: 'Failed to get games status' }, 500);
+  }
+}
+
+// Check if user has won 50 coins in the last 7 days (Weekly Bonus Rule)
+async function checkWeeklySpinBonus(env, telegramId) {
+  try {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    // Check for any SPIN reward of 50 coins in the last 7 days
+    const bonusClaim = await env.DB.prepare(
+      `SELECT * FROM daily_claims 
+       WHERE telegram_id = ? 
+       AND type = 'GAME_SPIN' 
+       AND amount = 50 
+       AND claim_date >= ?`
+    ).bind(telegramId, sevenDaysAgo).first();
+
+    return !!bonusClaim; // True if locked (already claimed), False if available
+  } catch (error) {
+    console.error('Check weekly bonus error:', error);
+    return true; // Fail safe: lock if error
+  }
+}
+
+// Process game reward with enhanced logging and error handling
+async function handleGameReward(request, env) {
+  const requestId = `GR-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  console.log(`[${requestId}] Game reward request received`);
+
+  try {
+    const body = await request.json();
+    const { game_type, score, reward, session_id } = body;
+
+    console.log(`[${requestId}] Processing: game_type=${game_type}, score=${score}, reward=${reward}`);
+
+    // Validate required fields
+    if (!game_type || reward === undefined) {
+      console.log(`[${requestId}] ERROR: Missing required fields`);
+      return jsonResponse({
+        success: false,
+        error: 'Missing required fields: game_type and reward are required',
+        error_code: 'MISSING_FIELDS',
+        request_id: requestId
+      }, 400);
+    }
+
+    const telegramUser = await validateTelegramInitData(body.initData, env.TELEGRAM_MAIN_BOT_TOKEN);
+    if (!telegramUser) {
+      console.log(`[${requestId}] ERROR: Telegram validation failed`);
+      return jsonResponse({
+        success: false,
+        error: 'Telegram authentication failed. Please restart the app.',
+        error_code: 'AUTH_FAILED',
+        request_id: requestId
+      }, 401);
+    }
+
+    console.log(`[${requestId}] User validated: telegram_id=${telegramUser.id}`);
+
+    const today = new Date().toISOString().split('T')[0];
+
+    // Check daily game earnings cap (25 coins)
+    const todayTotal = await env.DB.prepare(
+      'SELECT SUM(amount) as total FROM daily_claims WHERE telegram_id = ? AND claim_date = ? AND type LIKE ?'
+    ).bind(telegramUser.id, today, 'GAME_%').first();
+
+    console.log(`[${requestId}] Today's game earnings: ${todayTotal.total || 0} (No imit)`);
+
+    // REMOVED: Daily 25 coin limit check
+    /*
+    if ((todayTotal.total || 0) >= 25) {
+      console.log(`[${requestId}] ERROR: Daily limit reached`);
+      return jsonResponse({
+        success: false,
+        error: 'Daily game earnings limit reached (25 coins). Come back tomorrow!',
+        error_code: 'DAILY_LIMIT_REACHED',
+        today_earned: todayTotal.total || 0,
+        request_id: requestId
+      }, 400);
+    }
+    */
+
+    // Check play limits per game
+    const gameType = `GAME_${game_type.toUpperCase()}`;
+    const playLimits = { GAME_SPIN: 2, GAME_TAP: 3, GAME_QUIZ: 99, GAME_GUESS: 2, GAME_REACTION: 2, GAME_CATCH: 2 };
+    const maxPlays = playLimits[gameType] || 2;
+
+    const playCount = await env.DB.prepare(
+      'SELECT COUNT(*) as count FROM daily_claims WHERE telegram_id = ? AND claim_date = ? AND type = ?'
+    ).bind(telegramUser.id, today, gameType).first();
+
+    console.log(`[${requestId}] ${gameType} plays today: ${playCount.count}/${maxPlays}`);
+
+    if (playCount.count >= maxPlays) {
+      console.log(`[${requestId}] ERROR: Game play limit reached for ${gameType}`);
+      return jsonResponse({
+        success: false,
+        error: `Daily play limit reached for ${game_type} (${maxPlays} plays max)`,
+        error_code: 'GAME_LIMIT_REACHED',
+        plays_used: playCount.count,
+        max_plays: maxPlays,
+        request_id: requestId
+      }, 400);
+    }
+
+    // SPECIAL RULE: Spin & Win Caps
+    if (game_type === 'spin') {
+      // Rule 1: 50 coins is Weekly Bonus (Once per 7 days)
+      if (reward === 50) {
+        const isLocked = await checkWeeklySpinBonus(env, telegramUser.id);
+        if (isLocked) {
+          console.log(`[${requestId}] ERROR: Weekly 50 coin limit exceeded. Rejecting.`);
+          return jsonResponse({
+            success: false,
+            error: 'Weekly 50 coin bonus already collected. Try again next week!',
+            error_code: 'WEEKLY_LIMIT_REACHED',
+            request_id: requestId
+          }, 400);
+        }
+      }
+      // Rule 2: Normal days max 20 coins
+      else if (reward > 20) {
+        // Reject unauthorized rewards > 20 (e.g. 30 if hacked)
+        return jsonResponse({
+          success: false,
+          error: 'Invalid reward amount for Spin & Win.',
+          error_code: 'INVALID_REWARD',
+          request_id: requestId
+        }, 400);
+      }
+    }
+
+    // Validate reward (cap at remaining daily limit)
+    // REMOVED: 25 coin cap
+    // const remainingDaily = 25 - (todayTotal.total || 0);
+    // Strict cap: we cannot earn more than remaining daily cap
+    const actualReward = reward; // Math.min(reward, remainingDaily);
+    console.log(`[${requestId}] Reward calculation: requested=${reward}, actual=${actualReward}`);
+
+    // Get or Create user
+    const user = await ensureUserExists(env, telegramUser);
+    if (!user) {
+      return jsonResponse({ success: false, error: 'Database error: Could not create user' }, 500);
+    }
+
+    // Update balance
+    const newBalance = parseFloat(user.balance) + actualReward;
+    const newTotalEarned = parseFloat(user.total_earned) + actualReward;
+
+    console.log(`[${requestId}] Updating balance: ${user.balance} + ${actualReward} = ${newBalance}`);
+
+    await env.DB.prepare('UPDATE users SET balance = ?, total_earned = ? WHERE telegram_id = ?')
+      .bind(newBalance, newTotalEarned, telegramUser.id).run();
+
+    // Record game play
+    await env.DB.prepare('INSERT INTO daily_claims (user_id, telegram_id, claim_date, amount, type) VALUES (?, ?, ?, ?, ?)')
+      .bind(user.id, telegramUser.id, today, actualReward, gameType).run();
+
+    // Record earning
+    await env.DB.prepare('INSERT INTO earnings (user_id, telegram_id, type, amount) VALUES (?, ?, ?, ?)')
+      .bind(user.id, telegramUser.id, gameType, actualReward).run();
+
+    console.log(`[${requestId}] SUCCESS: Credited ${actualReward} coins to user ${telegramUser.id}`);
+
+    return jsonResponse({
+      success: true,
+      reward: actualReward,
+      new_balance: newBalance,
+      today_game_earnings: (todayTotal.total || 0) + actualReward,
+      request_id: requestId
+    });
+
+  } catch (error) {
+    console.error(`[${requestId}] CRITICAL ERROR:`, error.message, error.stack);
+    return jsonResponse({
+      success: false,
+      error: `DEBUG: ${error.message}`, // Return actual error for debugging
+      error_code: 'SERVER_ERROR',
+      debug_message: error.message,
+      request_id: requestId
+    }, 500);
   }
 }
 
@@ -333,16 +648,16 @@ async function handleWithdrawRequest(request, env) {
   try {
     const body = await request.json();
     const { amount, method, account } = body;
-    
+
     const telegramUser = await validateTelegramInitData(body.initData, env.TELEGRAM_MAIN_BOT_TOKEN);
     if (!telegramUser) {
       return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
     }
 
     if (amount < CONFIG.MIN_WITHDRAWAL) {
-      return jsonResponse({ 
-        success: false, 
-        error: `Minimum withdrawal is ৳${CONFIG.MIN_WITHDRAWAL}` 
+      return jsonResponse({
+        success: false,
+        error: `Minimum withdrawal is ${CONFIG.MIN_WITHDRAWAL} coins`
       }, 400);
     }
 
@@ -418,7 +733,7 @@ async function handleHistory(request, env) {
         amount: -parseFloat(w.amount),
         created_at: w.created_at
       }))
-    ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     return jsonResponse({
       success: true,
@@ -706,7 +1021,7 @@ async function handleTelegramWebhook(request, env) {
 
       if (text === '/start') {
         const firstName = message.from.first_name || 'User';
-        
+
         await sendTelegramMessage(env.TELEGRAM_MAIN_BOT_TOKEN, chatId, {
           text: `🎉 Welcome to MicroEarn, ${firstName}!\n\nStart earning money by completing simple tasks.\n\nClick the button below to open the app:`,
           reply_markup: {
@@ -738,7 +1053,7 @@ async function handleCPXPostback(request, env) {
     const url = new URL(request.url);
     const userId = url.searchParams.get('user_id');
     const transId = url.searchParams.get('trans_id');
-    const rewardAmount = parseFloat(url.searchParams.get('reward_value') || 0);
+    const rewardAmount = parseFloat(url.searchParams.get('reward_value') || '0');
     const hash = url.searchParams.get('hash');
 
     // Verify postback authenticity (implement your CPX hash verification)
@@ -816,7 +1131,7 @@ async function handleBitLabsPostback(request, env) {
       return new Response('User not found', { status: 404 });
     }
 
-    const rewardAmount = parseFloat(reward);
+    const rewardAmount = parseFloat(String(reward));
 
     // Update balance
     const newBalance = parseFloat(user.balance) + rewardAmount;
@@ -934,7 +1249,7 @@ async function verifyAdminToken(token, env) {
 
   try {
     const session = await env.DB.prepare(
-      'SELECT * FROM admin_sessions WHERE token = ? AND expires_at > datetime("now")'
+      "SELECT * FROM admin_sessions WHERE token = ? AND expires_at > datetime('now')"
     ).bind(token).first();
 
     return !!session;
@@ -942,6 +1257,37 @@ async function verifyAdminToken(token, env) {
   } catch (error) {
     return false;
   }
+}
+
+async function ensureUserExists(env, telegramUser, startParam) {
+  let user = await env.DB.prepare('SELECT * FROM users WHERE telegram_id = ?').bind(telegramUser.id).first();
+  if (!user) {
+    const referralCode = generateReferralCode();
+    // Use INSERT OR IGNORE to handle race conditions (parallel calls)
+    await env.DB.prepare(
+      `INSERT OR IGNORE INTO users (telegram_id, username, first_name, last_name, referral_code, referred_by)
+       VALUES (?, ?, ?, ?, ?, ?)`
+    ).bind(
+      telegramUser.id,
+      telegramUser.username || null,
+      telegramUser.first_name || null,
+      telegramUser.last_name || null,
+      referralCode,
+      null
+    ).run();
+
+    user = await env.DB.prepare('SELECT * FROM users WHERE telegram_id = ?').bind(telegramUser.id).first();
+
+    if (startParam) {
+      await processReferral(env, telegramUser.id, startParam);
+    }
+  } else {
+    // Update last active
+    await env.DB.prepare(
+      "UPDATE users SET last_active = datetime('now') WHERE telegram_id = ?"
+    ).bind(telegramUser.id).run();
+  }
+  return user;
 }
 
 function generateReferralCode() {
