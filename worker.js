@@ -76,6 +76,9 @@ export default {
       if (path === '/api/earn/daily') {
         return await handleDailyIncome(request, env);
       }
+      if (path === '/api/earn/daily-status') {
+        return await handleDailyStatus(request, env);
+      }
       // Watch Ads endpoints
       if (path === '/api/ads/status') {
         return await handleAdsStatus(request, env);
@@ -242,8 +245,8 @@ async function handleDailyIncome(request, env) {
 
     // Check if already claimed today (only 1 claim per 24 hours)
     const existingClaim = await env.DB.prepare(
-      'SELECT * FROM daily_claims WHERE telegram_id = ? AND claim_date = ?'
-    ).bind(telegramUser.id, today).first();
+      'SELECT * FROM daily_claims WHERE telegram_id = ? AND claim_date = ? AND type = ?'
+    ).bind(telegramUser.id, today, 'DAILY').first();
 
     if (existingClaim) {
       return jsonResponse({ success: false, error: 'Already collected today. Come back tomorrow!' }, 400);
@@ -271,8 +274,8 @@ async function handleDailyIncome(request, env) {
 
     // Record daily claim
     await env.DB.prepare(
-      'INSERT INTO daily_claims (user_id, telegram_id, claim_date, amount) VALUES (?, ?, ?, ?)'
-    ).bind(user.id, telegramUser.id, today, amount).run();
+      'INSERT INTO daily_claims (user_id, telegram_id, claim_date, amount, type) VALUES (?, ?, ?, ?, ?)'
+    ).bind(user.id, telegramUser.id, today, amount, 'DAILY').run();
 
     // Record earning
     await env.DB.prepare(
@@ -281,7 +284,7 @@ async function handleDailyIncome(request, env) {
 
     return jsonResponse({
       success: true,
-      amount,
+      reward: amount,
       new_balance: newBalance,
       message: 'Daily income collected! Come back tomorrow for more.'
     });
@@ -297,6 +300,29 @@ async function handleDailyIncome(request, env) {
       error: 'Failed to collect daily income',
       debug: error.message // Remove this in production
     }, 500);
+  }
+}
+
+async function handleDailyStatus(request, env) {
+  try {
+    const body = await request.json();
+    const telegramUser = await validateTelegramInitData(body.initData, env.TELEGRAM_MAIN_BOT_TOKEN);
+    if (!telegramUser) {
+      return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    const existingClaim = await env.DB.prepare(
+      'SELECT * FROM daily_claims WHERE telegram_id = ? AND claim_date = ? AND type = ?'
+    ).bind(telegramUser.id, today, 'DAILY').first();
+
+    return jsonResponse({
+      success: true,
+      claimed: !!existingClaim
+    });
+  } catch (error) {
+    console.error('Daily status error:', error);
+    return jsonResponse({ success: false, error: 'Failed to check status' }, 500);
   }
 }
 
